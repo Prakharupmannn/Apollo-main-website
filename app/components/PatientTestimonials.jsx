@@ -123,7 +123,10 @@ export default function PatientTestimonials() {
                 key={i}
                 className="group relative p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-[#1D82A6]/20 shadow-sm hover:shadow-md hover:border-[#1D82A6]/40 transition-all duration-300 flex items-center gap-3.5"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#06202B] via-[#0E526B] to-[#06202B] flex items-center justify-center text-[#F6D98A] shadow-md group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#06202B] flex items-center justify-center text-[#F6D98A] shadow-md group-hover:scale-105 transition-transform">
+
+{/* from- via- to- */}
+
                   <Icon className="w-5 h-5" />
                 </div>
                 <div>

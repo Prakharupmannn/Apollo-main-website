@@ -1,5 +1,7 @@
 import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -32,7 +34,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${manrope.variable} scroll-smooth`}>
       <body className="font-sans bg-[#FAF7F2] text-gray-900 antialiased selection:bg-[#C69A48] selection:text-white">
+        <Navbar />
         {children}
+        
       </body>
     </html>
   );
