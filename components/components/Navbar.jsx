@@ -66,9 +66,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         },
       ],
     },
-    { label: "International Patients", href: "#" },
     { label: "Health Library", href: "#health-articles" },
     { label: "Contact", href: "#footer" },
+    { label: "Emergency", href: "#" },
   ];
 
   return (

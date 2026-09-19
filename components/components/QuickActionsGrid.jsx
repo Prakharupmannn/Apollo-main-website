@@ -4,7 +4,7 @@ import {
   Calendar,
   UserCheck,
   Activity,
-  Globe,
+  Ambulance,
   Siren,
   ArrowUpRight,
   Sparkles,
@@ -26,7 +26,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       desc: "Search doctors in your city & specialty",
       icon: UserCheck,
       href: "#doctors",
-      badge: "10,000+ Experts",
+      badge: "13,000+ Experts",
     },
     {
       id: "health-check",
@@ -37,12 +37,12 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       badge: "Full Body Care",
     },
     {
-      id: "international",
-      title: "International Patients",
-      desc: "Personalized end-to-end care for overseas patients",
-      icon: Globe,
-      href: "#",
-      badge: "Global Desk",
+      id: "ambulance",
+      title: "Book Ambulance",
+      desc: "Fully equipped ambulance with trained paramedics, at your doorstep",
+      icon: Ambulance,
+      href: "tel:1066",
+      badge: "Rapid Response",
     },
     {
       id: "emergency",
@@ -57,7 +57,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
 
   const stats = [
     { value: "40+", label: "Years of Trusted Care", desc: "Pioneering healthcare since 1983" },
-    { value: "10,000+", label: "Expert Doctors", desc: "World-renowned medical minds" },
+    { value: "13,000+", label: "Expert Doctors", desc: "World-renowned medical minds" },
     { value: "70+", label: "Hospitals Across India", desc: "State-of-the-art facilities" },
     { value: "Millions", label: "Lives Touched", desc: "Across 120+ countries worldwide" },
   ];

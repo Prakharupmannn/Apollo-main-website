@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Navbar from "./components/Navbar";
-import HeroSection from "./components/HeroSection";
-import QuickActionsGrid from "./components/QuickActionsGrid";
-import SpecialitiesSection from "./components/SpecialitiesSection";
-import WhyChooseApollo from "./components/WhyChooseApollo";
-import CentresOfExcellence from "./components/CentresOfExcellence";
-import LeadingDoctors from "./components/LeadingDoctors";
-import AppointmentBanner from "./components/AppointmentBanner";
-import PatientTestimonials from "./components/PatientTestimonials";
-import HealthArticles from "./components/HealthArticles";
-import AppointmentModal from "./components/AppointmentModal";
-import Footer from "./components/Footer";
+import Navbar from "../components/components/Navbar";
+import HeroSection from "../components/components/HeroSection";
+import QuickActionsGrid from "../components/components/QuickActionsGrid";
+import SpecialitiesSection from "../components/components/SpecialitiesSection";
+import WhyChooseApollo from "../components/components/WhyChooseApollo";
+import CentresOfExcellence from "../components/components/CentresOfExcellence";
+import LeadingDoctors from "../components/components/LeadingDoctors";
+import AppointmentBanner from "../components/components/AppointmentBanner";
+import PatientTestimonials from "../components/components/PatientTestimonials";
+import HealthArticles from "../components/components/HealthArticles";
+import AppointmentModal from "../components/components/AppointmentModal";
+import Footer from "../components/components/Footer";
 import { Search, X } from "lucide-react";
 
 export default function Home() {
@@ -52,10 +52,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D82A6] selection:text-white">
       {/* Fixed Navbar Header */}
-      <Navbar
+      {/* <Navbar
         onOpenAppointmentModal={handleOpenAppointmentModal}
         onOpenSearchModal={() => setIsSearchModalOpen(true)}
-      />
+      /> */}
 
       {/* Hero Section */}
       <HeroSection
@@ -97,10 +97,10 @@ export default function Home() {
       {/* Health Articles & Awareness */}
       <HealthArticles />
 
-      {/* Footer */}
+      {/* Footer
       <Footer
         onOpenAppointmentModal={handleOpenAppointmentModal}
-      />
+      /> */}
 
       {/* Interactive Appointment Modal */}
       <AppointmentModal

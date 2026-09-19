@@ -95,21 +95,6 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
       ],
       stats: "25,000+ Liver Transplants",
     },
-    {
-      id: "urology",
-      num: "06",
-      name: "Urology",
-      tagline: "Specialized care for a healthier you",
-      desc: "Laser kidney stone removal, robotic prostatectomy, uro-oncology, and advanced reconstructive procedures.",
-      icon: Stethoscope,
-      treatments: [
-        "Laser Stone Lithotripsy",
-        "Robotic Prostate Surgery",
-        "Kidney Transplant",
-        "Female Urology Clinic",
-      ],
-      stats: "98.8% Patient Outcome",
-    },
   ];
 
   const featured = specialities.find((s) => s.featured);

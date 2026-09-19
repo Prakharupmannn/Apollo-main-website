@@ -87,7 +87,7 @@ export default function WhyChooseApollo() {
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(90deg, #C8952E 0%, #E8C173 50%, #C8952E 100%)" }}
             >
-              Apollo
+              Apollo JBP Hospitals
             </span>
           </h2>
           <p className="text-slate-500 mt-3 text-sm sm:text-base leading-relaxed">

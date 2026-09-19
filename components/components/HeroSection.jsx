@@ -198,7 +198,7 @@ export default function HeroSection({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C8952E]" />
               </span>
               <span className="text-[12px] font-semibold text-[#0E526B] tracking-wide">
-                Apollo Hospitals — Precision &amp; Compassion
+                Apollo JBP Hospitals — Precision &amp; Compassion
               </span>
             </div>
 
