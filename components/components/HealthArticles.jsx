@@ -426,7 +426,7 @@ export default function HealthArticles() {
                         <div
                           className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-500 ${
                             isCenter
-                              ? "bg-gradient-to-br from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-[#F6D98A] shadow-lg scale-110"
+                              ? "bg-gradient-to-br from-[#0A5F7A] via-[#7cc2d7] to-[#17627D] text-[#785b0b] shadow-lg scale-110"
                               : "bg-[#EDF6FB] text-[#0E526B]"
                           }`}
                         >

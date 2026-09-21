@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import {
-  Stethoscope,
   PhoneCall,
   Mail,
   MapPin,
@@ -9,380 +10,301 @@ import {
   ShieldCheck,
   Globe,
   Share2,
-  MessageCircle,
-  Video,
   ChevronRight,
   HeartPulse,
   Sparkles,
+  Calendar,
+  CheckCircle2,
+  ArrowUp,
+  Award,
+  Clock,
+  Building,
+  UserCheck,
+  Stethoscope,
 } from "lucide-react";
 
 export default function Footer({ onOpenAppointmentModal }) {
+  const [subscribedEmail, setSubscribedEmail] = useState("");
+  const [subscribedSuccess, setSubscribedSuccess] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (subscribedEmail) {
+      setSubscribedSuccess(true);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer
       id="footer"
-      className="bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white pt-20 pb-10 border-t border-[#1D82A6]/40 relative overflow-hidden group/footer select-none"
+      className="bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-white pt-16 pb-10 border-t border-[#F59E0B]/30 relative overflow-hidden select-none"
     >
-      {/* Dynamic Keyframe Animations */}
-      <style jsx>{`
-        @keyframes pulseSlow {
-          0%,
-          100% {
-            transform: scale(1) translate(0px, 0px);
-            opacity: 0.25;
-          }
-          50% {
-            transform: scale(1.15) translate(20px, -20px);
-            opacity: 0.45;
-          }
-        }
-        @keyframes floatGlow {
-          0%,
-          100% {
-            transform: translate(0, 0) rotate(0deg);
-          }
-          33% {
-            transform: translate(30px, -30px) rotate(120deg);
-          }
-          66% {
-            transform: translate(-20px, 20px) rotate(240deg);
-          }
-        }
-        @keyframes shimmerBorder {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-        @keyframes gridMove {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 28px 28px;
-          }
-        }
-        .animate-pulse-slow {
-          animation: pulseSlow 8s ease-in-out infinite;
-        }
-        .animate-float-glow {
-          animation: floatGlow 15s linear infinite;
-        }
-        .animate-shimmer {
-          background-size: 200% 200%;
-          animation: shimmerBorder 6s ease infinite;
-        }
-        .animate-grid {
-          animation: gridMove 20s linear infinite;
-        }
-      `}</style>
-
-      {/* Background Layer: Dynamic Ambient Orbs, Grid Mesh & Light FX */}
+      {/* Background Decorative Mesh & Glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* ───── NEW: Hospital Photo Background (soft, light shade) ───── */}
+        {/* Soft Background Image Overlay */}
         <div
-          className="absolute inset-0 opacity-[0.28] mix-blend-luminosity scale-105 blur-[1.5px]"
+          className="absolute inset-0 opacity-[0.08] mix-blend-overlay scale-105"
           style={{
             backgroundImage: "url('/images/apollo-hospital-image.webp')",
             backgroundSize: "cover",
-            backgroundPosition: "center 30%",
-            backgroundRepeat: "no-repeat",
-            maskImage:
-              "linear-gradient(to bottom, transparent 0%, black 22%, black 70%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent 0%, black 22%, black 70%, transparent 100%)",
+            backgroundPosition: "center",
           }}
         />
-        {/* Soft colour wash so the photo blends into the footer theme & text stays readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0A5F7A]/60 via-[#2A8FAF]/10 to-[#17627D]/70" />
 
-        {/* Animated Gradient Orbs */}
-        <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-[#F6D98A]/20 rounded-full blur-[120px] animate-pulse-slow" />
-        <div className="absolute bottom-0 -right-20 w-[35rem] h-[35rem] bg-[#C8952E]/20 rounded-full blur-[140px] animate-float-glow" />
-        <div
-          className="absolute top-1/2 left-1/3 w-[25rem] h-[25rem] bg-[#1D82A6]/30 rounded-full blur-[100px] animate-pulse-slow"
-          style={{ animationDelay: "3s" }}
-        />
+        {/* Ambient Gradient Glow Orbs */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#F59E0B]/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 -right-20 w-[30rem] h-[30rem] bg-[#1D82A6]/25 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-[#0E526B]/20 rounded-full blur-3xl" />
 
-        {/* Dynamic Animated Grid Pattern */}
+        {/* Subtle Grid Pattern Overlay */}
         <div
-          className="absolute inset-0 opacity-[0.15] animate-grid"
+          className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage:
-              "radial-gradient(#1D82A6 1.2px, transparent 1.2px)",
-            backgroundSize: "28px 28px",
+            backgroundImage: "radial-gradient(#F59E0B 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
           }}
         />
-
-        {/* Dynamic Light Beam Sweep */}
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-full h-80 bg-gradient-to-b from-white/10 to-transparent blur-2xl transform -skew-y-12 opacity-30 pointer-events-none" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
-        {/* Top Slogan Banner Section (Glassmorphic Premium Light Card) */}
-        <div className="mb-20 p-[2px] rounded-[2.5rem] bg-gradient-to-r from-[#1D82A6] via-[#F6D98A] to-[#C8952E] animate-shimmer shadow-[0_25px_60px_rgba(0,0,0,0.35)] transform transition-transform duration-500 hover:scale-[1.005]">
-          <div className="bg-gradient-to-r from-[#EDF6FB] via-[#F4FAFC] to-[#D5EBF7] text-slate-800 rounded-[calc(2.5rem-2px)] p-8 sm:p-12 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8 border border-white/80 backdrop-blur-md">
-            {/* Dynamic Watermark Glow Effect */}
-            <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-[#C8952E]/10 rounded-full blur-2xl pointer-events-none" />
-            <HeartPulse className="absolute -right-6 -bottom-6 w-64 h-64 opacity-[0.08] pointer-events-none text-[#0E526B] transform -rotate-12 transition-transform duration-700 hover:scale-110" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Assurance Banner Card */}
+        <div className="mb-16 p-[2px] rounded-3xl bg-gradient-to-r from-[#1D82A6] via-[#F59E0B] to-[#0E526B] shadow-2xl">
+          <div className="bg-gradient-to-r from-[#FAF7F2] via-[#FFFFFF] to-[#EBF5F8] text-slate-900 rounded-[calc(1.5rem-2px)] p-6 sm:p-10 relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-white/90">
+            {/* Background Accent Icon */}
+            <HeartPulse className="absolute -right-6 -bottom-6 w-64 h-64 opacity-[0.06] pointer-events-none text-[#0E526B] transform -rotate-12" />
 
-            <div className="space-y-3 relative z-10 max-w-2xl">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0E526B]/10 text-[#0E526B] text-[11px] font-extrabold uppercase tracking-widest border border-[#0E526B]/20 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
-                Apollo Assurance Slogan
-              </span>
-              <h3 className="font-serif-apollo text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#0B3446] leading-tight">
-                Healthier People,{" "}
-                <span className="bg-gradient-to-r from-[#0E526B] via-[#17627D] to-[#C8952E] bg-clip-text text-transparent">
-                  Brighter Tomorrows
-                </span>
+            <div className="space-y-2 max-w-2xl relative z-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0E526B]/10 text-[#0E526B] text-[11px] font-bold uppercase tracking-wider border border-[#0E526B]/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>Apollo Hospitals Jabalpur • Central India Hub</span>
+              </div>
+              <h3 className="font-serif-apollo text-2xl sm:text-3xl font-bold text-[#0E526B] leading-tight">
+                Touching Lives, Healing Hearts,{" "}
+                <span className="text-gold-gradient">Creating Hope</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                For You. For Your Family. For a Healthier Tomorrow.
+                40+ Years of Medical Leadership • 10,000+ Specialist Doctors • NABH & JCI Accredited Excellence
               </p>
             </div>
 
-            <button
-              onClick={onOpenAppointmentModal}
-              className="relative z-10 px-9 py-4 rounded-full text-xs font-black text-[#3A2B0A] shadow-[0_12px_30px_rgba(200,149,46,0.45)] hover:shadow-[0_20px_40px_rgba(200,149,46,0.65)] hover:-translate-y-1 active:translate-y-0 shrink-0 transition-all duration-300 cursor-pointer overflow-hidden group/btn"
-              style={{
-                background: "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)",
-              }}
-            >
-              <span className="relative z-10 flex items-center gap-2 tracking-wider uppercase">
-                Together With Apollo
-                <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out" />
-            </button>
+            <div className="flex flex-wrap items-center gap-3 relative z-10 shrink-0">
+              <a
+                href="tel:1066"
+                className="flex items-center gap-2 px-5 py-3 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md"
+              >
+                <PhoneCall className="w-4 h-4 animate-bounce" />
+                <span>Emergency 1066</span>
+              </a>
+
+              <button
+                onClick={onOpenAppointmentModal}
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-gold-gradient text-slate-950 font-bold text-xs hover:brightness-110 transition-all shadow-lg cursor-pointer"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Book Appointment</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Main 4-Column Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-16 border-b border-white/15">
-          {/* Column 1: Brand Info */}
-          <div className="space-y-5">
-            <div className="flex items-center gap-3.5">
-              <div className="bg-white/95 backdrop-blur-md p-2.5 rounded-2xl shadow-xl border border-white/40 flex items-center justify-center transform transition-transform duration-300 hover:scale-105">
+        {/* Main 5-Column Navigation Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/15">
+          {/* Column 1: Hospital Brand & Campus Info */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-2 rounded-2xl shadow-md border border-white/40">
                 <img
-                  src="images/apollologo.png"
+                  src="/images/apollologo.png"
                   alt="Apollo Hospitals Logo"
                   className="h-10 w-auto object-contain"
                 />
               </div>
               <div>
-                <span className="font-serif-apollo text-2xl font-black text-white block leading-none tracking-wide">
-                  Apollo
+                <span className="font-serif-apollo text-xl font-bold text-white block leading-none">
+                  Apollo Hospitals
                 </span>
-                <span className="text-[10px] text-[#F6D98A] uppercase tracking-widest font-extrabold block mt-1">
-                  HOSPITALS • TOUCHING LIVES
+                <span className="text-[10px] text-[#F59E0B] uppercase tracking-widest font-bold block mt-1">
+                  JABALPUR • MADHYA PRADESH
                 </span>
               </div>
             </div>
 
-            <div className="text-xs text-slate-100/90 leading-relaxed font-normal">
-              <p>Apollo JBP Hospitals, Jabalpur</p>
+            <p className="text-xs text-slate-200 leading-relaxed max-w-sm">
+              Apollo Hospitals Jabalpur is a state-of-the-art multi-specialty tertiary care center providing advanced cardiac, oncology, robotic joint replacement, and neuro-trauma services.
+            </p>
 
-              <p>
-                Address: Global Square, Patan Rd, Karmeta,
-                <br />
-                Jabalpur, Madhya Pradesh 482002
-              </p>
-
-              <p className="hover:text-[#F6D98A] transition-colors">
-                Call: 7566 123666
-              </p>
-
-              <p className="hover:text-[#F6D98A] transition-colors mt-2">
-                Tollfree: 1800-123-6666
-              </p>
+            <div className="space-y-2 text-xs text-slate-200 pt-1 font-medium">
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
+                <span>Global Square, Patan Rd, Karmeta, Jabalpur, MP 482002</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <PhoneCall className="w-4 h-4 text-[#F59E0B] shrink-0" />
+                <span>Emergency: <a href="tel:1066" className="text-rose-300 font-bold hover:underline">1066</a> | Reception: <a href="tel:+917614000100" className="hover:text-[#F59E0B] transition-colors">+91 761 4000100</a></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#F59E0B] shrink-0" />
+                <span>jabalpur_info@apollohospitals.com</span>
+              </div>
             </div>
 
             {/* Social Icons */}
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-2 flex items-center gap-2.5">
               {[
-                { icon: Globe, label: "Website" },
-                { icon: Share2, label: "Share" },
-                { icon: MessageCircle, label: "Community" },
-                { icon: Video, label: "Media" },
+                { label: "Website", icon: Globe, href: "/" },
+                { label: "Location", icon: MapPin, href: "/contact" },
+                { label: "Health Library", icon: Stethoscope, href: "/health-library" },
+                { label: "Emergency", icon: PhoneCall, href: "/emergency" },
               ].map((item, idx) => {
-                const IconComp = item.icon;
+                const Icon = item.icon;
                 return (
-                  <a
+                  <Link
                     key={idx}
-                    href="#"
-                    className="w-9 h-9 rounded-xl bg-white/10 text-slate-100 border border-white/20 hover:bg-[#F6D98A] hover:text-[#0B3446] hover:border-[#F6D98A] shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-300 transform hover:-translate-y-1"
+                    href={item.href}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 text-slate-200 border border-white/20 flex items-center justify-center transition-all duration-300 shadow-sm"
                     aria-label={item.label}
                   >
-                    <IconComp className="w-4 h-4" />
-                  </a>
+                    <Icon className="w-4 h-4" />
+                  </Link>
                 );
               })}
             </div>
           </div>
 
           {/* Column 2: Quick Links */}
-          <div className="space-y-4">
-            <h4 className="font-serif-apollo text-xs font-black text-[#F6D98A] uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C8952E] shadow-[0_0_8px_#C8952E]" />
-              Quick Links
+          <div className="space-y-3">
+            <h4 className="font-serif-apollo text-xs font-bold text-[#FEF3C7] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              Quick Navigation
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-100/90 font-medium">
+            <ul className="space-y-2 text-xs text-slate-200 font-medium">
               {[
-                { label: "About Apollo Hospitals", href: "#why-choose-apollo" },
-                { label: "Our Specialities", href: "#specialities" },
-                {
-                  label: "Centres of Excellence",
-                  href: "#centres-of-excellence",
-                },
-                { label: "Find a Doctor", href: "#doctors" },
-                {
-                  label: "Health Library & Articles",
-                  href: "#health-articles",
-                },
-                { label: "International Patients Desk", href: "#" },
+                { label: "Home Page", href: "/" },
+                { label: "About Us", href: "/aboutus" },
+                { label: "Our Specialities", href: "/ourspecialities" },
+                { label: "Find a Doctor", href: "/doctors" },
+                { label: "Patient Care", href: "/patientcare" },
               ].map((link, idx) => (
                 <li key={idx}>
-                  <a
+                  <Link
                     href={link.href}
-                    className="group/link hover:text-[#F6D98A] flex items-center gap-1.5 transition-all duration-200"
+                    className="hover:text-[#F59E0B] flex items-center gap-1.5 transition-colors group"
                   >
-                    <ChevronRight className="w-3.5 h-3.5 text-[#C8952E] transition-transform duration-200 group-hover/link:translate-x-1" />
-                    <span className="transition-transform duration-200 group-hover/link:translate-x-0.5">
-                      {link.label}
-                    </span>
-                  </a>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#F59E0B] group-hover:translate-x-1 transition-transform" />
+                    <span>{link.label}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 3: Patient Help */}
-          <div className="space-y-4">
-            <h4 className="font-serif-apollo text-xs font-black text-[#F6D98A] uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C8952E] shadow-[0_0_8px_#C8952E]" />
-              Patient Help & Services
+          {/* Column 3: Patient Services & Pages */}
+          <div className="space-y-3">
+            <h4 className="font-serif-apollo text-xs font-bold text-[#FEF3C7] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              Key Services & Pages
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-100/90 font-medium">
-              <li>
-                <button
-                  onClick={onOpenAppointmentModal}
-                  className="group/btn hover:text-[#F6D98A] flex items-center gap-1.5 transition-all duration-200 text-left cursor-pointer"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-[#C8952E] transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  <span className="transition-transform duration-200 group-hover/btn:translate-x-0.5">
-                    Book Doctor Appointment
-                  </span>
-                </button>
-              </li>
-              <li>
-                <a
-                  href="#specialities"
-                  className="group/link hover:text-[#F6D98A] flex items-center gap-1.5 transition-all duration-200"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-[#C8952E] transition-transform duration-200 group-hover/link:translate-x-1" />
-                  <span className="transition-transform duration-200 group-hover/link:translate-x-0.5">
-                    Health Check Packages
-                  </span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="group/link hover:text-[#F6D98A] flex items-center gap-1.5 transition-all duration-200"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-[#C8952E] transition-transform duration-200 group-hover/link:translate-x-1" />
-                  <span className="transition-transform duration-200 group-hover/link:translate-x-0.5">
-                    Speciality Clinics & Diagnostics
-                  </span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="group/link hover:text-[#F6D98A] flex items-center gap-1.5 transition-all duration-200"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-[#C8952E] transition-transform duration-200 group-hover/link:translate-x-1" />
-                  <span className="transition-transform duration-200 group-hover/link:translate-x-0.5">
-                    Patient & Visitor Guidelines
-                  </span>
-                </a>
-              </li>
-              <li className="pt-3">
-                <a
-                  href="tel:1066"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-red-500/20 text-red-200 border border-red-500/40 font-bold hover:bg-red-600 hover:text-white transition-all duration-300 shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5 backdrop-blur-sm"
-                >
-                  <PhoneCall className="w-4 h-4 animate-pulse text-red-400 group-hover:text-white" />
-                  <span>Emergency 24/7 Response: 1066</span>
-                </a>
-              </li>
+            <ul className="space-y-2 text-xs text-slate-200 font-medium">
+              {[
+                { label: "Health Library", href: "/health-library" },
+                { label: "Contact & Location Map", href: "/contact" },
+                { label: "Emergency Care (24/7)", href: "/emergency" },
+                { label: "Book Appointment", href: "#", onClick: onOpenAppointmentModal },
+                { label: "MP Service Reach", href: "/contact#reach" },
+              ].map((link, idx) => (
+                <li key={idx}>
+                  {link.onClick ? (
+                    <button
+                      onClick={link.onClick}
+                      className="hover:text-[#F59E0B] flex items-center gap-1.5 transition-colors group text-left cursor-pointer"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5 text-[#F59E0B] group-hover:translate-x-1 transition-transform" />
+                      <span>{link.label}</span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="hover:text-[#F59E0B] flex items-center gap-1.5 transition-colors group"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5 text-[#F59E0B] group-hover:translate-x-1 transition-transform" />
+                      <span>{link.label}</span>
+                    </Link>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Column 4: Newsletter Subscription */}
+          {/* Column 4: Newsletter & Accreditation */}
           <div className="space-y-4">
-            <h4 className="font-serif-apollo text-xs font-black text-[#F6D98A] uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C8952E] shadow-[0_0_8px_#C8952E]" />
-              Connect With Us
+            <h4 className="font-serif-apollo text-xs font-bold text-[#FEF3C7] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              Health Newsletter
             </h4>
-            <p className="text-xs text-slate-100/90 leading-relaxed font-normal">
-              Subscribe for free weekly health tips, expert medical advice, and
-              checkup offers.
+            <p className="text-xs text-slate-200 leading-relaxed">
+              Get doctor-approved health updates and screening tips sent to your inbox.
             </p>
 
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex items-center bg-white/10 rounded-full p-1.5 border border-white/25 focus-within:border-[#F6D98A] focus-within:ring-2 focus-within:ring-[#F6D98A]/30 transition-all backdrop-blur-md shadow-inner"
-            >
-              <input
-                type="email"
-                placeholder="Your email address..."
-                className="w-full px-3 py-1.5 text-xs text-white placeholder-slate-200 bg-transparent focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="w-9 h-9 rounded-full text-[#3A2B0A] flex items-center justify-center shrink-0 hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer group/send"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)",
-                }}
-                aria-label="Subscribe"
-              >
-                <Send className="w-3.5 h-3.5 transition-transform duration-300 group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5" />
-              </button>
-            </form>
+            {subscribedSuccess ? (
+              <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-200 text-xs font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Subscribed successfully!</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="space-y-2">
+                <div className="flex items-center bg-white/10 rounded-xl p-1 border border-white/20 focus-within:border-[#F59E0B]">
+                  <input
+                    type="email"
+                    required
+                    value={subscribedEmail}
+                    onChange={(e) => setSubscribedEmail(e.target.value)}
+                    placeholder="Your email address..."
+                    className="w-full px-2.5 py-1.5 text-xs text-white placeholder-slate-300 bg-transparent focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 rounded-lg bg-gold-gradient text-slate-950 font-bold text-xs hover:brightness-110 shrink-0"
+                  >
+                    Subscribe
+                  </button>
+                </div>
+              </form>
+            )}
 
-            <div className="pt-2 text-[11px] text-[#FEF3C7] font-extrabold flex items-center gap-2 bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-sm">
-              <ShieldCheck className="w-4 h-4 text-[#F6D98A] shrink-0" />
-              <span>JCI & NABH Accredited Healthcare</span>
+            <div className="pt-2 text-[11px] text-slate-200 flex items-center gap-2 bg-white/5 p-3 rounded-2xl border border-white/10">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div>
+                <div className="font-bold text-white">NABH & NABL Accredited</div>
+                <div className="text-[10px] text-slate-300">Highest Standard Patient Care</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Copyright & Legal Links Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-200/90 gap-4 font-medium">
-          <div>
-            © {new Date().getFullYear()} Apollo Hospitals Enterprise Limited.
-            All Rights Reserved.
+        {/* Bottom Bar & Copyright */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4">
+          <div className="flex items-center gap-2">
+            <span>© {new Date().getFullYear()} Apollo Hospitals Jabalpur. All Rights Reserved.</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-300">
-            <a href="#" className="hover:text-[#F6D98A] transition-colors">
-              Privacy Policy
-            </a>
-            <span className="opacity-40">•</span>
-            <a href="#" className="hover:text-[#F6D98A] transition-colors">
-              Terms of Service
-            </a>
-            <span className="opacity-40">•</span>
-            <a href="#" className="hover:text-[#F6D98A] transition-colors">
-              Sitemap
-            </a>
+          <div className="flex items-center gap-4">
+            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Privacy Policy</Link>
+            <span>•</span>
+            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Terms of Use</Link>
+            <span>•</span>
+            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Sitemap</Link>
+
+            <button
+              onClick={scrollToTop}
+              className="ml-4 p-2 rounded-full bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 text-white transition-all shadow-md"
+              aria-label="Scroll to top"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

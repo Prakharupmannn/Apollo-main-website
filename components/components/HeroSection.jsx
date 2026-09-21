@@ -14,6 +14,8 @@ import {
   Plus,
 } from "lucide-react";
 
+import { motion } from "framer-motion";
+
 export default function HeroSection({
   onOpenAppointmentModal,
   onSearchSubmit,
@@ -151,8 +153,8 @@ export default function HeroSection({
           <HeartPulse className="w-4 h-4 text-[#C8952E]/25" />
         </span>
 
-        {/* Animated heartbeat line */}
-        <svg
+        
+        {/* <svg
           className="absolute top-28 left-0 w-[140%] opacity-[0.16] hero-pulse-line"
           height="60"
           viewBox="0 0 1400 60"
@@ -164,6 +166,30 @@ export default function HeroSection({
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
+          />
+        </svg> */}
+
+        {/* Animated heartbeat line */}
+        <svg
+          className="absolute inset-x-0 top-[10%] h-42 w-full opacity-[0.28] sm:top-[8%]"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <motion.path
+            d="M0 60 L260 60 L285 20 L310 100 L335 60 L360 60 L1200 60"
+            stroke="#C8952E"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: [0, 1], opacity: [0, 1, 1, 0] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              repeatDelay: 1.2,
+              ease: "easeInOut",
+            }}
           />
         </svg>
 
@@ -328,7 +354,7 @@ export default function HeroSection({
                 </div>
                 <div>
                   <div className="text-[12.5px] font-bold text-[#0B3446] leading-tight">
-                    10,000+ Doctors
+                    13,000+ Doctors
                   </div>
                   <div className="text-[10.5px] text-slate-500">
                     Top consultants

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import HeroSection from "./HeroSection";
+import { usePathname } from "next/navigation";
 
 import {
   Search,
@@ -18,7 +18,8 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [activeLink, setActiveLink] = useState("Home");
+
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -27,12 +28,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   }, []);
 
   const navItems = [
-    { label: "Home", href: "#" },
-    { label: "About Us", href: "#why-choose-apollo" },
-    { label: "Our Specialities", href: "#specialities" },
+    { label: "Home", href: "/" },
+    { label: "About Us", href: "/aboutus" },
+    { label: "Our Specialities", href: "/ourspecialities" },
     {
       label: "Doctors",
-      href: "#doctors",
+      href: "/doctors",
       dropdown: [
         {
           name: "Find a Doctor",
@@ -53,7 +54,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
     },
     {
       label: "Patient Care",
-      href: "#specialities",
+      href: "/patientcare",
       dropdown: [
         {
           name: "Centres of Excellence",
@@ -67,9 +68,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         },
       ],
     },
-    { label: "Health Library", href: "#health-articles" },
-    { label: "Contact", href: "#footer" },
-    { label: "Emergency", href: "#" },
+    { label: "Health Library", href: "/health-library" },
+    { label: "Contact", href: "/contact" },
+    { label: "Emergency", href: "/emergency" },
   ];
 
   return (
@@ -142,7 +143,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         <div className="flex items-center justify-between px-4 sm:px-6 py-2.5">
           <Link href="/" className="flex items-center shrink-0 group">
             <img
-              src="images/apollologo.png"
+              src="/images/apollologo.png"
               alt="Apollo JBP Hospitals Jabalpur"
               className="h-11 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.03]"
             />
@@ -159,22 +160,29 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               >
                 <Link
                   href={item.href}
-                  onClick={() => setActiveLink(item.label)}
                   className={`relative flex items-center gap-1 px-2.5 xl:px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${
-                    activeLink === item.label
-                      ? "text-[#0A5F7A] font-semibold"
-                      : "text-slate-600 hover:text-[#0A5F7A]"
+                    item.href === "/"
+                      ? pathname === "/"
+                        ? "text-[#0A5F7A] font-semibold"
+                        : "text-slate-600 hover:text-[#0A5F7A]"
+                      : pathname.startsWith(item.href)
+                        ? "text-[#0A5F7A] font-semibold"
+                        : "text-slate-600 hover:text-[#0A5F7A]"
                   }`}
                 >
                   {item.label}
                   {item.dropdown && (
                     <ChevronDown
                       className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                        activeDropdown === item.label ? "rotate-180 text-[#0A5F7A]" : ""
+                        activeDropdown === item.label
+                          ? "rotate-180 text-[#0A5F7A]"
+                          : ""
                       }`}
                     />
                   )}
-                  {activeLink === item.label && (
+                  {(item.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(item.href)) && (
                     <span className="absolute left-2.5 right-2.5 -bottom-[1px] h-[2.5px] bg-gradient-to-r from-[#0A5F7A] to-[#2A8FAF] rounded-full shadow-[0_1px_4px_rgba(10,95,122,0.4)]" />
                   )}
                 </Link>
@@ -267,7 +275,8 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 href="tel:1066"
                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm"
               >
-                <PhoneCall className="w-3.5 h-3.5 animate-bounce" /> Emergency 1066
+                <PhoneCall className="w-3.5 h-3.5 animate-bounce" /> Emergency
+                1066
               </a>
             </div>
 
@@ -277,13 +286,16 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <Link
                     href={item.href}
                     onClick={() => {
-                      setActiveLink(item.label);
                       setMobileMenuOpen(false);
                     }}
                     className={`block py-2.5 text-sm font-medium transition-colors ${
-                      activeLink === item.label
-                        ? "text-[#0A5F7A] font-semibold"
-                        : "text-slate-600 hover:text-[#0A5F7A]"
+                      item.href === "/"
+                        ? pathname === "/"
+                          ? "text-[#0A5F7A] font-semibold"
+                          : "text-slate-600 hover:text-[#0A5F7A]"
+                        : pathname.startsWith(item.href)
+                          ? "text-[#0A5F7A] font-semibold"
+                          : "text-slate-600 hover:text-[#0A5F7A]"
                     }`}
                   >
                     {item.label}

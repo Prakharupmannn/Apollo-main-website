@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "../components/components/Navbar";
 import HeroSection from "../components/components/HeroSection";
 import QuickActionsGrid from "../components/components/QuickActionsGrid";
@@ -23,12 +23,7 @@ export default function Home() {
 
   // Force every load/refresh of this page to start at the top, instead of
   // the browser restoring whatever scroll position you were at before refreshing.
-  useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-    window.scrollTo(0, 0);
-  }, []);
+  
 
   const handleOpenAppointmentModal = () => {
     setIsAppointmentModalOpen(true);
