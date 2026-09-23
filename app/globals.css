@@ -93,6 +93,15 @@
   box-shadow: 0 20px 35px rgba(29, 130, 166, 0.18);
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Keyframe Animations */
 @keyframes pulseGlow {
   0%, 100% {

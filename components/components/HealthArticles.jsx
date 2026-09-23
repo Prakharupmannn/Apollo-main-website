@@ -509,7 +509,7 @@ export default function HealthArticles() {
       {/* ───── Article Reader Modal ───── */}
       {selectedArticle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0B3446]/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[#1D82A6]/40 relative max-h-[90vh] overflow-y-auto overflow-hidden">
+          <div className="bg-white rounded-[2rem] max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[#1D82A6]/40 relative max-h-[90vh] overflow-y-auto no-scrollbar">
             {/* Very Light Background Icon inside Modal */}
             <div className="absolute -right-8 -bottom-8 pointer-events-none opacity-[0.04] text-[#0E526B]">
               {(() => {

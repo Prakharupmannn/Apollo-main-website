@@ -461,7 +461,7 @@ export default function HeroSection({
                   <div className="text-[10px] text-white/70 font-medium">
                     24/7 Emergency
                   </div>
-                  <div className="text-xs font-bold">1066</div>
+                  <div className="text-xs font-bold">1800-123-6666</div>
                 </div>
               </div>
             </div>

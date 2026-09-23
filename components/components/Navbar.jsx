@@ -12,7 +12,43 @@ import {
   ChevronDown,
   Menu,
   X,
+  Sparkles,
+  ArrowRight,
+  Stethoscope,
+  Activity,
+  HeartPulse,
+  Brain,
+  ShieldAlert,
+  Bone,
+  Droplets,
+  CalendarPlus,
+  Ambulance,
+  FileText,
+  PartyPopper,
+  Briefcase,
+  Zap,
+  
 } from "lucide-react";
+
+// Icon + accent lookup for dropdown items, matched by name.
+// Purely presentational — does not touch navItems data.
+const DROPDOWN_ICON_MAP = {
+  "Gastro Sciences": { icon: Activity, color: "from-[#0A5F7A] to-[#2A8FAF]" },
+  "Onco Sciences": { icon: ShieldAlert, color: "from-[#9F1239] to-[#C8952E]" },
+  "Cardiac Sciences": { icon: HeartPulse, color: "from-rose-500 to-[#0E526B]" },
+  "Neuro Sciences": { icon: Brain, color: "from-[#1D82A6] to-[#0E526B]" },
+  "Nephro Sciences": { icon: Droplets, color: "from-cyan-500 to-[#0A5F7A]" },
+  "Ortho-Joint and Spine Sciences": { icon: Bone, color: "from-[#0A5F7A] to-[#C8952E]" },
+  "Critical Care": { icon: Zap, color: "from-rose-600 to-[#881337]" },
+  "Our Specialities": { icon: Stethoscope, color: "from-[#0A5F7A] to-[#2A8FAF]" },
+  "Make Appointment": { icon: CalendarPlus, color: "from-[#C8952E] to-[#F6D98A]" },
+  "Ambulance Service": { icon: Ambulance, color: "from-rose-500 to-rose-700" },
+  "Case Studies": { icon: FileText, color: "from-[#1D82A6] to-[#0E526B]" },
+  "Events": { icon: PartyPopper, color: "from-[#C8952E] to-[#0E526B]" },
+  "Careers": { icon: Briefcase, color: "from-[#0A5F7A] to-[#17627D]" },
+};
+
+const DEFAULT_DROPDOWN_ICON = { icon: Sparkles, color: "from-[#0A5F7A] to-[#2A8FAF]" };
 
 export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   const [scrolled, setScrolled] = useState(false);
@@ -30,60 +66,104 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "About Us", href: "/aboutus" },
-    { label: "Our Specialities", href: "/ourspecialities" },
+    { label: "Centres of Excellence", 
+      href: "/center-of-excellence",
+      dropdown: [
+        {
+          name: "Gastro Sciences",
+          href: "/center-of-excellence#gastro-sciences",
+          desc: "Digestive & Liver Care Institute",
+        },
+        {
+          name: "Onco Sciences",
+          href: "/center-of-excellence#onco-sciences",
+          desc: "CyberKnife & Precision Cancer Care",
+        },
+        {
+          name: "Cardiac Sciences",
+          href: "/center-of-excellence#cardiac-sciences",
+          desc: "24/7 STEMI & Heart Surgery Hub",
+        },
+        {
+          name: "Neuro Sciences",
+          href: "/center-of-excellence#neuro-sciences",
+          desc: "Brain, Spine & Stroke Care Unit",
+        },
+        {
+          name: "Nephro Sciences",
+          href: "/center-of-excellence#nephro-sciences",
+          desc: "24/7 Dialysis & Kidney Care",
+        },
+        {
+          name: "Ortho-Joint and Spine Sciences",
+          href: "/center-of-excellence#ortho-sciences",
+          desc: "Robotic Joint & Spine Surgery",
+        },
+        {
+          name: "Critical Care",
+          href: "/center-of-excellence#critical-care",
+          desc: "Level-1 CCU & Trauma ER",
+        },
+      ], },
     {
       label: "Doctors",
       href: "/doctors",
-      dropdown: [
-        {
-          name: "Find a Doctor",
-          desc: "Search 10,000+ certified specialists",
-          href: "#doctors",
-        },
-        {
-          name: "Video Consultation",
-          desc: "Consult top doctors online from home",
-          href: "#",
-        },
-        {
-          name: "Second Medical Opinion",
-          desc: "Expert review for complex cases",
-          href: "#",
-        },
-      ],
     },
     {
       label: "Patient Care",
       href: "/patientcare",
       dropdown: [
         {
-          name: "Centres of Excellence",
-          desc: "World-class advanced medical institutes",
-          href: "#centres-of-excellence",
+          name: "Our Specialities",
+          href: "/ourspecialities",
+          desc: "18+ Clinical Specialty Departments",
         },
         {
-          name: "Health Check Packages",
-          desc: "Preventive health screening programs",
-          href: "#",
+          name: "Make Appointment",
+          href: "/patientcare/appointment",
+          desc: "Instant Doctor Consultation Booking",
+        },
+        {
+          name: "Ambulance Service",
+          href: "/patientcare/ambulance",
+          desc: "24/7 Mobile ICU & Trauma Express",
+        },
+        {
+          name: "Case Studies",
+          href: "/patientcare/case-studies",
+          desc: "Clinical Breakthroughs & Saved Lives",
+        },
+        {
+          name: "Events",
+          href: "/patientcare/events",
+          desc: "Free Health Camps & CME Seminars",
         },
       ],
     },
     { label: "Health Library", href: "/health-library" },
-    { label: "Contact", href: "/contact" },
+    { label: "Contact", href: "/contact",
+      dropdown: [
+        {
+          name: "Careers",
+          href: "/careers",
+          desc: "Join Apollo Hospitals Jabalpur Team",
+        },
+      ],
+     },
     { label: "Emergency", href: "/emergency" },
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-5 pt-3">
+    <header className="fixed top-0 left-0 right-0 z-50 ">
       <div
-        className={`max-w-9xl mx-auto bg-white rounded-2xl overflow-hidden transition-all duration-300 ${
+        className={`max-w-9xl mx-auto bg-white rounded-t-none rounded-b-2xl transition-all duration-300 ${
           scrolled
             ? "shadow-[0_10px_35px_rgba(10,95,122,0.22)]"
             : "shadow-[0_4px_20px_rgba(10,95,122,0.12)]"
         }`}
       >
         {/* Top utility row - Updated with vibrant theme */}
-        <div className="hidden sm:flex items-center justify-between px-8 py-2.5 bg-gradient-to-r from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white text-[12px] font-medium border-b border-white/15 tracking-wide shadow-inner">
+        <div className="hidden sm:flex items-center justify-between px-8 py-1.5 bg-gradient-to-r from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white text-[12px] font-medium border-b border-white/15 tracking-wide shadow-inner">
           {/* Left Side: General Info / Tagline */}
           <div className="flex items-center gap-2 text-white/95 font-semibold">
             <span className="relative flex h-2.5 w-2.5">
@@ -119,11 +199,11 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
             {/* Emergency Hotline - Highlighted Pill Badge */}
             <a
-              href="tel:1066"
+              href="tel:1800-123-6666"
               className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-rose-500/90 text-white border border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_0_12px_rgba(244,63,94,0.5)] transition-all duration-200 cursor-pointer font-bold tracking-wider"
             >
               <PhoneCall className="w-3.5 h-3.5 animate-bounce text-white" />
-              <span>Emergency: 1066</span>
+              <span>Emergency: 1800-123-6666</span>
             </a>
 
             <span className="h-3 w.5 bg-white/25 rounded-full" />
@@ -156,7 +236,6 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 key={item.label}
                 className="relative"
                 onMouseEnter={() => setActiveDropdown(item.label)}
-                onMouseLeave={() => setActiveDropdown(null)}
               >
                 <Link
                   href={item.href}
@@ -187,33 +266,71 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   )}
                 </Link>
 
-                {/* Dropdown */}
+                {/* ───── Dropdown (enhanced with icons & premium styling) ───── */}
                 {item.dropdown && (
                   <div
-                    className={`absolute top-full right-0 pt-3 w-72 z-50 origin-top transition-all duration-200 ${
+                    onMouseEnter={() => setActiveDropdown(item.label)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                    className={`absolute top-full right-0 w-80 z-[999] origin-top transition-all duration-200 pt-3 ${
                       activeDropdown === item.label
                         ? "opacity-100 translate-y-0 pointer-events-auto"
                         : "opacity-0 -translate-y-1 pointer-events-none"
                     }`}
                   >
-                    <div className="bg-white border border-cyan-100/80 rounded-xl shadow-[0_16px_40px_rgba(10,95,122,0.18)] p-1.5">
-                      {item.dropdown.map((sub) => (
-                        <Link
-                          key={sub.name}
-                          href={sub.href}
-                          className="block p-2.5 rounded-lg hover:bg-gradient-to-r hover:from-cyan-50/60 hover:to-transparent transition-colors duration-150 group"
+                    <div className="relative p-[1.5px] rounded-2xl bg-gradient-to-br from-[#1D82A6]/50 via-[#F6D98A]/50 to-[#C8952E]/60 shadow-[0_20px_45px_rgba(10,95,122,0.25)]">
+                      <div className="bg-white rounded-[calc(1rem-1.5px)] overflow-hidden">
+                        {/* Mini header strip */}
+                        <div className="flex items-center gap-2 px- py-3 bg-gradient-to-r from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white">
+                          <Sparkles className="w-3.5 h-3.5 text-[#F6D98A]" />
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider">
+                            {item.label}
+                          </span>
+                        </div>
+
+                        <div className="p-1.5">
+                          {item.dropdown.map((sub) => {
+                            const meta = DROPDOWN_ICON_MAP[sub.name] || DEFAULT_DROPDOWN_ICON;
+                            const SubIcon = meta.icon;
+                            return (
+                              <Link
+                                key={sub.name}
+                                href={sub.href}
+                                className="group/item flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#EDF6FB] hover:to-transparent transition-all duration-200"
+                              >
+                                <div
+                                  className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta.color} text-white flex items-center justify-center shadow-md shrink-0 group-hover/item:scale-110 group-hover/item:-rotate-6 transition-transform duration-200`}
+                                >
+                                  <SubIcon className="w-4 h-4" />
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-[13px] font-bold text-[#0A5F7A] flex items-center justify-between gap-2">
+                                    <span className="truncate">{sub.name}</span>
+                                    <ArrowRight className="w-3.5 h-3.5 text-[#C8952E] shrink-0 opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200" />
+                                  </div>
+                                  {sub.desc && (
+                                    <p className="text-[11.5px] text-slate-500 mt-0.5 leading-snug truncate">
+                                      {sub.desc}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+
+                        {/* Footer CTA strip */}
+                        <button
+                          onClick={onOpenAppointmentModal}
+                          className="w-full flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-extrabold text-[#3A2B0A] cursor-pointer"
+                          style={{
+                            background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                          }}
                         >
-                          <div className="text-[13px] font-semibold text-[#0A5F7A] flex items-center justify-between">
-                            {sub.name}
-                            <span className="text-[11px] text-[#C8952E] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-150">
-                              →
-                            </span>
-                          </div>
-                          <p className="text-[11.5px] text-slate-500 mt-0.5 leading-snug">
-                            {sub.desc}
-                          </p>
-                        </Link>
-                      ))}
+                          <Calendar className="w-3.5 h-3.5" />
+                          Book a Consultation
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -271,12 +388,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 <Calendar className="w-3.5 h-3.5" /> Book Appointment
               </button>
 
-              <a
-                href="tel:1066"
+              
+                href="tel:1800-123-6666"
                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm"
-              >
+              <a>
                 <PhoneCall className="w-3.5 h-3.5 animate-bounce" /> Emergency
-                1066
+                1800-123-6666
               </a>
             </div>
 

@@ -93,16 +93,16 @@ export default function Footer({ onOpenAppointmentModal }) {
 
             <div className="flex flex-wrap items-center gap-3 relative z-10 shrink-0">
               <a
-                href="tel:1066"
+                href="tel:1800-123-6666"
                 className="flex items-center gap-2 px-5 py-3 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md"
               >
                 <PhoneCall className="w-4 h-4 animate-bounce" />
-                <span>Emergency 1066</span>
+                <span>Emergency 1800-123-6666</span>
               </a>
 
               <button
                 onClick={onOpenAppointmentModal}
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-gold-gradient text-slate-950 font-bold text-xs hover:brightness-110 transition-all shadow-lg cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 rounded-full text-slate-950 font-bold text-xs bg-gradient-to-b from-[#edcd76] to-[#C8952E] shadow-[0_3px_10px_rgba(197,146,46,0.35)] hover:shadow-[0_5px_16px_rgba(197,146,46,0.5)]hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book Appointment</span>
@@ -144,7 +144,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </div>
               <div className="flex items-center gap-2">
                 <PhoneCall className="w-4 h-4 text-[#F59E0B] shrink-0" />
-                <span>Emergency: <a href="tel:1066" className="text-rose-300 font-bold hover:underline">1066</a> | Reception: <a href="tel:+917614000100" className="hover:text-[#F59E0B] transition-colors">+91 761 4000100</a></span>
+                <span>Emergency: <a href="tel:1800-123-6666" className="text-rose-300 font-bold hover:underline">1800-123-6666</a> | Reception: <a href="tel:+917614000100" className="hover:text-[#F59E0B] transition-colors">+91 761 4000100</a></span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#F59E0B] shrink-0" />
@@ -267,7 +267,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 rounded-lg bg-gold-gradient text-slate-950 font-bold text-xs hover:brightness-110 shrink-0"
+                    className="px-3 py-1.5 rounded-lg bg-gradient-to-b from-[#edc65d] to-[#C8952E] shadow-[0_3px_10px_rgba(197,146,46,0.35)] hover:shadow-[0_5px_16px_rgba(197,146,46,0.5)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer text-slate-950 font-bold text-xs hover:brightness-110 shrink-0"
                   >
                     Subscribe
                   </button>
