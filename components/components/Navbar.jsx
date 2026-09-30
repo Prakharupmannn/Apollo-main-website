@@ -120,7 +120,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         },
         {
           name: "Make Appointment",
-          href: "/patientcare/appointment",
+          href: "/contact",
           desc: "Instant Doctor Consultation Booking",
         },
         {

@@ -87,7 +87,8 @@ export default function Footer({ onOpenAppointmentModal }) {
                 <span className="text-gold-gradient">Creating Hope</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                40+ Years of Medical Leadership • 10,000+ Specialist Doctors • NABH & JCI Accredited Excellence
+                40+ Years of Medical Leadership • 10,000+ Specialist Doctors •
+                NABH & JCI Accredited Excellence
               </p>
             </div>
 
@@ -100,13 +101,13 @@ export default function Footer({ onOpenAppointmentModal }) {
                 <span>Emergency 1800-123-6666</span>
               </a>
 
-              <button
-                onClick={onOpenAppointmentModal}
-                className="flex items-center gap-2 px-6 py-3 rounded-full text-slate-950 font-bold text-xs bg-gradient-to-b from-[#edcd76] to-[#C8952E] shadow-[0_3px_10px_rgba(197,146,46,0.35)] hover:shadow-[0_5px_16px_rgba(197,146,46,0.5)]hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer"
+              <Link
+                href="/contact"
+                className="flex items-center gap-2 px-6 py-3 rounded-full text-slate-950 font-bold text-xs bg-gradient-to-b from-[#edcd76] to-[#C8952E] shadow-[0_3px_10px_rgba(197,146,46,0.35)] hover:shadow-[0_5px_16px_rgba(197,146,46,0.5)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book Appointment</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -134,17 +135,36 @@ export default function Footer({ onOpenAppointmentModal }) {
             </div>
 
             <p className="text-xs text-slate-200 leading-relaxed max-w-sm">
-              Apollo Hospitals Jabalpur is a state-of-the-art multi-specialty tertiary care center providing advanced cardiac, oncology, robotic joint replacement, and neuro-trauma services.
+              Apollo Hospitals Jabalpur is a state-of-the-art multi-specialty
+              tertiary care center providing advanced cardiac, oncology, robotic
+              joint replacement, and neuro-trauma services.
             </p>
 
             <div className="space-y-2 text-xs text-slate-200 pt-1 font-medium">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
-                <span>Global Square, Patan Rd, Karmeta, Jabalpur, MP 482002</span>
+                <span>
+                  Global Square, Patan Rd, Karmeta, Jabalpur, MP 482002
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <PhoneCall className="w-4 h-4 text-[#F59E0B] shrink-0" />
-                <span>Emergency: <a href="tel:1800-123-6666" className="text-rose-300 font-bold hover:underline">1800-123-6666</a> | Reception: <a href="tel:+917614000100" className="hover:text-[#F59E0B] transition-colors">+91 761 4000100</a></span>
+                <span>
+                  Emergency:{" "}
+                  <a
+                    href="tel:1800-123-6666"
+                    className="text-rose-300 font-bold hover:underline"
+                  >
+                    1800-123-6666
+                  </a>{" "}
+                  | Reception:{" "}
+                  <a
+                    href="tel:+917614000100"
+                    className="hover:text-[#F59E0B] transition-colors"
+                  >
+                    +91 761 4000100
+                  </a>
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#F59E0B] shrink-0" />
@@ -157,7 +177,11 @@ export default function Footer({ onOpenAppointmentModal }) {
               {[
                 { label: "Website", icon: Globe, href: "/" },
                 { label: "Location", icon: MapPin, href: "/contact" },
-                { label: "Health Library", icon: Stethoscope, href: "/health-library" },
+                {
+                  label: "Health Library",
+                  icon: Stethoscope,
+                  href: "/health-library",
+                },
                 { label: "Emergency", icon: PhoneCall, href: "/emergency" },
               ].map((item, idx) => {
                 const Icon = item.icon;
@@ -213,7 +237,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                 { label: "Health Library", href: "/health-library" },
                 { label: "Contact & Location Map", href: "/contact" },
                 { label: "Emergency Care (24/7)", href: "/emergency" },
-                { label: "Book Appointment", href: "#", onClick: onOpenAppointmentModal },
+                { label: "Book Appointment", href: "/contact" },
                 { label: "MP Service Reach", href: "/contact#reach" },
               ].map((link, idx) => (
                 <li key={idx}>
@@ -246,7 +270,8 @@ export default function Footer({ onOpenAppointmentModal }) {
               Health Newsletter
             </h4>
             <p className="text-xs text-slate-200 leading-relaxed">
-              Get doctor-approved health updates and screening tips sent to your inbox.
+              Get doctor-approved health updates and screening tips sent to your
+              inbox.
             </p>
 
             {subscribedSuccess ? (
@@ -278,8 +303,12 @@ export default function Footer({ onOpenAppointmentModal }) {
             <div className="pt-2 text-[11px] text-slate-200 flex items-center gap-2 bg-white/5 p-3 rounded-2xl border border-white/10">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div>
-                <div className="font-bold text-white">NABH & NABL Accredited</div>
-                <div className="text-[10px] text-slate-300">Highest Standard Patient Care</div>
+                <div className="font-bold text-white">
+                  NABH & NABL Accredited
+                </div>
+                <div className="text-[10px] text-slate-300">
+                  Highest Standard Patient Care
+                </div>
               </div>
             </div>
           </div>
@@ -288,15 +317,33 @@ export default function Footer({ onOpenAppointmentModal }) {
         {/* Bottom Bar & Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4">
           <div className="flex items-center gap-2">
-            <span>© {new Date().getFullYear()} Apollo Hospitals Jabalpur. All Rights Reserved.</span>
+            <span>
+              © {new Date().getFullYear()} Apollo Hospitals Jabalpur. All Rights
+              Reserved.
+            </span>
           </div>
 
           <div className="flex items-center gap-4">
-            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Privacy Policy</Link>
+            <Link
+              href="/contact"
+              className="hover:text-[#F59E0B] transition-colors"
+            >
+              Privacy Policy
+            </Link>
             <span>•</span>
-            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Terms of Use</Link>
+            <Link
+              href="/contact"
+              className="hover:text-[#F59E0B] transition-colors"
+            >
+              Terms of Use
+            </Link>
             <span>•</span>
-            <Link href="/contact" className="hover:text-[#F59E0B] transition-colors">Sitemap</Link>
+            <Link
+              href="/contact"
+              className="hover:text-[#F59E0B] transition-colors"
+            >
+              Sitemap
+            </Link>
 
             <button
               onClick={scrollToTop}

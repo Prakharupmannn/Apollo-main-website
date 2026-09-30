@@ -130,3 +130,21 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #F59E0B;
 }
+/* 
+@keyframes statsMarquee {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.stats-marquee {
+  animation: statsMarquee 10s linear infinite;
+}
+
+.stats-marquee-container:hover .stats-marquee {
+  animation-play-state: paused;
+} */

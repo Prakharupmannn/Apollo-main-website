@@ -24,6 +24,10 @@ import {
   Share2,
   Siren,
   Sparkles,
+  ArrowRight,
+  Radio,
+  Crosshair,
+  Waves,
 } from "lucide-react";
 import AppointmentModal from "../../components/components/AppointmentModal";
 
@@ -101,7 +105,8 @@ export default function EmergencyPage() {
         "Loosen tight clothing around neck and waist.",
         "Do not leave the patient unattended; perform CPR if unconscious.",
       ],
-      alert: "Never attempt patient self-driving if severe chest squeezing is present.",
+      alert:
+        "Never attempt patient self-driving if severe chest squeezing is present.",
     },
     {
       condition: "Acute Stroke (F.A.S.T.)",
@@ -111,7 +116,8 @@ export default function EmergencyPage() {
         "S (Speech): Listen for slurred or unintelligible words.",
         "T (Time): Note exact time symptoms began and call immediately.",
       ],
-      alert: "Do NOT administer food, water, or blood pressure pills during acute stroke.",
+      alert:
+        "Do NOT administer food, water, or blood pressure pills during acute stroke.",
     },
     {
       condition: "Severe Trauma & Bleeding",
@@ -136,10 +142,26 @@ export default function EmergencyPage() {
   ];
 
   const emergencyContacts = [
-    { label: "National Emergency Helpline", number: "+91 1800-123-6666", desc: "Toll-Free 24/7 Direct Ambulance Hotline" },
-    { label: "Apollo Jabalpur ER Reception", number: "+91 1800-123-6666", desc: "Emergency Triage & Patient Arrival Desk" },
-    { label: "Trauma & ICU Direct Counter", number: "+91 7566123666", desc: "Critical Bed Availability & Transfer" },
-    { label: "24/7 Blood Bank Direct Desk", number: "+91 7566123666", desc: "Emergency PRBC & Platelet Dispatch" },
+    {
+      label: "National Emergency Helpline",
+      number: "+91 1800-123-6666",
+      desc: "Toll-Free 24/7 Direct Ambulance Hotline",
+    },
+    {
+      label: "Apollo Jabalpur ER Reception",
+      number: "+91 1800-123-6666",
+      desc: "Emergency Triage & Patient Arrival Desk",
+    },
+    {
+      label: "Trauma & ICU Direct Counter",
+      number: "+91 7566123666",
+      desc: "Critical Bed Availability & Transfer",
+    },
+    {
+      label: "24/7 Blood Bank Direct Desk",
+      number: "+91 7566123666",
+      desc: "Emergency PRBC & Platelet Dispatch",
+    },
   ];
 
   const handleDispatchSubmit = (e) => {
@@ -148,8 +170,7 @@ export default function EmergencyPage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-32 pb-20 selection:bg-rose-500 selection:text-white overflow-hidden">
-      
+    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-28 pb-20 selection:bg-rose-500 selection:text-white overflow-hidden">
       {/* ───── Scoped ambient styling ───── */}
       <style jsx>{`
         .ep-orb {
@@ -185,12 +206,134 @@ export default function EmergencyPage() {
           animation: epFloat1 20s ease-in-out infinite;
         }
         @keyframes epFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes epFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
+        }
+        .ep-hero-shape {
+          clip-path: polygon(
+            0% 6%,
+            8% 0%,
+            92% 0%,
+            100% 5%,
+            100% 88%,
+            94% 100%,
+            55% 100%,
+            48% 92%,
+            18% 96%,
+            0% 100%
+          );
+        }
+        @media (max-width: 640px) {
+          .ep-hero-shape {
+            clip-path: polygon(
+              0% 3%,
+              6% 0%,
+              94% 0%,
+              100% 3%,
+              100% 94%,
+              92% 100%,
+              8% 100%,
+              0% 96%
+            );
+          }
+        }
+        .ep-pulse-ring {
+          position: absolute;
+          border-radius: 9999px;
+          border: 1.5px solid rgba(255, 255, 255, 0.35);
+        }
+        @keyframes epRingExpand {
+          0% {
+            transform: scale(0.6);
+            opacity: 0.9;
+          }
+          100% {
+            transform: scale(2.4);
+            opacity: 0;
+          }
+        }
+        .ep-ring-anim {
+          animation: epRingExpand 2.8s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+        }
+        .ep-heartbeat-path {
+          stroke-dasharray: 300;
+          stroke-dashoffset: 300;
+          animation: epDrawLine 3.2s ease-in-out infinite;
+        }
+        @keyframes epDrawLine {
+          0% {
+            stroke-dashoffset: 300;
+            opacity: 0.3;
+          }
+          50% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+          }
+          100% {
+            stroke-dashoffset: -300;
+            opacity: 0.3;
+          }
+        }
+        /* ───── Rotating golden thick border around hero ───── */
+        .ep-gold-border-wrap {
+          position: relative;
+          padding: 6px;
+          overflow: hidden;
+          isolation: isolate;
+          box-shadow: 0 25px 70px rgba(200, 149, 46, 0.35),
+            0 0 0 1px rgba(246, 217, 138, 0.15);
+        }
+        @media (min-width: 640px) {
+          .ep-gold-border-wrap {
+            padding: 8px;
+          }
+        }
+        .ep-gold-spin {
+          position: absolute;
+          inset: -100%;
+          width: 300%;
+          height: 300%;
+          z-index: 0;
+          background: conic-gradient(
+            from 0deg,
+            #7a5215 0deg,
+            #c8952e 45deg,
+            #f6d98a 90deg,
+            #fff6dd 130deg,
+            #f6d98a 170deg,
+            #c8952e 215deg,
+            #7a5215 260deg,
+            #c8952e 300deg,
+            #f6d98a 330deg,
+            #7a5215 360deg
+          );
+          animation: epGoldSpin 7s linear infinite;
+        }
+        @keyframes epGoldSpin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .ep-gold-inner {
+          position: relative;
+          z-index: 1;
         }
       `}</style>
 
@@ -204,161 +347,281 @@ export default function EmergencyPage() {
           style={{
             backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 80% 55% at 50% 20%, black 15%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 55% at 50% 20%, black 15%, transparent 80%)",
+            maskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 20%, black 15%, transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 20%, black 15%, transparent 80%)",
           }}
         />
       </div>
 
       <div className="relative z-10">
-
         {/* ───── ATTRACTIVE DARK RED EMERGENCY BANNER (BETWEEN NAVBAR & HERO TITLE) ───── */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-950 via-red-900 to-rose-950 p-4 sm:p-5 text-white border border-rose-500/30 shadow-[0_10px_35px_rgba(159,18,57,0.35)]">
-            {/* Background Subtle Pulsing Glows */}
-            <div className="absolute -left-10 -top-10 w-40 h-40 bg-rose-600/30 rounded-full blur-2xl animate-pulse pointer-events-none" />
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-              
-              {/* Left Side Message */}
-              <div className="flex items-center gap-3.5">
-                <div className="relative flex-shrink-0">
-                  <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 shadow-md">
-                    <Siren className="w-5 h-5 text-white animate-bounce" />
-                  </span>
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-300" />
-                  </span>
-                </div>
+          <div className="relative overflow-hidden rounded-full bg-gradient-to-r from-rose-950 via-red-900 to-rose-950 px-5 py-3 text-white border border-rose-500/40 shadow-[0_10px_30px_rgba(159,18,57,0.3)] backdrop-blur-md">
+            <div className="absolute -left-10 -top-10 w-32 h-32 bg-rose-600/30 rounded-full blur-xl animate-pulse pointer-events-none" />
 
+            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-600 shadow-inner">
+                  <Siren className="w-4 h-4 text-white animate-bounce" />
+                </span>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      CRITICAL NOTICE
-                    </span>
-                    <span className="text-xs font-semibold text-rose-200/90 hidden sm:inline-block">
-                      • Priority Resuscitation Active
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-medium text-rose-100 mt-0.5">
-                    Immediate emergency response & ACLS ambulance units are operational 24/7.
-                  </p>
+
+                  <motion.div
+                    animate={{ x: [0, 15, 0] }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                      <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                        CRITICAL NOTICE
+                      </span>
+                      <span className="text-xs font-semibold text-rose-200 hidden md:inline-block">
+                        Priority Resuscitation & Trauma Response Active
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-rose-100 mt-0.5">
+                      Immediate emergency response & ACLS ambulance units are
+                      operational 24/7.
+                    </p>
+                  </motion.div>
+                  
                 </div>
               </div>
 
-              {/* Right Side Quick Actions */}
-              <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-end border-t border-rose-800/60 md:border-t-0 pt-3 md:pt-0 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <a
                   href="tel:18001236666"
-                  className="flex-1 md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs transition-all shadow-md hover:shadow-rose-600/50 border border-rose-400/30"
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs transition-all shadow-md hover:shadow-rose-600/50 border border-rose-400/30"
                 >
-                  <PhoneCall className="w-3.5 h-3.5" />
+                  <PhoneCall className="w-3 h-3" />
                   <span>Call 1800-123-6666</span>
                 </a>
-                <a
-                  href="tel:+917566123666"
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-rose-100 font-bold text-xs transition-colors border border-white/15"
-                >
-                  <Ambulance className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="hidden sm:inline">Direct Desk</span>
-                </a>
               </div>
-
             </div>
           </div>
         </motion.div>
 
-        {/* ───── High-Impact Hero Section ───── */}
+        {/* ───── High-Impact Hero Section — organic, non-rectangular, interactive, with rotating golden border ───── */}
         <motion.section
           initial="hidden"
           animate="show"
           variants={fadeUp}
-          className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-12"
+          className="relative w-full px-0 sm:px-4 lg:px-6 max-w-[100rem] mx-auto mb-24 sm:mb-28"
         >
-          <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-rose-400/70 via-[#F6D98A]/50 to-[#1D82A6]/60 shadow-[0_30px_70px_rgba(159,18,57,0.35)]">
-            <div className="relative rounded-[calc(2rem-1.5px)] overflow-hidden bg-gradient-to-r from-[#881337] via-[#9F1239] to-[#0E526B] p-8 sm:p-12 md:p-16 text-white">
-              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-rose-500/25 blur-3xl pointer-events-none animate-pulse" />
-              <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#1D82A6]/30 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 opacity-[0.1] bg-[radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px] pointer-events-none" />
-              <HeartPulse className="absolute -right-10 -bottom-10 w-80 h-80 opacity-[0.07] text-white -rotate-12 pointer-events-none" />
+          {/* Rotating golden thick-border wrapper (shape matches hero) */}
+          <div className="ep-hero-shape ep-gold-border-wrap rounded-3xl">
+            {/* Spinning conic-gradient layer forming the animated golden border */}
+            <div className="ep-gold-spin" />
 
-              <div className="relative z-10 max-w-3xl">
-                {/* Live Status Pill */}
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-rose-950/80 border border-rose-400/60 text-rose-200 text-xs font-bold mb-6 shadow-xl"
-                >
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
-                  </span>
-                  <span>24/7 EMERGENCY & LEVEL-1 TRAUMA ACTIVE</span>
-                </motion.div>
+            {/* Jagged-cut, full-bleed inner panel (unchanged content) */}
+            <div className="ep-hero-shape ep-gold-inner relative overflow-hidden bg-gradient-to-br from-[#500b1d] via-[#881337] to-[#0a3848] text-white py-16 sm:py-20 lg:py-28 px-6 sm:px-12 lg:px-20 rounded-3xl shadow-2xl">
+              {/* Floating ambient glows */}
+              <div className="absolute top-0 right-0 w-[550px] h-[550px] rounded-full bg-rose-500/25 blur-[130px] pointer-events-none animate-pulse" />
+              <div className="absolute -bottom-24 -left-24 w-[480px] h-[480px] rounded-full bg-[#1D82A6]/25 blur-[110px] pointer-events-none" />
+              <div className="absolute top-1/3 left-1/2 w-72 h-72 rounded-full bg-amber-400/10 blur-[100px] pointer-events-none" />
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  className="font-serif-apollo text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-4"
-                >
-                  Apollo Emergency &{" "}
+              {/* Animated heartbeat / ECG line running across the whole hero */}
+              <svg
+                className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-24 opacity-30 pointer-events-none hidden md:block"
+                viewBox="0 0 1200 100"
+                preserveAspectRatio="none"
+                fill="none"
+              >
+                <path
+                  className="ep-heartbeat-path"
+                  d="M0,50 L200,50 L230,20 L260,80 L290,10 L320,50 L520,50 L550,35 L580,65 L610,50 L1200,50"
+                  stroke="#F6D98A"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+
+              {/* Radar pulse rings emanating from a floating medallion (desktop only, decorative) */}
+              <div className="absolute right-10 lg:right-24 top-10 hidden lg:block pointer-events-none">
+                <div className="relative w-40 h-40">
                   <span
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #F9A8B8 100%)" }}
-                  >
-                    Critical Care Services
-                  </span>
-                </motion.h1>
+                    className="ep-pulse-ring inset-0 ep-ring-anim"
+                    style={{ animationDelay: "0s" }}
+                  />
+                  <span
+                    className="ep-pulse-ring inset-0 ep-ring-anim"
+                    style={{ animationDelay: "0.9s" }}
+                  />
+                  <span
+                    className="ep-pulse-ring inset-0 ep-ring-anim"
+                    style={{ animationDelay: "1.8s" }}
+                  />
+                </div>
+              </div>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-rose-100 text-sm sm:text-base leading-relaxed mb-8 max-w-2xl"
-                >
-                  Equipped with cardiac ACLS ambulances, Level-1 trauma surgeons, 24/7 STEMI Cath Lab, and express triage care at Apollo Hospitals Jabalpur.
-                </motion.p>
-
-                {/* Emergency Action Buttons */}
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                  className="flex flex-wrap items-center gap-4"
-                >
-                  <motion.a
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    href="tel:18001236666"
-                    className="relative flex items-center gap-3 px-8 py-4 rounded-full bg-rose-600 text-white font-extrabold text-sm sm:text-base shadow-[0_0_30px_rgba(244,63,94,0.65)] border border-rose-200 cursor-pointer"
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                {/* Left Column: Hero Text Content */}
+                <div className="lg:col-span-7 space-y-6">
+                  {/* Status Pill Badge */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-rose-950/90 border border-rose-400/50 text-rose-200 text-xs font-black shadow-lg backdrop-blur-md"
                   >
-                    <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/70 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white" />
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
                     </span>
-                    <PhoneCall className="w-5 h-5" />
-                    <span>Call Emergency Hotline: 1800-123-6666</span>
-                  </motion.a>
+                    <span className="tracking-wide uppercase">
+                      24/7 Level-1 Trauma & Emergency Care
+                    </span>
+                  </motion.div>
 
-                  <motion.a
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    href="tel:+917566123666"
-                    className="flex items-center gap-2 px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm transition-colors border border-white/20 backdrop-blur-md"
+                  <motion.h1
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="font-serif-apollo text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]"
                   >
-                    <Ambulance className="w-4 h-4 text-[#F6D98A]" />
-                    <span>Hospital Desk: +91 7566123666</span>
-                  </motion.a>
-                </motion.div>
+                    Apollo Emergency &{" "}
+                    <span
+                      className="bg-clip-text text-transparent block sm:inline"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #F9A8B8 100%)",
+                      }}
+                    >
+                      Critical Care
+                    </span>
+                  </motion.h1>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="text-rose-100/90 text-sm sm:text-base leading-relaxed max-w-xl"
+                  >
+                    Rapid high-precision response, cardiac ACLS ambulances,
+                    Level-1 trauma surgeons, 24/7 STEMI Cath Lab, and express
+                    emergency triage at Apollo Hospitals Jabalpur.
+                  </motion.p>
+
+                  {/* Primary Emergency CTA Buttons */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="flex flex-wrap items-center gap-4 pt-2"
+                  >
+                    <motion.a
+                      whileHover={{ scale: 1.04, y: -2 }}
+                      whileTap={{ scale: 0.96 }}
+                      href="tel:18001236666"
+                      className="relative group flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-rose-600 via-red-600 to-rose-600 text-white font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(225,29,72,0.6)] border border-rose-300/40 cursor-pointer overflow-hidden"
+                    >
+                      <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                      <PhoneCall className="w-5 h-5 animate-pulse" />
+                      <span>Call Hotline: 1800-123-6666</span>
+                    </motion.a>
+
+                    <motion.a
+                      whileHover={{ scale: 1.04, y: -2 }}
+                      whileTap={{ scale: 0.96 }}
+                      href="tel:+917566123666"
+                      className="flex items-center gap-2.5 px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm transition-all border border-white/20 backdrop-blur-md shadow-lg"
+                    >
+                      <Ambulance className="w-4 h-4 text-[#F6D98A]" />
+                      <span>Direct Desk: +91 7566123666</span>
+                    </motion.a>
+                  </motion.div>
+                </div>
+
+                {/* Right Column: Floating medallion + orbiting stat chips */}
+                <div className="lg:col-span-5 relative flex items-center justify-center min-h-[260px] lg:min-h-[340px]">
+                  {/* Central pulsing medallion */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.7 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      duration: 0.7,
+                      delay: 0.25,
+                      type: "spring",
+                      stiffness: 120,
+                    }}
+                    className="relative"
+                  >
+                    <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-gradient-to-br from-rose-500 via-red-600 to-rose-800 shadow-[0_0_60px_rgba(244,63,94,0.55)] flex items-center justify-center border-4 border-white/20">
+                      <span
+                        className="ep-pulse-ring inset-0 ep-ring-anim"
+                        style={{ animationDelay: "0.3s" }}
+                      />
+                      <span
+                        className="ep-pulse-ring inset-0 ep-ring-anim"
+                        style={{ animationDelay: "1.2s" }}
+                      />
+                      <HeartPulse className="w-16 h-16 sm:w-20 sm:h-20 text-white drop-shadow-lg" />
+                    </div>
+                  </motion.div>
+
+                  {/* Orbiting glass stat chips */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20, y: 10 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="absolute -left-2 sm:left-2 top-2 sm:top-4 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+                  >
+                    <Clock className="w-4 h-4 text-[#F6D98A] shrink-0" />
+                    <div className="text-left">
+                      <div className="text-sm font-black text-white leading-none">
+                        &lt;8 min
+                      </div>
+                      <div className="text-[9px] text-rose-100/80 font-semibold mt-0.5">
+                        Avg Response
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 20, y: -10 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.65 }}
+                    className="absolute right-0 sm:right-4 bottom-6 sm:bottom-10 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0" />
+                    <div className="text-left">
+                      <div className="text-sm font-black text-white leading-none">
+                        24/7
+                      </div>
+                      <div className="text-[9px] text-rose-100/80 font-semibold mt-0.5">
+                        Trauma Ready
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.8 }}
+                    className="absolute left-4 sm:left-10 bottom-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+                  >
+                    <Crosshair className="w-4 h-4 text-cyan-300 shrink-0" />
+                    <div className="text-left">
+                      <div className="text-sm font-black text-white leading-none">
+                        GPS
+                      </div>
+                      <div className="text-[9px] text-rose-100/80 font-semibold mt-0.5">
+                        Live Tracking
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </div>
           </div>
@@ -381,10 +644,13 @@ export default function EmergencyPage() {
                 <div>
                   <h2 className="font-serif-apollo text-2xl font-black text-[#0B3446]">
                     Express Ambulance Request{" "}
-                    <span className="text-[#C8952E]">(Jabalpur & MP Region)</span>
+                    <span className="text-[#C8952E]">
+                      (Jabalpur & MP Region)
+                    </span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Submit pickup coordinates for immediate cardiac ACLS ambulance dispatch.
+                    Submit pickup coordinates for immediate cardiac ACLS
+                    ambulance dispatch.
                   </p>
                 </div>
               </div>
@@ -410,7 +676,12 @@ export default function EmergencyPage() {
                             type="text"
                             required
                             value={pickupData.location}
-                            onChange={(e) => setPickupData({ ...pickupData, location: e.target.value })}
+                            onChange={(e) =>
+                              setPickupData({
+                                ...pickupData,
+                                location: e.target.value,
+                              })
+                            }
                             placeholder="e.g. Civil Lines, Vijay Nagar, or MP Highway Landmark..."
                             className="w-full pl-9 pr-3.5 py-3 rounded-xl border border-slate-300 bg-[#F8FAFC] focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:outline-none transition-all"
                           />
@@ -427,7 +698,12 @@ export default function EmergencyPage() {
                             type="tel"
                             required
                             value={pickupData.contactPhone}
-                            onChange={(e) => setPickupData({ ...pickupData, contactPhone: e.target.value })}
+                            onChange={(e) =>
+                              setPickupData({
+                                ...pickupData,
+                                contactPhone: e.target.value,
+                              })
+                            }
                             placeholder="+91 98765 43210"
                             className="w-full pl-9 pr-3.5 py-3 rounded-xl border border-slate-300 bg-[#F8FAFC] focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:outline-none transition-all"
                           />
@@ -442,15 +718,32 @@ export default function EmergencyPage() {
                         </label>
                         <select
                           value={pickupData.emergencyType}
-                          onChange={(e) => setPickupData({ ...pickupData, emergencyType: e.target.value })}
+                          onChange={(e) =>
+                            setPickupData({
+                              ...pickupData,
+                              emergencyType: e.target.value,
+                            })
+                          }
                           className="w-full px-3.5 py-3 rounded-xl border border-slate-300 bg-[#F8FAFC] font-semibold focus:border-rose-500 focus:outline-none transition-all"
                         >
-                          <option value="Chest Pain / Heart Attack">Chest Pain / Heart Attack</option>
-                          <option value="Road Accident / Major Trauma">Road Accident / Major Trauma</option>
-                          <option value="Stroke Symptoms (F.A.S.T.)">Stroke Symptoms (F.A.S.T.)</option>
-                          <option value="Severe Breathing Difficulty">Severe Breathing Difficulty</option>
-                          <option value="Poisoning / Snake Bite">Poisoning / Snake Bite</option>
-                          <option value="High Fever / Unresponsive">High Fever / Unresponsive</option>
+                          <option value="Chest Pain / Heart Attack">
+                            Chest Pain / Heart Attack
+                          </option>
+                          <option value="Road Accident / Major Trauma">
+                            Road Accident / Major Trauma
+                          </option>
+                          <option value="Stroke Symptoms (F.A.S.T.)">
+                            Stroke Symptoms (F.A.S.T.)
+                          </option>
+                          <option value="Severe Breathing Difficulty">
+                            Severe Breathing Difficulty
+                          </option>
+                          <option value="Poisoning / Snake Bite">
+                            Poisoning / Snake Bite
+                          </option>
+                          <option value="High Fever / Unresponsive">
+                            High Fever / Unresponsive
+                          </option>
                         </select>
                       </div>
 
@@ -461,7 +754,12 @@ export default function EmergencyPage() {
                         <input
                           type="text"
                           value={pickupData.patientCondition}
-                          onChange={(e) => setPickupData({ ...pickupData, patientCondition: e.target.value })}
+                          onChange={(e) =>
+                            setPickupData({
+                              ...pickupData,
+                              patientCondition: e.target.value,
+                            })
+                          }
                           placeholder="Brief description (e.g. conscious, severe pain)..."
                           className="w-full px-3.5 py-3 rounded-xl border border-slate-300 bg-[#F8FAFC] focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:outline-none transition-all"
                         />
@@ -471,7 +769,9 @@ export default function EmergencyPage() {
                     <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
                         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>GPS Tracking & Doctor-on-Board Ambulance Response</span>
+                        <span>
+                          GPS Tracking & Doctor-on-Board Ambulance Response
+                        </span>
                       </div>
 
                       <motion.button
@@ -497,7 +797,12 @@ export default function EmergencyPage() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 14,
+                        delay: 0.1,
+                      }}
                       className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white flex items-center justify-center mx-auto shadow-xl"
                     >
                       <Ambulance className="w-8 h-8 animate-bounce" />
@@ -508,13 +813,36 @@ export default function EmergencyPage() {
                     </h3>
 
                     <p className="text-xs text-rose-700 max-w-md mx-auto leading-relaxed">
-                      Apollo Emergency Desk has received request for <span className="font-bold">{pickupData.location}</span>. Our paramedic control driver is calling <span className="font-bold">{pickupData.contactPhone}</span> immediately.
+                      Apollo Emergency Desk has received request for{" "}
+                      <span className="font-bold">{pickupData.location}</span>.
+                      Our paramedic control driver is calling{" "}
+                      <span className="font-bold">
+                        {pickupData.contactPhone}
+                      </span>{" "}
+                      immediately.
                     </p>
 
                     <div className="bg-white p-4 rounded-2xl border border-rose-300 max-w-md mx-auto text-left text-xs space-y-1 font-mono shadow-sm">
-                      <div><span className="font-bold text-slate-700">Dispatch Ref:</span> <span className="text-rose-600 font-bold">EMG-1066-JBP</span></div>
-                      <div><span className="font-bold text-slate-700">Emergency Priority:</span> {pickupData.emergencyType}</div>
-                      <div><span className="font-bold text-slate-700">Estimated Arrival:</span> 8-12 Mins (Traffic Dependent)</div>
+                      <div>
+                        <span className="font-bold text-slate-700">
+                          Dispatch Ref:
+                        </span>{" "}
+                        <span className="text-rose-600 font-bold">
+                          EMG-1066-JBP
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-700">
+                          Emergency Priority:
+                        </span>{" "}
+                        {pickupData.emergencyType}
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-700">
+                          Estimated Arrival:
+                        </span>{" "}
+                        8-12 Mins (Traffic Dependent)
+                      </div>
                     </div>
 
                     <div className="pt-2 flex justify-center gap-3">
@@ -550,7 +878,10 @@ export default function EmergencyPage() {
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16"
         >
-          <motion.div variants={fadeUp} className="text-center max-w-2xl mx-auto mb-10">
+          <motion.div
+            variants={fadeUp}
+            className="text-center max-w-2xl mx-auto mb-10"
+          >
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-[#0E526B] text-xs font-extrabold border border-[#1D82A6]/30 shadow-sm mb-4">
               <Siren className="w-3.5 h-3.5 text-rose-500" />
               Round-the-Clock Critical Infrastructure
@@ -559,13 +890,17 @@ export default function EmergencyPage() {
               24/7 Emergency &{" "}
               <span
                 className="bg-clip-text text-transparent"
-                style={{ backgroundImage: "linear-gradient(90deg, #9F1239 0%, #0E526B 50%, #C8952E 100%)" }}
+                style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, #9F1239 0%, #0E526B 50%, #C8952E 100%)",
+                }}
               >
                 Critical Care Units
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-3">
-              Multi-specialty emergency infrastructure designed for instant resuscitation, trauma surgery, and cardiac catheterization.
+              Multi-specialty emergency infrastructure designed for instant
+              resuscitation, trauma surgery, and cardiac catheterization.
             </p>
           </motion.div>
 
@@ -696,13 +1031,20 @@ export default function EmergencyPage() {
 
               <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {emergencyContacts.map((contact, cIdx) => (
-                  <div key={cIdx} className="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/15 flex flex-col justify-between">
+                  <div
+                    key={cIdx}
+                    className="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/15 flex flex-col justify-between"
+                  >
                     <div>
-                      <p className="text-[11px] font-bold text-rose-200 uppercase tracking-wider">{contact.label}</p>
-                      <p className="text-xs text-slate-300 mt-1 mb-3">{contact.desc}</p>
+                      <p className="text-[11px] font-bold text-rose-200 uppercase tracking-wider">
+                        {contact.label}
+                      </p>
+                      <p className="text-xs text-slate-300 mt-1 mb-3">
+                        {contact.desc}
+                      </p>
                     </div>
                     <a
-                      href={`tel:${contact.number.replace(/\s+/g, '')}`}
+                      href={`tel:${contact.number.replace(/\s+/g, "")}`}
                       className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-white text-[#0E526B] hover:bg-[#F6D98A] font-extrabold text-xs transition-colors shadow-md"
                     >
                       <PhoneCall className="w-3.5 h-3.5 text-rose-600" />
@@ -714,7 +1056,6 @@ export default function EmergencyPage() {
             </div>
           </div>
         </motion.section>
-
       </div>
 
       <AppointmentModal

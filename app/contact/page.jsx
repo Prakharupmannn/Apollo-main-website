@@ -15,11 +15,13 @@ import {
   ShieldCheck,
   Calendar,
   ChevronDown,
+  CheckCircle2,
   Phone,
   Sparkles,
-  Zap,
-  HeartPulse,
+  Activity,
   MessageCircle,
+  HeartPulse,
+  Zap,
 } from "lucide-react";
 import AppointmentModal from "../../components/components/AppointmentModal";
 
@@ -38,6 +40,108 @@ const staggerContainer = {
 const goldStyle = {
   background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
 };
+
+// Enhanced Animated Pulse Bar Component for Below Navbar / Above Hero
+function MedicalPulseBanner() {
+  return (
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-6">
+      <div className="relative p-[1px] rounded-2xl bg-gradient-to-r from-transparent via-[#C8952E]/50 to-transparent shadow-[0_10px_30px_rgba(200,149,46,0.15)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[#0B3446]/90 via-[#0A5F7A]/80 to-[#0B3446]/90 backdrop-blur-md rounded-2xl px-4 py-3 sm:px-8 sm:py-4 flex flex-col md:flex-row items-center justify-between gap-4 border border-white/10">
+          {/* Status Badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-[#F6D98A] uppercase font-mono">
+              24/7 Live Emergency Network
+            </span>
+          </div>
+
+          {/* Redesigned Multi-layer ECG / Pulse SVG */}
+          <div className="relative w-full max-w-2xl h-12 sm:h-14 overflow-hidden flex items-center justify-center">
+            <svg
+              className="w-full h-full opacity-90 filter drop-shadow-[0_0_8px_rgba(200,149,46,0.8)]"
+              viewBox="0 0 1200 120"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <defs>
+                <linearGradient
+                  id="pulseGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#1D82A6" stopOpacity="0.2" />
+                  <stop offset="30%" stopColor="#F6D98A" stopOpacity="0.9" />
+                  <stop offset="50%" stopColor="#C8952E" stopOpacity="1" />
+                  <stop offset="70%" stopColor="#F6D98A" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#1D82A6" stopOpacity="0.2" />
+                </linearGradient>
+              </defs>
+
+              {/* Background faint guideline */}
+              <path
+                d="M0 60 L1200 60"
+                stroke="#1D82A6"
+                strokeWidth="1"
+                strokeDasharray="4 4"
+                opacity="0.3"
+              />
+
+              {/* Primary Glowing Pulse Line */}
+              <motion.path
+                d="M0 60 L240 60 L260 60 L275 25 L290 95 L305 10 L320 110 L335 60 L355 60 L1200 60"
+                stroke="url(#pulseGradient)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: [0, 1], opacity: [0, 1, 1, 0] }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  repeatDelay: 0.8,
+                  ease: "easeInOut",
+                }}
+              />
+
+              {/* Travelling Heartbeat Spark Dot */}
+              <motion.circle
+                r="4"
+                fill="#FFF"
+                className="filter drop-shadow-[0_0_6px_#F6D98A]"
+                initial={{ offsetDistance: "0%", opacity: 0 }}
+                animate={{
+                  offsetDistance: ["0%", "100%"],
+                  opacity: [0, 1, 1, 0],
+                }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  repeatDelay: 0.8,
+                  ease: "easeInOut",
+                }}
+                style={{
+                  offsetPath:
+                    "path('M0 60 L240 60 L260 60 L275 25 L290 95 L305 10 L320 110 L335 60 L355 60 L1200 60')",
+                }}
+              />
+            </svg>
+          </div>
+
+          {/* Quick Info Tag */}
+          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-200 font-semibold shrink-0">
+            <Activity className="w-4 h-4 text-[#F6D98A] animate-pulse" />
+            <span className="hover:text-[#F6D98A]">Mahakoshal Care Hub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Theme configurations per contact card type
 // Updated Light-Theme configurations for contact cards
@@ -265,7 +369,7 @@ export default function ContactPage() {
   const activeDistrict = mpDistricts.find((d) => d.name === selectedDistrict);
 
   return (
-    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
+    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-28 sm:pt-32 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
       {/* ───── Scoped ambient styling ───── */}
       <style jsx>{`
         .cp-orb {
@@ -339,94 +443,231 @@ export default function ContactPage() {
       </div>
 
       <div className="relative z-10">
-        {/* ───── Hero Banner Header ───── */}
+        {/* ───── BELOW NAVBAR / ABOVE HERO ECG BANNER ───── */}
+        <MedicalPulseBanner />
+
+        {/* ───── HERO SECTION: MODERN UNBOXED LAYOUT ───── */}
         <motion.section
           initial="hidden"
           animate="show"
           variants={fadeUp}
-          className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-12"
+          className="relative min-h-[75vh] flex items-center justify-center pt-4 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden"
         >
-          <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#F6D98A]/80 via-[#1D82A6]/40 to-[#C8952E]/80 shadow-[0_30px_70px_rgba(10,95,122,0.35)]">
-            <div className="relative rounded-[calc(2rem-1.5px)] overflow-hidden bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] p-8 sm:p-12 md:p-16 text-white">
-              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#F6D98A]/25 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#0B3446]/40 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px] pointer-events-none" />
-              <HeartPulse className="absolute -right-10 -bottom-10 w-80 h-80 opacity-[0.07] text-white -rotate-12 pointer-events-none" />
+          {/* Ambient Background Glows & Patterns */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#1D82A6]/20 via-[#F6D98A]/20 to-transparent rounded-full blur-[120px] pointer-events-none -z-10" />
+          <div className="absolute bottom-0 right-10 w-[400px] h-[400px] bg-[#0A5F7A]/15 rounded-full blur-[100px] pointer-events-none -z-10" />
 
-              <div className="relative z-10 max-w-3xl">
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-[#FEF3C7] text-xs font-bold mb-6 shadow-inner"
-                >
-                  <Building className="w-4 h-4 text-[#F6D98A]" />
-                  <span>
-                    Apollo Hospital Jabalpur • Super-Specialty Medical Hub
-                  </span>
-                </motion.div>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* LEFT COLUMN: Main Typography & Primary Actions */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              {/* Location Badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-[#1D82A6]/20 text-[#0E526B] text-xs sm:text-sm font-extrabold shadow-md shadow-[#1D82A6]/5"
+              >
+                <div className="p-1 rounded-full bg-[#1D82A6]/10">
+                  <Building className="w-4 h-4 text-[#1D82A6]" />
+                </div>
+                <span>Apollo Hospital Jabalpur</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C8952E]" />
+                <span className="text-slate-500 font-semibold">
+                  Super-Specialty Medical Hub
+                </span>
+              </motion.div>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  className="font-serif-apollo text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-4"
-                >
-                  Contact Us &{" "}
+              {/* Main Headline with Integrated Decorative Heartbeat */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="font-serif-apollo text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0B3446] leading-[1.15]"
+              >
+                Contact Us &{" "}
+                <span className="relative inline-block">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
                       backgroundImage:
-                        "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #C8952E 100%)",
+                        "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)",
                     }}
                   >
                     Visit Apollo Jabalpur
                   </span>
-                </motion.h1>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-2xl"
-                >
-                  We are dedicated to providing world-class healthcare with 24/7
-                  emergency response, expert consultations, and seamless
-                  regional medical connectivity across Madhya Pradesh.
-                </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                  className="flex flex-wrap items-center gap-4"
-                >
-                  <motion.a
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    href="tel:1800-123-6666"
-                    className="relative flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 text-white font-extrabold text-xs shadow-[0_12px_30px_rgba(239,68,68,0.4)] border border-rose-300/40"
+                  {/* Stylized Underline Pulse Curve */}
+                  <svg
+                    className="absolute -bottom-3 left-0 w-full h-4 text-[#C8952E]"
+                    viewBox="0 0 300 20"
+                    fill="none"
                   >
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/70 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+                    <motion.path
+                      d="M0 10 L100 10 L110 3 L120 17 L130 10 L140 10 L300 10"
+                      stroke="#C8952E"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 1,
+                      }}
+                    />
+                  </svg>
+                </span>
+              </motion.h1>
+
+              {/* Subtitle Description */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl font-normal pt-2"
+              >
+                We are dedicated to providing world-class healthcare with 24/7
+                emergency response, expert consultations, and seamless regional
+                medical connectivity across Madhya Pradesh.
+              </motion.p>
+
+              {/* Call To Action Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-wrap items-center gap-4 pt-2"
+              >
+                <motion.a
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  href="tel:1800-123-6666"
+                  className="relative group flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-rose-600 via-rose-500 to-red-600 text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(225,29,72,0.35)] hover:shadow-[0_15px_30px_rgba(225,29,72,0.5)] transition-all duration-300"
+                >
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+                  </span>
+                  <PhoneCall className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  <span>Call Emergency: 1800-123-6666</span>
+                </motion.a>
+
+                <motion.button
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setIsAppointmentModalOpen(true)}
+                  className="flex items-center gap-3 px-7 py-4 rounded-full text-[#3A2B0A] font-extrabold text-sm shadow-[0_10px_25px_rgba(200,149,46,0.3)] hover:shadow-[0_15px_35px_rgba(200,149,46,0.45)] transition-all duration-300 cursor-pointer"
+                  style={goldStyle}
+                >
+                  <Calendar className="w-5 h-5 text-[#3A2B0A]" />
+                  <span>Book Appointment Online</span>
+                </motion.button>
+              </motion.div>
+
+              {/* Trust Badges Bar */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-6 text-slate-500 text-xs font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1D82A6]" />
+                  <span>NABH Accredited</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#1D82A6]" />
+                  <span>24x7 Critical Care</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#1D82A6]" />
+                  <span>Cashless Insurance</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* RIGHT COLUMN: Interactive 3D Decorative Panel */}
+            <div className="lg:col-span-5 relative flex justify-center items-center">
+              <div className="relative w-full max-w-[380px] aspect-square rounded-3xl bg-gradient-to-tr from-[#0A5F7A] via-[#1D82A6] to-[#2A8FAF] p-1 shadow-[0_25px_60px_rgba(10,95,122,0.25)]">
+                <div className="w-full h-full rounded-[calc(1.5rem-1px)] bg-gradient-to-b from-[#0B3446] to-[#0A5F7A] overflow-hidden relative flex flex-col justify-between p-8 text-white">
+                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px]" />
+                  <HeartPulse className="absolute -right-8 -bottom-8 w-64 h-64 opacity-10 text-white -rotate-12 pointer-events-none" />
+
+                  <div className="relative z-10 flex justify-between items-center">
+                    <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-mono tracking-wider text-[#F6D98A] uppercase border border-white/15">
+                      Live Response
                     </span>
-                    <PhoneCall className="w-4 h-4 animate-bounce" />
-                    <span>Call Emergency Hotline: 1800-123-6666</span>
-                  </motion.a>
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setIsAppointmentModalOpen(true)}
-                    className="flex items-center gap-2 px-6 py-3.5 rounded-full text-[#3A2B0A] font-extrabold text-xs shadow-[0_12px_30px_rgba(200,149,46,0.45)] cursor-pointer"
-                    style={goldStyle}
-                  >
-                    <Calendar className="w-4 h-4 animate-bounce" />
-                    <span>Book Appointment Online</span>
-                  </motion.button>
-                </motion.div>
+                  <div className="relative z-10 my-auto text-center py-6">
+                    <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-[#F6D98A] to-[#C8952E] flex items-center justify-center text-[#0B3446] shadow-lg shadow-[#F6D98A]/20 mb-4">
+                      <Activity className="w-10 h-10 animate-pulse" />
+                    </div>
+                    <h3 className="font-serif-apollo text-xl font-bold text-white">
+                      Instant Medical Help
+                    </h3>
+                    <p className="text-xs text-slate-200/80 mt-1">
+                      Connecting Mahakoshal & MP Region
+                    </p>
+                  </div>
+
+                  <div className="relative z-10 p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
+                    <span className="text-xs text-[#FEF3C7] font-medium">
+                      Average Emergency Response:{" "}
+                      <strong className="text-white font-bold">
+                        &lt; 15 Mins
+                      </strong>
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              {/* Floating Badge Top Right */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 4,
+                  ease: "easeInOut",
+                }}
+                className="absolute -top-6 -right-2 sm:right-2 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center gap-3 z-20"
+              >
+                <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Verified Services
+                  </p>
+                  <p className="text-sm font-extrabold text-[#0B3446]">
+                    24/7 ICU & Trauma
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Floating Badge Bottom Left */}
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 4.5,
+                  ease: "easeInOut",
+                }}
+                className="absolute -bottom-6 -left-2 sm:left-2 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center gap-3 z-20"
+              >
+                <div className="p-2.5 rounded-xl bg-amber-50 text-[#C8952E] border border-amber-100">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Expert Doctors
+                  </p>
+                  <p className="text-sm font-extrabold text-[#0B3446]">
+                    50+ Super Specialists
+                  </p>
+                </div>
+              </motion.div>
             </div>
           </div>
         </motion.section>
@@ -475,7 +716,9 @@ export default function ContactPage() {
                         <Icon className="w-6 h-6" />
                       </div>
 
-                      <h3 className={`font-serif-apollo text-base font-extrabold mb-1 ${theme.titleColor}`}>
+                      <h3
+                        className={`font-serif-apollo text-base font-extrabold mb-1 ${theme.titleColor}`}
+                      >
                         {card.title}
                       </h3>
 
@@ -485,7 +728,9 @@ export default function ContactPage() {
                         {card.number}
                       </div>
 
-                      <p className={`text-[11px] leading-relaxed font-normal ${theme.descColor}`}>
+                      <p
+                        className={`text-[11px] leading-relaxed font-normal ${theme.descColor}`}
+                      >
                         {card.desc}
                       </p>
                     </div>
@@ -810,7 +1055,10 @@ export default function ContactPage() {
                             required
                             value={formData.phone}
                             onChange={(e) =>
-                              setFormData({ ...formData, phone: e.target.value })
+                              setFormData({
+                                ...formData,
+                                phone: e.target.value,
+                              })
                             }
                             placeholder="+91 98765 43210"
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors"
@@ -828,7 +1076,10 @@ export default function ContactPage() {
                             required
                             value={formData.email}
                             onChange={(e) =>
-                              setFormData({ ...formData, email: e.target.value })
+                              setFormData({
+                                ...formData,
+                                email: e.target.value,
+                              })
                             }
                             placeholder="your.email@example.com"
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors"
@@ -881,7 +1132,10 @@ export default function ContactPage() {
                           type="text"
                           value={formData.subject}
                           onChange={(e) =>
-                            setFormData({ ...formData, subject: e.target.value })
+                            setFormData({
+                              ...formData,
+                              subject: e.target.value,
+                            })
                           }
                           placeholder="Brief summary of your inquiry"
                           className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors"
@@ -897,7 +1151,10 @@ export default function ContactPage() {
                           required
                           value={formData.message}
                           onChange={(e) =>
-                            setFormData({ ...formData, message: e.target.value })
+                            setFormData({
+                              ...formData,
+                              message: e.target.value,
+                            })
                           }
                           placeholder="Please provide details about your medical query or assistance needed..."
                           className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors resize-none"
@@ -941,8 +1198,12 @@ export default function ContactPage() {
                 <div className="space-y-3 text-xs">
                   <div className="p-3.5 rounded-xl bg-black/20 border border-white/10 flex items-center justify-between">
                     <div>
-                      <span className="font-extrabold block text-[#FEF3C7]">General Wards</span>
-                      <span className="text-slate-200 text-[11px]">Daily Visiting</span>
+                      <span className="font-extrabold block text-[#FEF3C7]">
+                        General Wards
+                      </span>
+                      <span className="text-slate-200 text-[11px]">
+                        Daily Visiting
+                      </span>
                     </div>
                     <span className="font-mono font-bold bg-white/10 px-3 py-1.5 rounded-lg border border-white/15">
                       4:00 PM – 6:00 PM
@@ -951,8 +1212,12 @@ export default function ContactPage() {
 
                   <div className="p-3.5 rounded-xl bg-black/20 border border-white/10 flex items-center justify-between">
                     <div>
-                      <span className="font-extrabold block text-[#FEF3C7]">ICU & Critical Care</span>
-                      <span className="text-slate-200 text-[11px]">1 Visitor / Pass</span>
+                      <span className="font-extrabold block text-[#FEF3C7]">
+                        ICU & Critical Care
+                      </span>
+                      <span className="text-slate-200 text-[11px]">
+                        1 Visitor / Pass
+                      </span>
                     </div>
                     <span className="font-mono font-bold bg-white/10 px-3 py-1.5 rounded-lg border border-white/15">
                       11 AM & 5 PM
@@ -978,8 +1243,8 @@ export default function ContactPage() {
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed mb-4">
                   Our dedicated TPA desk helps process pre-authorizations and
-                  cashless claims smoothly. Bring your corporate insurance e-card
-                  and valid photo ID.
+                  cashless claims smoothly. Bring your corporate insurance
+                  e-card and valid photo ID.
                 </p>
                 <div className="text-xs font-extrabold text-[#0E526B] bg-[#EDF6FB] p-3 rounded-xl border border-[#1D82A6]/20 flex items-center justify-between">
                   <span>TPA Desk Helpline:</span>
@@ -992,116 +1257,117 @@ export default function ContactPage() {
 
         {/* ───── SECTION 4: FAQ ACCORDION ───── */}
         {/* ───── SECTION 4: FAQ ACCORDION ───── */}
-<section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-  {/* Header Section styled with Hero Theme */}
-  <div className="text-center mb-10">
-    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[#0E526B] text-xs font-extrabold border border-[#1D82A6]/20 shadow-md mb-3">
-      <Zap className="w-4 h-4 text-[#C8952E] animate-pulse" />
-      <span>Got Questions? We Have Answers</span>
-    </div>
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          {/* Header Section styled with Hero Theme */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[#0E526B] text-xs font-extrabold border border-[#1D82A6]/20 shadow-md mb-3">
+              <Zap className="w-4 h-4 text-[#C8952E] animate-pulse" />
+              <span>Got Questions? We Have Answers</span>
+            </div>
 
-    <h2 className="font-serif-apollo text-3xl sm:text-4xl font-black text-[#0B3446]">
-      Frequently Asked{" "}
-      <span
-        className="bg-clip-text text-transparent"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)",
-        }}
-      >
-        Questions
-      </span>
-    </h2>
-    <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-xl mx-auto leading-relaxed">
-      Find quick answers regarding hospital navigation, 24/7 emergency admission, visiting hours, and cashless insurance claims.
-    </p>
-  </div>
-
-  {/* Accordion Container */}
-  <div className="space-y-4">
-    {faqs.map((faq, index) => {
-      const isOpen = activeFaq === index;
-
-      return (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: index * 0.08, duration: 0.5 }}
-          className={`relative p-[1.5px] rounded-2xl transition-all duration-300 ${
-            isOpen
-              ? "bg-gradient-to-r from-[#F6D98A] via-[#1D82A6] to-[#C8952E] shadow-[0_12px_30px_rgba(10,95,122,0.18)] scale-[1.01]"
-              : "bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 hover:from-[#1D82A6]/40 hover:to-[#C8952E]/40 shadow-sm"
-          }`}
-        >
-          <div className="bg-white rounded-[calc(1rem-1.5px)] overflow-hidden">
-            {/* Question Header Button */}
-            <button
-              onClick={() => setActiveFaq(isOpen ? null : index)}
-              className={`w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer transition-all duration-300 ${
-                isOpen
-                  ? "bg-gradient-to-r from-[#0A5F7A]/5 via-white to-[#F6D98A]/10"
-                  : "hover:bg-slate-50/80"
-              }`}
-            >
-              <div className="flex items-center gap-3.5">
-                {/* Number Badge with Hero Theme Gradients */}
-                <span
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs font-mono font-bold shrink-0 transition-colors duration-300 ${
-                    isOpen
-                      ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-[#FEF3C7] shadow-md border border-[#F6D98A]/40"
-                      : "bg-slate-100 text-slate-500 border border-slate-200"
-                  }`}
-                >
-                  {index < 9 ? `0${index + 1}` : index + 1}
-                </span>
-
-                <span
-                  className={`font-serif-apollo font-extrabold text-sm sm:text-base transition-colors duration-300 ${
-                    isOpen ? "text-[#0A5F7A]" : "text-[#0B3446]"
-                  }`}
-                >
-                  {faq.q}
-                </span>
-              </div>
-
-              {/* Toggle Chevron Icon with Animated Ring */}
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                  isOpen
-                    ? "bg-[#1D82A6] text-white shadow-md rotate-180"
-                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                }`}
+            <h2 className="font-serif-apollo text-3xl sm:text-4xl font-black text-[#0B3446]">
+              Frequently Asked{" "}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)",
+                }}
               >
-                <ChevronDown className="w-4 h-4 transition-transform duration-300" />
-              </div>
-            </button>
+                Questions
+              </span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-xl mx-auto leading-relaxed">
+              Find quick answers regarding hospital navigation, 24/7 emergency
+              admission, visiting hours, and cashless insurance claims.
+            </p>
+          </div>
 
-            {/* Answer Drawer */}
-            <AnimatePresence initial={false}>
-              {isOpen && (
+          {/* Accordion Container */}
+          <div className="space-y-4">
+            {faqs.map((faq, index) => {
+              const isOpen = activeFaq === index;
+
+              return (
                 <motion.div
-                  key="content"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  key={index}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                  className={`relative p-[1.5px] rounded-2xl transition-all duration-300 ${
+                    isOpen
+                      ? "bg-gradient-to-r from-[#F6D98A] via-[#1D82A6] to-[#C8952E] shadow-[0_12px_30px_rgba(10,95,122,0.18)] scale-[1.01]"
+                      : "bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 hover:from-[#1D82A6]/40 hover:to-[#C8952E]/40 shadow-sm"
+                  }`}
                 >
-                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100/80 bg-gradient-to-b from-slate-50/50 to-white">
-                    <div className="p-4 rounded-xl bg-[#EDF6FB]/60 border border-[#1D82A6]/15 text-slate-700">
-                      {faq.a}
-                    </div>
+                  <div className="bg-white rounded-[calc(1rem-1.5px)] overflow-hidden">
+                    {/* Question Header Button */}
+                    <button
+                      onClick={() => setActiveFaq(isOpen ? null : index)}
+                      className={`w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer transition-all duration-300 ${
+                        isOpen
+                          ? "bg-gradient-to-r from-[#0A5F7A]/5 via-white to-[#F6D98A]/10"
+                          : "hover:bg-slate-50/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        {/* Number Badge with Hero Theme Gradients */}
+                        <span
+                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs font-mono font-bold shrink-0 transition-colors duration-300 ${
+                            isOpen
+                              ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-[#FEF3C7] shadow-md border border-[#F6D98A]/40"
+                              : "bg-slate-100 text-slate-500 border border-slate-200"
+                          }`}
+                        >
+                          {index < 9 ? `0${index + 1}` : index + 1}
+                        </span>
+
+                        <span
+                          className={`font-serif-apollo font-extrabold text-sm sm:text-base transition-colors duration-300 ${
+                            isOpen ? "text-[#0A5F7A]" : "text-[#0B3446]"
+                          }`}
+                        >
+                          {faq.q}
+                        </span>
+                      </div>
+
+                      {/* Toggle Chevron Icon with Animated Ring */}
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                          isOpen
+                            ? "bg-[#1D82A6] text-white shadow-md rotate-180"
+                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                        }`}
+                      >
+                        <ChevronDown className="w-4 h-4 transition-transform duration-300" />
+                      </div>
+                    </button>
+
+                    {/* Answer Drawer */}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="content"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: "easeInOut" }}
+                        >
+                          <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100/80 bg-gradient-to-b from-slate-50/50 to-white">
+                            <div className="p-4 rounded-xl bg-[#EDF6FB]/60 border border-[#1D82A6]/15 text-slate-700">
+                              {faq.a}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
-              )}
-            </AnimatePresence>
+              );
+            })}
           </div>
-        </motion.div>
-      );
-    })}
-  </div>
-</section>
+        </section>
       </div>
 
       {/* Appointment Modal Component */}

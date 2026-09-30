@@ -63,6 +63,379 @@ const renderInline = (text) =>
     )
   );
 
+/* ───────────── Hero helpers ───────────── */
+
+const IST_TIME = () =>
+  new Date().toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
+
+// gently wander a number inside a range
+const wander = (v, min, max, step = 1) => {
+  const next = v + (Math.random() < 0.5 ? -step : step);
+  return Math.min(max, Math.max(min, next));
+};
+
+function Photo({ src, alt, className = "" }) {
+  return (
+    <div className={`relative rounded-full overflow-hidden bg-gradient-to-br from-[#0B3446] to-[#2A8FAF] ${className}`}>
+      {src && (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+    </div>
+  );
+}
+
+function HeroLive({
+  articles,
+  searchQuery,
+  setSearchQuery,
+  activeTab,
+  setActiveTab,
+  onSearchSubmit,
+  goldStyle,
+}) {
+  // LIVE VALUES (simulated). Replace with real API / websocket data later.
+  const [time, setTime] = useState("");
+  const [bpm, setBpm] = useState(72);
+  const [doctors, setDoctors] = useState(38);
+  const [icuBeds, setIcuBeds] = useState(9);
+  const [eta, setEta] = useState(6);
+
+  useEffect(() => {
+    setTime(IST_TIME());
+    const t = setInterval(() => setTime(IST_TIME()), 1000);
+    const h = setInterval(() => setBpm((v) => wander(v, 66, 80)), 1300);
+    const d = setInterval(() => {
+      setDoctors((v) => wander(v, 34, 44));
+      setIcuBeds((v) => wander(v, 5, 13));
+      setEta((v) => wander(v, 4, 9));
+    }, 4500);
+    return () => {
+      clearInterval(t);
+      clearInterval(h);
+      clearInterval(d);
+    };
+  }, []);
+
+  const goTo = (q) => {
+    setSearchQuery(q);
+    if (activeTab !== "articles" && activeTab !== "news") setActiveTab("articles");
+  };
+
+  const p1 = articles[0]?.image;
+  const p2 = articles[1]?.image;
+  const p3 = articles[2]?.image;
+
+  const liveStats = [
+    { icon: Clock, value: time || "--:--", label: "Jabalpur time (IST)", wide: true },
+    { icon: Stethoscope, value: doctors, label: "Doctors on duty" },
+    { icon: Activity, value: icuBeds, label: "ICU beds free" },
+    { icon: Siren, value: `${eta} min`, label: "Ambulance ETA" },
+  ];
+
+  const ECG_D =
+    "M0 100 H180 l20 -10 l20 10 H330 l15 20 l25 -90 l25 130 l20 -60 H520 l20 -12 l30 12 H720 l15 20 l25 -90 l25 130 l20 -60 H900 l20 -10 l20 10 H1200";
+
+  return (
+    <section className="relative isolate overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white mt-6 pb-28 sm:pb-32">
+      {/* ambient light */}
+      <div className="absolute -top-32 right-[8%] w-[34rem] h-[34rem] rounded-full bg-[#F6D98A]/25 blur-3xl hx-breathe pointer-events-none" />
+      <div className="absolute -bottom-40 -left-32 w-[34rem] h-[34rem] rounded-full bg-[#0B3446]/50 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.10] bg-[radial-gradient(white_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+
+      {/* live ECG line */}
+      <svg
+        className="absolute left-0 right-0 top-[46%] w-full h-40 opacity-90 pointer-events-none"
+        viewBox="0 0 1200 200"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="hxEcg" x1="0" x2="1">
+            <stop offset="0%" stopColor="#F6D98A" stopOpacity="0" />
+            <stop offset="50%" stopColor="#F6D98A" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          d={ECG_D}
+          fill="none"
+          stroke="white"
+          strokeOpacity="0.14"
+          strokeWidth="1.5"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={ECG_D}
+          fill="none"
+          stroke="url(#hxEcg)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          pathLength="1000"
+          vectorEffect="non-scaling-stroke"
+          className="hx-ecg"
+        />
+      </svg>
+
+      <HeartPulse className="absolute -right-16 -bottom-10 w-[28rem] h-[28rem] opacity-[0.05] -rotate-12 pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
+        {/* LEFT — message + search + live strip */}
+        <div className="lg:col-span-7">
+          <div className="flex items-center gap-2.5 text-[#FEF3C7] text-xs font-bold mb-6">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-400" />
+            </span>
+            <span className="tracking-wide">Live from Apollo Hospitals Jabalpur</span>
+            <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
+          </div>
+
+          <h1 className="font-serif-apollo text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-5">
+            Health Information, Medical Blogs &{" "}
+            <span
+              className="bg-clip-text text-transparent hx-sheen"
+              style={{ backgroundImage: "linear-gradient(90deg,#F6D98A,#FFFFFF,#C8952E,#F6D98A)" }}
+            >
+              Apollo News
+            </span>
+          </h1>
+
+          <p className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
+            Real-time medical updates, EBUS pulmonary diagnostics, insurance TPA guides and doctor-reviewed articles, straight from Apollo Hospitals Jabalpur.
+          </p>
+
+          {/* search — a single glowing pill */}
+          <form
+            onSubmit={onSearchSubmit}
+            className="relative max-w-xl rounded-full bg-white/95 backdrop-blur-xl p-1.5 flex items-center focus-within:ring-4 focus-within:ring-[#F6D98A]/40 shadow-[0_18px_50px_rgba(0,0,0,0.28)] transition-all"
+          >
+            <Search className="w-5 h-5 text-[#0E526B] ml-4 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => goTo(e.target.value)}
+              placeholder="Search blogs, EBUS, TPA insurance, joint pain, flu..."
+              className="w-full px-3 py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 mr-1 cursor-pointer"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="submit"
+              className="px-7 py-3 rounded-full text-[#3A2B0A] font-extrabold text-xs hover:shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+              style={goldStyle}
+            >
+              Search
+            </button>
+          </form>
+
+          {/* popular — plain text links */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <span className="text-[#FEF3C7]/90 font-bold">Popular</span>
+            {["EBUS", "Insurance", "Joint Pain", "Heart", "Flu"].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => goTo(chip)}
+                className="font-semibold text-white/85 hover:text-[#F6D98A] underline-offset-4 decoration-[#F6D98A]/60 hover:underline transition-colors cursor-pointer"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          {/* live strip — open row, hairline dividers */}
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-y-6">
+            {liveStats.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.label}
+                  className={`pl-4 ${i % 2 === 1 ? "border-l border-white/20" : ""} ${
+                    i > 0 ? "sm:border-l sm:border-white/20" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-[#F6D98A]">
+                    <Icon className="w-4 h-4" />
+                    <span className="text-[10px] font-bold text-white/70">{s.label}</span>
+                  </div>
+                  <div
+                    key={String(s.value)}
+                    className={`mt-1 font-serif-apollo font-black leading-none hx-tick ${
+                      s.wide ? "text-lg sm:text-xl" : "text-2xl sm:text-3xl"
+                    }`}
+                  >
+                    {s.value}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] font-semibold text-white/80">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-300" /> 100% doctor reviewed
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Radio className="w-4 h-4 text-[#F6D98A]" /> {articles.length} live articles and news
+            </span>
+          </div>
+        </div>
+
+        {/* RIGHT — photo orbit with live tags */}
+        <div className="lg:col-span-5 relative h-[380px] sm:h-[460px] lg:h-[540px] flex items-center justify-center">
+          <div className="absolute w-[19rem] h-[19rem] sm:w-[25rem] sm:h-[25rem] lg:w-[29rem] lg:h-[29rem] rounded-full border border-dashed border-[#F6D98A]/45 hx-spin">
+            <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-[0_0_20px_#F6D98A]" />
+          </div>
+          <div className="absolute w-[15rem] h-[15rem] sm:w-[20rem] sm:h-[20rem] lg:w-[23rem] lg:h-[23rem] rounded-full border border-white/20 hx-spin-rev">
+            <span className="absolute -bottom-1.5 left-[30%] w-3 h-3 rounded-full bg-white shadow-[0_0_16px_white]" />
+          </div>
+
+          {/* main photo with pulsing halo */}
+          <div className="relative hx-float-slow">
+            <span className="absolute inset-0 rounded-full bg-[#F6D98A]/40 hx-halo" />
+            <div className="relative p-[3px] rounded-full bg-gradient-to-br from-[#F6D98A] via-white to-[#C8952E] shadow-[0_30px_70px_rgba(0,0,0,0.35)]">
+              <Photo src={p1} alt="Apollo health story" className="w-52 h-52 sm:w-64 sm:h-64 lg:w-72 lg:h-72" />
+            </div>
+          </div>
+
+          {/* satellite photos */}
+          <div className="absolute top-[4%] right-[4%] hx-float">
+            <div className="p-[2px] rounded-full bg-white/70 shadow-xl">
+              <Photo src={p2} alt="Apollo news" className="w-20 h-20 sm:w-28 sm:h-28" />
+            </div>
+          </div>
+          <div className="absolute bottom-[6%] left-[2%] hx-float" style={{ animationDelay: "-2.5s" }}>
+            <div className="p-[2px] rounded-full bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-xl">
+              <Photo src={p3} alt="Apollo care" className="w-24 h-24 sm:w-32 sm:h-32" />
+            </div>
+          </div>
+
+          {/* floating live tags */}
+          <div className="absolute top-[18%] left-0 sm:left-[2%] hx-float" style={{ animationDelay: "-1.2s" }}>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0B3446]/55 backdrop-blur-md text-xs font-bold shadow-lg">
+              <HeartPulse className="w-4 h-4 text-rose-400 hx-beat" />
+              <span key={bpm} className="hx-tick tabular-nums">{bpm}</span>
+              <span className="text-white/70 font-semibold">bpm live</span>
+            </div>
+          </div>
+
+          <div className="absolute bottom-[26%] right-0 hx-float" style={{ animationDelay: "-3.6s" }}>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0B3446]/55 backdrop-blur-md text-xs font-bold shadow-lg">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+              </span>
+              Emergency 24/7 open
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* curved bottom edge blends into page background (#EDF6FB) */}
+      <svg
+        className="absolute bottom-[-1px] left-0 w-full h-16 sm:h-24 pointer-events-none"
+        viewBox="0 0 1440 120"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          className="hx-wave"
+          d="M0 70 C240 10 480 110 720 65 C960 20 1200 105 1440 55 V120 H0 Z"
+          fill="#EDF6FB"
+          fillOpacity="0.45"
+        />
+        <path d="M0 95 C260 50 520 125 780 88 C1040 50 1250 110 1440 80 V120 H0 Z" fill="#EDF6FB" />
+      </svg>
+
+      <style jsx>{`
+        .hx-ecg {
+          stroke-dasharray: 180 1000;
+          animation: hxEcg 4.5s linear infinite;
+          filter: drop-shadow(0 0 6px #f6d98a);
+        }
+        @keyframes hxEcg {
+          from { stroke-dashoffset: 180; }
+          to { stroke-dashoffset: -1000; }
+        }
+        .hx-spin { animation: hxSpin 42s linear infinite; }
+        .hx-spin-rev { animation: hxSpin 30s linear infinite reverse; }
+        @keyframes hxSpin {
+          to { transform: rotate(360deg); }
+        }
+        .hx-float { animation: hxFloat 7s ease-in-out infinite; }
+        .hx-float-slow { animation: hxFloat 9s ease-in-out infinite; }
+        @keyframes hxFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-14px); }
+        }
+        .hx-halo { animation: hxHalo 3.2s ease-out infinite; }
+        @keyframes hxHalo {
+          0% { transform: scale(1); opacity: 0.55; }
+          100% { transform: scale(1.32); opacity: 0; }
+        }
+        .hx-beat { animation: hxBeat 1s ease-in-out infinite; }
+        @keyframes hxBeat {
+          0%, 100% { transform: scale(1); }
+          15% { transform: scale(1.3); }
+          30% { transform: scale(1); }
+          45% { transform: scale(1.18); }
+        }
+        .hx-tick { animation: hxTick 0.45s ease-out; }
+        @keyframes hxTick {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: none; }
+        }
+        .hx-sheen {
+          background-size: 250% 100%;
+          animation: hxSheen 5s linear infinite;
+        }
+        @keyframes hxSheen {
+          to { background-position: -250% 0; }
+        }
+        .hx-breathe { animation: hxBreathe 8s ease-in-out infinite; }
+        @keyframes hxBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.12); opacity: 1; }
+        }
+        .hx-wave { animation: hxWave 9s ease-in-out infinite alternate; }
+        @keyframes hxWave {
+          to { transform: translateX(-40px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hx-ecg, .hx-spin, .hx-spin-rev, .hx-float, .hx-float-slow, .hx-halo,
+          .hx-beat, .hx-sheen, .hx-breathe, .hx-wave {
+            animation: none;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ───────────── Page ───────────── */
+
 export default function HealthLibraryPage() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -184,7 +557,6 @@ export default function HealthLibraryPage() {
     let color = "";
     let tip = "";
 
-    // (fixed: previous range left a gap between 24.9 and 25)
     if (score < 18.5) {
       category = "Underweight";
       color = "text-amber-600 bg-amber-50 border-amber-200";
@@ -617,147 +989,16 @@ export default function HealthLibraryPage() {
           </div>
         </div>
 
-        {/* ───── Hero Header Section ───── */}
-        <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-8 mb-10">
-          <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#F6D98A]/80 via-[#1D82A6]/40 to-[#C8952E]/80 shadow-[0_30px_70px_rgba(10,95,122,0.35)]">
-            <div className="relative rounded-[calc(2rem-1.5px)] overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] p-8 sm:p-12 lg:p-14 text-white">
-              {/* decor */}
-              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#F6D98A]/25 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-28 -left-24 w-96 h-96 rounded-full bg-[#0B3446]/40 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px] pointer-events-none" />
-              <HeartPulse className="absolute -right-10 -bottom-10 w-80 h-80 opacity-[0.07] text-white -rotate-12 pointer-events-none" />
-
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                <div className="lg:col-span-8">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-[#FEF3C7] text-xs font-bold mb-6 shadow-inner">
-                    <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
-                    <span>Official Apollo Hospitals Jabalpur Health Portal</span>
-                  </div>
-
-                  <h1 className="font-serif-apollo text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-4">
-                    Health Information, Medical Blogs &{" "}
-                    <span
-                      className="bg-clip-text text-transparent"
-                      style={{
-                        backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #C8952E 100%)",
-                      }}
-                    >
-                      Apollo News
-                    </span>
-                  </h1>
-
-                  <p className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-2xl">
-                    Access real-time medical updates, technology launches like EBUS Pulmonary Diagnostics, insurance TPA guides, and doctor-reviewed health articles curated directly from Apollo Hospitals Jabalpur.
-                  </p>
-
-                  {/* Global Search Bar */}
-                  <form
-                    onSubmit={handleSearchSubmit}
-                    className="relative max-w-2xl rounded-2xl bg-white/95 backdrop-blur-xl p-2 flex items-center border-2 border-white/40 focus-within:border-[#F6D98A] focus-within:ring-4 focus-within:ring-[#F6D98A]/25 shadow-[0_15px_40px_rgba(0,0,0,0.25)] transition-all"
-                  >
-                    <Search className="w-5 h-5 text-[#0E526B] ml-3 shrink-0" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        if (activeTab !== "articles" && activeTab !== "news") setActiveTab("articles");
-                      }}
-                      placeholder="Search blogs, EBUS tech, TPA cashless insurance, joint pain, flu..."
-                      className="w-full px-3 py-2.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery("")}
-                        className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 mr-1 cursor-pointer"
-                        aria-label="Clear search"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 rounded-xl text-[#3A2B0A] font-extrabold text-xs hover:shadow-lg hover:-translate-y-0.5 transition-all shrink-0 cursor-pointer"
-                      style={goldStyle}
-                    >
-                      Search
-                    </button>
-                  </form>
-
-                  {/* Popular searches */}
-                  <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px]">
-                    <span className="text-[#FEF3C7]/90 font-bold">Popular:</span>
-                    {["EBUS", "Insurance", "Joint Pain", "Heart", "Flu"].map((chip) => (
-                      <button
-                        key={chip}
-                        type="button"
-                        onClick={() => {
-                          setSearchQuery(chip);
-                          if (activeTab !== "articles" && activeTab !== "news") setActiveTab("articles");
-                        }}
-                        className="px-3 py-1 rounded-full bg-white/10 hover:bg-[#F6D98A] hover:text-[#0B3446] border border-white/25 hover:border-[#F6D98A] backdrop-blur-sm font-semibold transition-all cursor-pointer"
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Quick Metrics Bar */}
-                  <div className="mt-8 pt-6 border-t border-white/20 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-100">
-                    {[
-                      { icon: ShieldCheck, text: "100% Doctor Reviewed", color: "text-emerald-300" },
-                      { icon: Newspaper, text: "Official Apollo News", color: "text-[#F6D98A]" },
-                      { icon: Calculator, text: "Health Calculators", color: "text-cyan-200" },
-                      { icon: UserCheck, text: "Specialist Consultation", color: "text-rose-200" },
-                    ].map((m, i) => {
-                      const MIcon = m.icon;
-                      return (
-                        <div
-                          key={i}
-                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15 hover:bg-white/15 transition-all"
-                        >
-                          <MIcon className={`w-4 h-4 shrink-0 ${m.color}`} />
-                          <span className="font-semibold">{m.text}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right floating stat cards */}
-                <div className="hidden lg:flex lg:col-span-4 flex-col gap-4">
-                  {[
-                    { icon: BookOpen, value: articles.length, label: "Health Articles" },
-                    { icon: Newspaper, value: newsItems.length, label: "Apollo News & Events" },
-                    { icon: Award, value: categories.length - 1, label: "Medical Categories" },
-                  ].map((s, i) => {
-                    const SIcon = s.icon;
-                    return (
-                      <div
-                        key={i}
-                        className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:-translate-x-1 transition-all duration-300"
-                      >
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F6D98A] to-[#C8952E] text-[#0B3446] flex items-center justify-center shadow-md shrink-0">
-                          <SIcon className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <div
-                            className="text-3xl font-black bg-clip-text text-transparent leading-none"
-                            style={{ backgroundImage: "linear-gradient(90deg, #F6D98A, #FFFFFF)" }}
-                          >
-                            {s.value}
-                          </div>
-                          <div className="text-xs font-semibold text-slate-100/90 mt-1">{s.label}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* ───── Hero Header Section (NEW) ───── */}
+        <HeroLive
+          articles={articles}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onSearchSubmit={handleSearchSubmit}
+          goldStyle={goldStyle}
+        />
 
         {/* ───── Navigation Tabs Bar ───── */}
         <div id="hl-results" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 scroll-mt-32">

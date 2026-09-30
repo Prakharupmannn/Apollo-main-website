@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/components/Navbar";
 import HeroSection from "../components/components/HeroSection";
 import QuickActionsGrid from "../components/components/QuickActionsGrid";
@@ -23,7 +23,37 @@ export default function Home() {
 
   // Force every load/refresh of this page to start at the top, instead of
   // the browser restoring whatever scroll position you were at before refreshing.
-  
+  useEffect(() => {
+    // Tell the browser not to automatically change the scroll position
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // Get the previous scroll position
+    const savedScrollPosition = sessionStorage.getItem("homeScrollPosition");
+
+    // Restore it after the page has rendered
+    if (savedScrollPosition) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, Number(savedScrollPosition));
+        });
+      });
+    }
+
+    // Save the current scroll position while scrolling
+    const handleScroll = () => {
+      sessionStorage.setItem("homeScrollPosition", String(window.scrollY));
+    };
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleOpenAppointmentModal = () => {
     setIsAppointmentModalOpen(true);
@@ -36,10 +66,22 @@ export default function Home() {
   const handleHeroSearch = (query) => {
     setSearchQuery(query);
     setSearchResults([
-      { title: "Dr. Sangita Reddy", cat: "Executive Leadership", link: "#doctors" },
+      {
+        title: "Dr. Sangita Reddy",
+        cat: "Executive Leadership",
+        link: "#doctors",
+      },
       { title: "Dr. Vivek Gupta", cat: "Cardiology", link: "#doctors" },
-      { title: "Robotic Cardiac Surgery", cat: "Specialty Procedure", link: "#specialities" },
-      { title: "Cancer Care Institute", cat: "Centre of Excellence", link: "#centres-of-excellence" },
+      {
+        title: "Robotic Cardiac Surgery",
+        cat: "Specialty Procedure",
+        link: "#specialities",
+      },
+      {
+        title: "Cancer Care Institute",
+        cat: "Centre of Excellence",
+        link: "#centres-of-excellence",
+      },
     ]);
     setIsSearchModalOpen(true);
   };
@@ -59,9 +101,7 @@ export default function Home() {
       />
 
       {/* Quick Actions Grid & 40+ Years Stats Banner */}
-      <QuickActionsGrid
-        onOpenAppointmentModal={handleOpenAppointmentModal}
-      />
+      <QuickActionsGrid onOpenAppointmentModal={handleOpenAppointmentModal} />
 
       {/* Comprehensive Care Specialities */}
       <SpecialitiesSection
@@ -77,14 +117,10 @@ export default function Home() {
       />
 
       {/* Meet Our Leading Doctors */}
-      <LeadingDoctors
-        onOpenAppointmentModal={handleOpenAppointmentModal}
-      />
+      <LeadingDoctors onOpenAppointmentModal={handleOpenAppointmentModal} />
 
       {/* Book Your Appointment CTA Banner */}
-      <AppointmentBanner
-        onOpenAppointmentModal={handleOpenAppointmentModal}
-      />
+      <AppointmentBanner onOpenAppointmentModal={handleOpenAppointmentModal} />
 
       {/* Real Stories Patient Testimonials */}
       <PatientTestimonials />
@@ -131,12 +167,30 @@ export default function Home() {
             />
 
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              <p className="text-[11px] font-bold uppercase text-slate-400">Quick Match Results:</p>
+              <p className="text-[11px] font-bold uppercase text-slate-400">
+                Quick Match Results:
+              </p>
               {[
-                { title: "Dr. Sangita Reddy", desc: "Joint Managing Director & Executive Director", href: "#doctors" },
-                { title: "Dr. Vivek Gupta", desc: "Senior Director - Interventional Cardiology", href: "#doctors" },
-                { title: "Cardiology Specialty", desc: "TAVI, Angioplasty, Robotic Bypass", href: "#specialities" },
-                { title: "Cancer Care Institute", desc: "Proton Therapy & CyberKnife", href: "#centres-of-excellence" },
+                {
+                  title: "Dr. Sangita Reddy",
+                  desc: "Joint Managing Director & Executive Director",
+                  href: "#doctors",
+                },
+                {
+                  title: "Dr. Vivek Gupta",
+                  desc: "Senior Director - Interventional Cardiology",
+                  href: "#doctors",
+                },
+                {
+                  title: "Cardiology Specialty",
+                  desc: "TAVI, Angioplasty, Robotic Bypass",
+                  href: "#specialities",
+                },
+                {
+                  title: "Cancer Care Institute",
+                  desc: "Proton Therapy & CyberKnife",
+                  href: "#centres-of-excellence",
+                },
               ].map((res) => (
                 <a
                   key={res.title}
@@ -144,7 +198,9 @@ export default function Home() {
                   onClick={() => setIsSearchModalOpen(false)}
                   className="block p-3 rounded-xl hover:bg-[#EBF5F8] border border-slate-100 transition-colors"
                 >
-                  <div className="text-xs font-bold text-[#0E526B]">{res.title}</div>
+                  <div className="text-xs font-bold text-[#0E526B]">
+                    {res.title}
+                  </div>
                   <div className="text-[11px] text-slate-500">{res.desc}</div>
                 </a>
               ))}

@@ -24,10 +24,10 @@ import {
   ScanLine,
   Zap,
   Trees,
-  Building2 ,
-  Handshake ,
+  Building2,
+  Handshake,
   Landmark,
-  Check ,
+  Check,
   Radiation,
 } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -39,8 +39,6 @@ import {
   useInView,
 } from "framer-motion";
 import { useEffect, useState } from "react";
-
-
 
 /* =========================================================
    DATA
@@ -195,8 +193,6 @@ const stagger = {
 ========================================================= */
 
 export default function AboutPage() {
-
-
   const handleOpenAppointmentModal = () => {
     window.location.href = "/contact";
   };
@@ -207,7 +203,6 @@ export default function AboutPage() {
 
   return (
     <main className="overflow-hidden bg-[#F7FBFD] text-[#06202B]">
-
       {/* =====================================================
           01 — CINEMATIC HERO
       ===================================================== */}
@@ -217,11 +212,10 @@ export default function AboutPage() {
         onFindDoctor={handleFindDoctor}
       />
 
-
       {/* =====================================================
       02 — CHAIRMAN SECTION (DR. PRATHAP C. REDDY + LOCAL LEADERSHIP)
   ===================================================== */}
-  <ChairmanSection />
+      <ChairmanSection />
 
       {/* =====================================================
           02 — INTRODUCTION
@@ -278,10 +272,7 @@ export default function AboutPage() {
    HERO
 ========================================================= */
 
-function AboutHero({
-  onOpenAppointmentModal,
-  onFindDoctor,
-}) {
+function AboutHero({ onOpenAppointmentModal, onFindDoctor }) {
   const ref = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -341,7 +332,12 @@ function AboutHero({
             ],
             scale: [1, 1.1, 1],
           }}
-          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          transition={{
+            duration: 16,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
           className="absolute -right-40 top-[15%] h-[380px] w-[380px] bg-[#F3DFA8]/35 blur-[100px]"
         />
 
@@ -355,7 +351,12 @@ function AboutHero({
             ],
             scale: [1, 1.06, 1],
           }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
           className="absolute bottom-[-180px] left-[35%] h-[400px] w-[400px] bg-[#CDEAF7]/40 blur-[100px]"
         />
 
@@ -645,10 +646,10 @@ function AboutHero({
                 className="mt-6 max-w-lg text-[13px] leading-6 text-slate-600 sm:text-sm"
               >
                 Apollo JBP Hospitals is a state-of-the-art healthcare facility
-                in Central India, a managed unit of Apollo Hospitals
-                Enterprise Ltd, bringing quaternary care, advanced technology
-                and personalised patient attention to Jabalpur and the
-                Mahakoshal region.
+                in Central India, a managed unit of Apollo Hospitals Enterprise
+                Ltd, bringing quaternary care, advanced technology and
+                personalised patient attention to Jabalpur and the Mahakoshal
+                region.
               </motion.p>
 
               {/* Actions */}
@@ -710,7 +711,11 @@ function AboutHero({
                   scale: [1, 1.035, 1],
                   opacity: [0.3, 0.45, 0.3],
                 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-[#C8952E]/25 to-[#1D82A6]/15 blur-3xl"
               />
 
@@ -736,7 +741,11 @@ function AboutHero({
               {/* FLOATING PATIENT-FIRST CARD */}
               <motion.div
                 animate={{ y: [0, -7, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="absolute -bottom-5 -left-3 hidden rounded-xl border border-white/80 bg-white/90 px-3.5 py-3 shadow-[0_15px_35px_rgba(15,52,72,0.16)] backdrop-blur-xl sm:block"
               >
                 <div className="flex items-center gap-2.5">
@@ -757,7 +766,11 @@ function AboutHero({
               {/* EXPERIENCE CARD */}
               <motion.div
                 animate={{ y: [0, 7, 0] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 5.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="absolute -right-3 top-12 hidden rounded-xl border border-[#C8952E]/20 bg-[#06202B] px-3.5 py-2.5 text-white shadow-[0_15px_30px_rgba(6,32,43,0.18)] sm:block"
               >
                 <span className="text-[8px] uppercase tracking-[0.18em] text-white/45">
@@ -766,7 +779,9 @@ function AboutHero({
                 <div className="mt-0.5 text-lg font-extrabold tracking-tight">
                   12
                 </div>
-                <div className="text-[8px] text-[#F6D98A]">Operation Theatres</div>
+                <div className="text-[8px] text-[#F6D98A]">
+                  Operation Theatres
+                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -790,7 +805,6 @@ function AboutHero({
     </section>
   );
 }
-
 
 /* =========================================================
    02 — CHAIRMAN SECTION (NEW COMPONENT)
@@ -831,7 +845,6 @@ function ChairmanSection() {
       ====================================================== */}
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
         {/* Soft blue atmosphere */}
         <motion.div
           animate={{
@@ -866,11 +879,9 @@ function ChairmanSection() {
         <div
           className="absolute inset-0 opacity-[0.055]"
           style={{
-            backgroundImage:
-              "radial-gradient(#0E526B 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(#0E526B 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage:
-              "linear-gradient(to bottom, black 0%, transparent 85%)",
+            maskImage: "linear-gradient(to bottom, black 0%, transparent 85%)",
           }}
         />
 
@@ -905,7 +916,6 @@ function ChairmanSection() {
       ====================================================== */}
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-
         {/* ===================================================
             SECTION HEADER
         ==================================================== */}
@@ -949,13 +959,11 @@ function ChairmanSection() {
         ==================================================== */}
 
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-16">
-
           {/* =================================================
               PORTRAIT SIDE
           ================================================== */}
 
           <div className="lg:col-span-5">
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -975,7 +983,6 @@ function ChairmanSection() {
               }}
               className="relative mx-auto max-w-[400px]"
             >
-
               {/* =================================================
                   ORBITAL DECORATION
               ================================================== */}
@@ -1021,7 +1028,6 @@ function ChairmanSection() {
                 className="group relative"
               >
                 <div className="relative overflow-hidden rounded-[2.2rem] border-[5px] border-white bg-[#06202B] shadow-[0_35px_80px_-25px_rgba(6,32,43,0.35)]">
-
                   {/* Image */}
                   <motion.img
                     initial={{
@@ -1096,7 +1102,6 @@ function ChairmanSection() {
                   ================================================== */}
 
                   <div className="absolute inset-x-0 bottom-0 p-6">
-
                     <div className="mb-1 flex items-center gap-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#F6D98A] shadow-[0_0_8px_#F6D98A]" />
 
@@ -1141,7 +1146,6 @@ function ChairmanSection() {
                   className="absolute -bottom-5 -right-3 hidden rounded-2xl border border-white/80 bg-white/90 p-3 shadow-[0_20px_40px_rgba(6,32,43,0.15)] backdrop-blur-xl sm:block"
                 >
                   <div className="flex items-center gap-3">
-
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F6D98A] to-[#C8952E] text-[#3A2B0A]">
                       <Award className="h-4 w-4" />
                     </div>
@@ -1166,7 +1170,6 @@ function ChairmanSection() {
           ================================================== */}
 
           <div className="lg:col-span-7">
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -1186,7 +1189,6 @@ function ChairmanSection() {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-
               {/* Eyebrow */}
               <motion.div
                 initial={{ opacity: 0, x: -15 }}
@@ -1216,7 +1218,6 @@ function ChairmanSection() {
               ================================================== */}
 
               <h2 className="max-w-2xl text-[2.4rem] font-extrabold leading-[0.98] tracking-[-0.045em] text-[#06202B] sm:text-4xl lg:text-[3rem]">
-
                 <motion.span
                   initial={{ opacity: 0, y: 20 }}
                   animate={
@@ -1253,7 +1254,6 @@ function ChairmanSection() {
                   className="relative inline-block text-[#0E526B]"
                 >
                   Chandra Reddy
-
                   {/* Animated underline */}
                   <motion.span
                     initial={{ width: 0 }}
@@ -1317,11 +1317,10 @@ function ChairmanSection() {
                 <Quote className="absolute right-5 top-5 h-9 w-9 text-[#C8952E]/10 transition-transform duration-500 group-hover:scale-110" />
 
                 <p className="relative max-w-2xl font-serif text-[15px] italic leading-7 text-[#06202B] sm:text-[17px]">
-                  "Our mission is to bring healthcare of International
-                  standards within the reach of every individual. We are
-                  committed to the achievement and maintenance of excellence
-                  in education, research and healthcare for the benefit of
-                  humanity."
+                  "Our mission is to bring healthcare of International standards
+                  within the reach of every individual. We are committed to the
+                  achievement and maintenance of excellence in education,
+                  research and healthcare for the benefit of humanity."
                 </p>
 
                 <div className="mt-4 flex items-center gap-3">
@@ -1353,10 +1352,10 @@ function ChairmanSection() {
                 className="max-w-2xl text-[13px] leading-6 text-slate-600 sm:text-[14px]"
               >
                 In 1983, Dr. Prathap Chandra Reddy revolutionized the Indian
-                healthcare landscape by establishing Apollo Hospitals —
-                India's first corporate hospital chain. That same vision now
-                powers Apollo JBP Hospitals in Jabalpur, a managed unit of
-                Apollo Hospitals Enterprise Ltd, bringing quaternary and
+                healthcare landscape by establishing Apollo Hospitals — India's
+                first corporate hospital chain. That same vision now powers
+                Apollo JBP Hospitals in Jabalpur, a managed unit of Apollo
+                Hospitals Enterprise Ltd, bringing quaternary and
                 super-specialised care to Central India.
               </motion.p>
 
@@ -1365,7 +1364,6 @@ function ChairmanSection() {
               ================================================== */}
 
               <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-
                 {stats.map((stat, index) => (
                   <motion.div
                     key={stat.label}
@@ -1396,9 +1394,7 @@ function ChairmanSection() {
 
                     <div
                       className={`relative text-xl font-extrabold tracking-tight ${
-                        index === 1
-                          ? "text-[#C8952E]"
-                          : "text-[#0E526B]"
+                        index === 1 ? "text-[#C8952E]" : "text-[#0E526B]"
                       }`}
                     >
                       {stat.value}
@@ -1427,9 +1423,7 @@ function ChairmanSection() {
                         duration: 0.8,
                       }}
                       className={`absolute bottom-0 left-0 h-[2px] ${
-                        index === 1
-                          ? "bg-[#C8952E]"
-                          : "bg-[#0E526B]"
+                        index === 1 ? "bg-[#C8952E]" : "bg-[#0E526B]"
                       }`}
                     />
                   </motion.div>
@@ -1459,7 +1453,6 @@ function ChairmanSection() {
                 }}
                 className="mt-8 flex flex-wrap items-center gap-5"
               >
-
                 <a
                   href="#philosophy"
                   className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#0E526B] px-5 py-2.5 text-[10px] font-bold text-white shadow-[0_10px_25px_rgba(14,82,107,0.18)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#06202B]"
@@ -1467,9 +1460,7 @@ function ChairmanSection() {
                   {/* Button shimmer */}
                   <span className="absolute inset-y-0 -left-[80%] w-[45%] skew-x-[-20deg] bg-white/20 transition-all duration-700 group-hover:left-[130%]" />
 
-                  <span className="relative">
-                    Read Chairman's Vision
-                  </span>
+                  <span className="relative">Read Chairman's Vision</span>
 
                   <ArrowRight className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
@@ -1481,25 +1472,16 @@ function ChairmanSection() {
                     <CheckCircle2 className="relative h-4 w-4 text-[#C8952E]" />
                   </span>
 
-                  <span>
-                    Serving with compassion since 1983
-                  </span>
+                  <span>Serving with compassion since 1983</span>
                 </div>
               </motion.div>
             </motion.div>
           </div>
         </div>
-
-      
-
-        
-
       </div>
     </section>
   );
 }
-
-
 
 /* =========================================================
    STORY INTRO
@@ -1664,9 +1646,7 @@ function ChairmanSection() {
 function ImpactNumbers() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] px-5 py-10 sm:px-8 lg:py-20">
-
       <div className="absolute inset-0 pointer-events-none">
-
         <div className="absolute inset-0 bg-[radial-gradient(#53B3D4_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
 
         <div className="absolute left-[-150px] top-[-150px] h-[500px] w-[500px] rounded-full bg-[#F59E0B]/20 blur-[120px]" />
@@ -1684,9 +1664,7 @@ function ImpactNumbers() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl">
-
         <div className="mb-16 flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
-
           <div>
             <div className="mb-4 flex items-center gap-3 text-[#F6D98A]">
               <span className="h-px w-8 bg-[#F6D98A]" />
@@ -1698,7 +1676,8 @@ function ImpactNumbers() {
             <h2 className="max-w-2xl text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
               A facility built for
               <span className="font-serif italic font-medium text-[#F6D98A]">
-                {" "}quaternary care.
+                {" "}
+                quaternary care.
               </span>
             </h2>
           </div>
@@ -1710,15 +1689,9 @@ function ImpactNumbers() {
         </div>
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4 lg:gap-8">
-
           {stats.map((stat, index) => (
-            <StatItem
-              key={stat.label}
-              stat={stat}
-              index={index}
-            />
+            <StatItem key={stat.label} stat={stat} index={index} />
           ))}
-
         </div>
       </div>
     </section>
@@ -1785,11 +1758,7 @@ function ApolloTimeline() {
     offset: ["start 75%", "end 30%"],
   });
 
-  const lineHeight = useTransform(
-    scrollYProgress,
-    [0, 1],
-    ["0%", "100%"]
-  );
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <section
@@ -1797,9 +1766,7 @@ function ApolloTimeline() {
       className="relative bg-[#F7FBFD] px-5 py-10 sm:px-8 lg:py-20"
     >
       <div className="mx-auto max-w-6xl">
-
         <div className="mb-20 text-center">
-
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#1D82A6]/15 bg-white px-4 py-2 shadow-sm">
             <Hospital className="h-3.5 w-3.5 text-[#C8952E]" />
 
@@ -1811,18 +1778,18 @@ function ApolloTimeline() {
           <h2 className="text-4xl font-extrabold tracking-tight text-[#06202B] sm:text-5xl lg:text-6xl">
             Decades of
             <span className="font-serif italic font-medium text-[#C8952E]">
-              {" "}progress.
+              {" "}
+              progress.
             </span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-slate-500">
-            A journey shaped by changing technology, evolving medicine and
-            one constant — putting patients first.
+            A journey shaped by changing technology, evolving medicine and one
+            constant — putting patients first.
           </p>
         </div>
 
         <div className="relative">
-
           {/* central line */}
           <div className="absolute left-4 top-0 h-full w-px bg-slate-200 md:left-1/2 md:-translate-x-1/2" />
 
@@ -1832,15 +1799,9 @@ function ApolloTimeline() {
           />
 
           <div className="space-y-20 md:space-y-28">
-
             {milestones.map((item, index) => (
-              <TimelineItem
-                key={item.year}
-                item={item}
-                index={index}
-              />
+              <TimelineItem key={item.year} item={item} index={index} />
             ))}
-
           </div>
         </div>
       </div>
@@ -1871,7 +1832,6 @@ function TimelineItem({ item, index }) {
       }}
       className="relative grid grid-cols-1 pl-12 md:grid-cols-2 md:gap-20 md:pl-0"
     >
-
       <div
         className={`${
           isRight
@@ -1879,7 +1839,6 @@ function TimelineItem({ item, index }) {
             : "md:col-start-1 md:text-right"
         }`}
       >
-
         <div className="text-5xl font-extrabold tracking-tight text-[#C8952E]/25 sm:text-6xl">
           {item.year}
         </div>
@@ -1917,14 +1876,10 @@ function TimelineItem({ item, index }) {
 function Philosophy() {
   return (
     <section className="relative overflow-hidden bg-white px-5 py-10 sm:px-8 lg:py-20">
-
       <div className="mx-auto max-w-7xl">
-
         <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-12">
-
           {/* ================= LEFT ================= */}
           <div className="lg:col-span-7">
-
             <div className="mb-7 flex items-center gap-3">
               <span className="h-px w-10 bg-[#C8952E]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#0E526B]">
@@ -1988,12 +1943,10 @@ function Philosophy() {
                 </p>
               </div>
             </motion.div>
-
           </div>
 
           {/* ================= RIGHT — Plaque card ================= */}
           <div className="relative lg:col-span-5">
-
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -2017,7 +1970,6 @@ function Philosophy() {
 
               {/* Inner gold hairline frame */}
               <div className="relative rounded-[1.65rem] border border-[#F6D98A]/30 p-8 sm:p-10">
-
                 {/* Corner ornaments */}
                 <span className="absolute left-3 top-3 h-4 w-4 border-l border-t border-[#F6D98A]/70" />
                 <span className="absolute right-3 top-3 h-4 w-4 border-r border-t border-[#F6D98A]/70" />
@@ -2031,8 +1983,8 @@ function Philosophy() {
 
                 <p className="relative z-10 mt-9 font-serif text-xl italic leading-9 text-white/95 sm:text-[22px]">
                   Delivering international standard healthcare to every
-                  individual, fostering excellence in education, research,
-                  and patient care.
+                  individual, fostering excellence in education, research, and
+                  patient care.
                 </p>
 
                 {/* Seal / signature row */}
@@ -2051,7 +2003,6 @@ function Philosophy() {
                 </div>
               </div>
             </motion.div>
-
           </div>
         </div>
       </div>
@@ -2062,7 +2013,6 @@ function Philosophy() {
 /* =========================================================
    VALUES
 ========================================================= */
-
 
 function Values() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -2090,10 +2040,9 @@ function Values() {
 
       <div className="relative mx-auto max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-4">
-
           {/* ================= LEFT (unchanged) ================= */}
           {/* ...same as before... */}
-           <div className="lg:col-span-4 lg:pr-6">
+          <div className="lg:col-span-4 lg:pr-6">
             <div className="mb-5 flex items-center gap-3">
               <span className="h-px w-8 bg-[#C8952E]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#0E526B]">
@@ -2109,8 +2058,8 @@ function Values() {
             </h2>
 
             <p className="mt-6 max-w-sm text-sm leading-6 text-slate-500">
-              Four things that shape every patient's experience at Apollo
-              JBP Hospitals, from diagnosis to discharge.
+              Four things that shape every patient's experience at Apollo JBP
+              Hospitals, from diagnosis to discharge.
             </p>
 
             {/* VALUE LIST */}
@@ -2128,7 +2077,9 @@ function Values() {
                     {/* Active rail */}
                     <span
                       className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full transition-all duration-300 ${
-                        isActive ? "bg-[#C8952E] opacity-100" : "bg-[#1D82A6]/20 opacity-0 group-hover:opacity-100"
+                        isActive
+                          ? "bg-[#C8952E] opacity-100"
+                          : "bg-[#1D82A6]/20 opacity-0 group-hover:opacity-100"
                       }`}
                     />
 
@@ -2141,13 +2092,17 @@ function Values() {
                     >
                       <Icon
                         className={`h-5 w-5 transition-colors ${
-                          isActive ? "text-[#F6D98A]" : "text-[#0E526B] group-hover:text-[#C8952E]"
+                          isActive
+                            ? "text-[#F6D98A]"
+                            : "text-[#0E526B] group-hover:text-[#C8952E]"
                         }`}
                       />
                     </div>
 
                     <div>
-                      <p className={`text-sm font-bold transition-colors ${isActive ? "text-[#C8952E]" : "text-[#0B3446]"}`}>
+                      <p
+                        className={`text-sm font-bold transition-colors ${isActive ? "text-[#C8952E]" : "text-[#0B3446]"}`}
+                      >
                         {value.title}
                       </p>
                       <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-slate-400">
@@ -2209,24 +2164,31 @@ function Values() {
                         draggable={false}
                         className="absolute inset-0 h-full w-full select-none object-cover transition-all duration-700"
                         style={{
-                          filter: isCenter ? "grayscale(0) brightness(1)" : "grayscale(0.85) brightness(0.6)",
+                          filter: isCenter
+                            ? "grayscale(0) brightness(1)"
+                            : "grayscale(0.85) brightness(0.6)",
                           transform: isCenter ? "scale(1)" : "scale(1.06)",
                         }}
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
 
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#06202B] via-[#06202B]/55 to-[#06202B]/5" />
 
                       <div
                         className={`pointer-events-none absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur-md transition-all duration-500 ${
-                          isCenter ? "border-[#C8952E]/60 bg-[#C8952E]/90 text-[#0B3446]" : "border-white/25 bg-white/10 text-white/80"
+                          isCenter
+                            ? "border-[#C8952E]/60 bg-[#C8952E]/90 text-[#0B3446]"
+                            : "border-white/25 bg-white/10 text-white/80"
                         }`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
 
                       <span className="pointer-events-none absolute right-5 top-6 font-serif text-xs italic tracking-wide text-white/50">
-                        {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                        {String(index + 1).padStart(2, "0")} /{" "}
+                        {String(total).padStart(2, "0")}
                       </span>
 
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-6">
@@ -2240,7 +2202,9 @@ function Values() {
                           {value.title}
                         </h3>
 
-                        <p className={`mt-3 text-sm leading-5 text-white/75 transition-all duration-500 ${isCenter ? "line-clamp-2 opacity-100" : "line-clamp-1 opacity-0"}`}>
+                        <p
+                          className={`mt-3 text-sm leading-5 text-white/75 transition-all duration-500 ${isCenter ? "line-clamp-2 opacity-100" : "line-clamp-1 opacity-0"}`}
+                        >
                           {value.text}
                         </p>
 
@@ -2252,7 +2216,9 @@ function Values() {
                             setSelectedValue(value);
                           }}
                           className={`mt-4 flex items-center gap-2 border-t border-white/15 pt-3 text-xs font-semibold text-white transition-opacity duration-500 ${
-                            isCenter ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+                            isCenter
+                              ? "pointer-events-auto opacity-100"
+                              : "pointer-events-none opacity-0"
                           }`}
                         >
                           Read the value
@@ -2269,121 +2235,132 @@ function Values() {
               {/* Nav + Dots — unchanged */}
               {values.length > 1 && (
                 <div className="mt-6 flex items-center justify-center gap-4">
-                  <button onClick={handlePrev} aria-label="Previous value" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/30 bg-white text-[#0B3446] shadow-sm transition-all hover:border-[#0E526B] hover:bg-[#0E526B] hover:text-white">
+                  <button
+                    onClick={handlePrev}
+                    aria-label="Previous value"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/30 bg-white text-[#0B3446] shadow-sm transition-all hover:border-[#0E526B] hover:bg-[#0E526B] hover:text-white"
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <div className="flex items-center justify-center gap-2">
                     {values.map((_, idx) => (
-                      <button key={idx} onClick={() => setActiveIndex(idx)} aria-label={`Go to value ${idx + 1}`}
+                      <button
+                        key={idx}
+                        onClick={() => setActiveIndex(idx)}
+                        aria-label={`Go to value ${idx + 1}`}
                         className={`h-[7px] rounded-full transition-all duration-300 ${idx === activeIndex ? "w-[22px] bg-[#0E526B]" : "w-[7px] bg-[#1D82A6]/25 hover:bg-[#1D82A6]/50"}`}
                       />
                     ))}
                   </div>
-                  <button onClick={handleNext} aria-label="Next value" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/30 bg-white text-[#0B3446] shadow-sm transition-all hover:border-[#0E526B] hover:bg-[#0E526B] hover:text-white">
+                  <button
+                    onClick={handleNext}
+                    aria-label="Next value"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/30 bg-white text-[#0B3446] shadow-sm transition-all hover:border-[#0E526B] hover:bg-[#0E526B] hover:text-white"
+                  >
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               )}
             </div>
           </div>
-
         </div>
       </div>
 
       {/* ================= Value Detail Modal ================= */}
       {selectedValue && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#06202B]/80 backdrop-blur-md animate-fade-in">
-    <div className="relative grid w-full max-w-4xl grid-cols-1 overflow-hidden rounded-[2rem] bg-white shadow-[0_40px_100px_-20px_rgba(6,32,43,.55)] md:h-[560px] md:grid-cols-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#06202B]/80 backdrop-blur-md animate-fade-in">
+          <div className="relative grid w-full max-w-4xl grid-cols-1 overflow-hidden rounded-[2rem] bg-white shadow-[0_40px_100px_-20px_rgba(6,32,43,.55)] md:h-[560px] md:grid-cols-5">
+            {/* Close */}
+            <button
+              onClick={() => setSelectedValue(null)}
+              className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#0B3446] shadow-md backdrop-blur-sm transition-all hover:bg-[#0B3446] hover:text-white"
+              aria-label="Close modal"
+            >
+              <X className="h-4 w-4" />
+            </button>
 
-      {/* Close */}
-      <button
-        onClick={() => setSelectedValue(null)}
-        className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#0B3446] shadow-md backdrop-blur-sm transition-all hover:bg-[#0B3446] hover:text-white"
-        aria-label="Close modal"
-      >
-        <X className="h-4 w-4" />
-      </button>
+            {/* ================= LEFT — Photographic panel ================= */}
+            <div className="relative hidden h-full overflow-hidden md:col-span-2 md:block">
+              <img
+                src={selectedValue.image}
+                alt={selectedValue.title}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06202B] via-[#06202B]/60 to-[#06202B]/10" />
+              <div className="absolute inset-0 bg-[#0E526B]/20 mix-blend-multiply" />
 
-      {/* ================= LEFT — Photographic panel ================= */}
-      <div className="relative hidden h-full overflow-hidden md:col-span-2 md:block">
-        <img
-          src={selectedValue.image}
-          alt={selectedValue.title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06202B] via-[#06202B]/60 to-[#06202B]/10" />
-        <div className="absolute inset-0 bg-[#0E526B]/20 mix-blend-multiply" />
+              {/* Icon chip */}
+              <div className="absolute left-7 top-7 flex h-12 w-12 items-center justify-center rounded-full border border-[#C8952E]/50 bg-[#C8952E]/90 text-[#0B3446] shadow-lg">
+                {(() => {
+                  const ModalIcon = selectedValue.icon;
+                  return <ModalIcon className="h-5 w-5" />;
+                })()}
+              </div>
 
-        {/* Icon chip */}
-        <div className="absolute left-7 top-7 flex h-12 w-12 items-center justify-center rounded-full border border-[#C8952E]/50 bg-[#C8952E]/90 text-[#0B3446] shadow-lg">
-          {(() => {
-            const ModalIcon = selectedValue.icon;
-            return <ModalIcon className="h-5 w-5" />;
-          })()}
-        </div>
+              {/* Bottom title overlay */}
+              <div className="absolute inset-x-0 bottom-0 p-7">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#F6D98A]">
+                  Patient Care Philosophy
+                </p>
+                <h3 className="mt-3 font-serif text-3xl italic leading-tight text-white">
+                  {selectedValue.title}
+                </h3>
+              </div>
+            </div>
 
-        {/* Bottom title overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-7">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#F6D98A]">
-            Patient Care Philosophy
-          </p>
-          <h3 className="mt-3 font-serif text-3xl italic leading-tight text-white">
-            {selectedValue.title}
-          </h3>
-        </div>
-      </div>
+            {/* ================= RIGHT — Content panel ================= */}
+            <div className="relative flex flex-col md:col-span-3">
+              {/* Mobile-only compact header (image panel hidden below md) */}
+              <div className="border-b border-slate-100 px-6 pb-5 pt-7 md:hidden">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C8952E]">
+                  Patient Care Philosophy
+                </p>
+                <h3 className="mt-2 font-serif text-2xl italic leading-tight text-[#0B3446]">
+                  {selectedValue.title}
+                </h3>
+              </div>
 
-      {/* ================= RIGHT — Content panel ================= */}
-      <div className="relative flex flex-col md:col-span-3">
+              {/* Subtitle strip */}
+              {selectedValue.subtitle && (
+                <div className="hidden items-center gap-3 px-9 pt-8 md:flex">
+                  <span className="h-px w-8 bg-[#C8952E]" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0E526B]">
+                    {selectedValue.subtitle}
+                  </p>
+                </div>
+              )}
 
-        {/* Mobile-only compact header (image panel hidden below md) */}
-        <div className="border-b border-slate-100 px-6 pb-5 pt-7 md:hidden">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C8952E]">
-            Patient Care Philosophy
-          </p>
-          <h3 className="mt-2 font-serif text-2xl italic leading-tight text-[#0B3446]">
-            {selectedValue.title}
-          </h3>
-        </div>
+              {/* Scrollable content — scrollbar hidden */}
+              <div className="scrollbar-hide flex-1 overflow-y-auto px-6 py-6 md:px-9 md:py-7">
+                <span className="font-serif text-5xl italic leading-none text-[#C8952E]/30">
+                  &ldquo;
+                </span>
+                <div className="-mt-3 whitespace-pre-line text-[15px] leading-[1.85] text-slate-600">
+                  {selectedValue.fullContent}
+                </div>
+              </div>
 
-        {/* Subtitle strip */}
-        {selectedValue.subtitle && (
-          <div className="hidden items-center gap-3 px-9 pt-8 md:flex">
-            <span className="h-px w-8 bg-[#C8952E]" />
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0E526B]">
-              {selectedValue.subtitle}
-            </p>
+              {/* Footer */}
+              <div className="flex items-center justify-between border-t border-slate-100 px-6 py-5 md:px-9">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#0E526B]">
+                  <ShieldCheck className="h-4 w-4 text-[#C8952E]" />
+                  Apollo JBP Hospitals
+                </div>
+                <button
+                  onClick={() => setSelectedValue(null)}
+                  className="rounded-full px-6 py-2 text-xs font-extrabold text-[#3A2B0A] shadow-md transition-all hover:shadow-lg"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                  }}
+                >
+                  Done Reading
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-
-        {/* Scrollable content — scrollbar hidden */}
-        <div className="scrollbar-hide flex-1 overflow-y-auto px-6 py-6 md:px-9 md:py-7">
-          <span className="font-serif text-5xl italic leading-none text-[#C8952E]/30">
-            &ldquo;
-          </span>
-          <div className="-mt-3 whitespace-pre-line text-[15px] leading-[1.85] text-slate-600">
-            {selectedValue.fullContent}
-          </div>
         </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-5 md:px-9">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#0E526B]">
-            <ShieldCheck className="h-4 w-4 text-[#C8952E]" />
-            Apollo JBP Hospitals
-          </div>
-          <button
-            onClick={() => setSelectedValue(null)}
-            className="rounded-full px-6 py-2 text-xs font-extrabold text-[#3A2B0A] shadow-md transition-all hover:shadow-lg"
-            style={{ background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" }}
-          >
-            Done Reading
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </section>
   );
 }
@@ -2395,7 +2372,6 @@ function Values() {
 function Innovation() {
   return (
     <section className="relative overflow-hidden bg-[#075873] px-5 py-12 sm:px-8 lg:py-14">
-      
       {/* ───────────────── Background ───────────────── */}
 
       <div className="pointer-events-none absolute inset-0">
@@ -2421,13 +2397,10 @@ function Innovation() {
       {/* ───────────────── Content ───────────────── */}
 
       <div className="relative z-10 mx-auto max-w-7xl">
-
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-
           {/* ───────────── LEFT ───────────── */}
 
           <div className="lg:col-span-5">
-
             <div className="mb-4 flex items-center gap-3">
               <span className="h-px w-7 bg-[#E5C46B]" />
 
@@ -2439,7 +2412,6 @@ function Innovation() {
             <h2 className="max-w-xl text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-5xl lg:text-[3.35rem]">
               Advanced care,
               <br />
-
               <span className="font-serif italic font-normal text-[#E5C46B]">
                 built for what comes next.
               </span>
@@ -2472,9 +2444,7 @@ function Innovation() {
           {/* ───────────── RIGHT ───────────── */}
 
           <div className="lg:col-span-7">
-
             <div className="space-y-2.5">
-
               {innovations.map((item, index) => {
                 const Icon = item.icon;
 
@@ -2501,7 +2471,6 @@ function Innovation() {
                     }}
                     className="group relative overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.045] px-4 py-3.5 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/[0.075]"
                   >
-
                     {/* hover glow */}
 
                     <div className="absolute inset-0 bg-gradient-to-r from-[#E5C46B]/[0.06] via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -2511,7 +2480,6 @@ function Innovation() {
                     <div className="absolute left-0 top-0 h-full w-[2px] origin-bottom scale-y-0 bg-[#E5C46B] transition-transform duration-500 group-hover:scale-y-100" />
 
                     <div className="relative flex items-center gap-4">
-
                       {/* number */}
 
                       <span className="hidden w-6 shrink-0 text-[10px] font-medium tracking-wider text-white/25 sm:block">
@@ -2527,7 +2495,6 @@ function Innovation() {
                       {/* content */}
 
                       <div className="min-w-0 flex-1">
-
                         <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-white">
                           {item.title}
                         </h3>
@@ -2535,13 +2502,11 @@ function Innovation() {
                         <p className="mt-1 max-w-2xl text-[11px] leading-[1.5] text-white/40">
                           {item.text}
                         </p>
-
                       </div>
 
                       {/* arrow */}
 
                       <ArrowUpRight className="hidden h-[17px] w-[17px] shrink-0 text-white/20 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#E5C46B] sm:block" />
-
                     </div>
                   </motion.div>
                 );
@@ -2558,12 +2523,9 @@ function Innovation() {
                   <div key={item.title}>{Card}</div>
                 );
               })}
-
             </div>
-
           </div>
         </div>
-
       </div>
     </section>
   );
@@ -2583,19 +2545,14 @@ function Quality() {
 
   return (
     <section className="relative overflow-hidden bg-white px-5 py-10 sm:px-8 lg:py-20">
-
       {/* Ambient glow, ties to rest of page */}
       <div className="pointer-events-none absolute -left-32 top-1/3 h-80 w-80 rounded-full bg-[#1D82A6]/[0.05] blur-3xl" />
 
       <div className="mx-auto max-w-7xl">
-
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
-
           {/* ================= IMAGE ================= */}
           <div className="lg:col-span-6">
-
             <div className="group relative overflow-hidden rounded-[2rem] bg-[#EDF6FB] p-3">
-
               {/* Dot-grid texture, brand-consistent */}
               <div
                 className="pointer-events-none absolute inset-0 z-10 opacity-[0.25]"
@@ -2640,7 +2597,6 @@ function Quality() {
                 className="group/card absolute bottom-8 left-8 right-8 z-20 block rounded-2xl border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur-xl transition-transform duration-500 hover:-translate-y-1"
               >
                 <div className="flex items-center gap-4">
-
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#F6D98A] to-[#C8952E]">
                     <Users className="h-5 w-5 text-[#3A2B0A]" />
                   </div>
@@ -2658,13 +2614,11 @@ function Quality() {
                   <ArrowRight className="h-4 w-4 shrink-0 text-[#0E526B] transition-transform duration-300 group-hover/card:translate-x-1" />
                 </div>
               </a>
-
             </div>
           </div>
 
           {/* ================= CONTENT ================= */}
           <div className="lg:col-span-5 lg:col-start-8">
-
             <div className="mb-5 flex items-center gap-3">
               <span className="h-px w-8 bg-[#C8952E]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#0E526B]">
@@ -2675,14 +2629,15 @@ function Quality() {
             <h2 className="text-4xl font-extrabold leading-tight text-[#06202B] sm:text-5xl">
               Excellence is not a
               <span className="font-serif italic font-medium text-[#C8952E]">
-                {" "}destination.
+                {" "}
+                destination.
               </span>
             </h2>
 
             <p className="mt-7 text-sm leading-7 text-slate-500">
               Highly experienced doctors and healthcare professionals
-              specialising in diverse medical fields, delivering a
-              patient-first approach with personalised care.
+              specialising in diverse medical fields, delivering a patient-first
+              approach with personalised care.
             </p>
 
             {/* ===== Meet Our Doctors CTA ===== */}
@@ -2709,7 +2664,10 @@ function Quality() {
                     className="group/item relative flex items-start gap-4 rounded-xl py-2.5 pl-0 pr-2 transition-colors duration-300 hover:bg-[#EDF6FB]/60"
                   >
                     <span className="relative z-10 mt-0.5 flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border-2 border-[#C8952E] bg-white transition-colors duration-300 group-hover/item:bg-[#C8952E]">
-                      <Check className="h-2.5 w-2.5 text-[#C8952E] transition-colors duration-300 group-hover/item:text-white" strokeWidth={3} />
+                      <Check
+                        className="h-2.5 w-2.5 text-[#C8952E] transition-colors duration-300 group-hover/item:text-white"
+                        strokeWidth={3}
+                      />
                     </span>
 
                     <span className="text-sm font-semibold leading-6 text-[#06202B]">
@@ -2722,7 +2680,6 @@ function Quality() {
 
             {/* ===== Certification seals ===== */}
             <div className="mt-10 flex flex-wrap gap-4">
-
               {[
                 { label: "Quality", value: "NABH Pathway" },
                 { label: "Laboratory", value: "NABL Pathway" },
@@ -2744,13 +2701,11 @@ function Quality() {
                   </div>
                 </div>
               ))}
-
             </div>
             <p className="mt-3 text-[11px] leading-5 text-slate-400">
               Certification status shown as in-progress — confirm current
               accreditation with the hospital before publishing.
             </p>
-
           </div>
         </div>
       </div>
@@ -2765,9 +2720,7 @@ function Quality() {
 function AboutCTA({ onOpenAppointmentModal }) {
   return (
     <section className="relative overflow-hidden bg-[#EDF6FB] px-5 py-10 sm:px-8 lg:py-20">
-
       <div className="absolute inset-0 pointer-events-none">
-
         <motion.div
           animate={{
             scale: [1, 1.15, 1],
@@ -2791,11 +2744,9 @@ function AboutCTA({ onOpenAppointmentModal }) {
           }}
           className="absolute bottom-[-200px] right-[5%] h-[500px] w-[500px] rounded-full bg-[#F3DFA8]/40 blur-[100px]"
         />
-
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
-
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1D82A6]/15 bg-white/80 px-4 py-2 backdrop-blur-md">
           <HeartPulse className="h-3.5 w-3.5 text-[#C8952E]" />
 
@@ -2823,37 +2774,30 @@ function AboutCTA({ onOpenAppointmentModal }) {
         >
           Become part of the healthcare
           <br />
-
           <span className="font-serif italic font-medium text-[#C8952E]">
             pride of Mahakoshal.
           </span>
         </motion.h2>
 
         <p className="mx-auto mt-7 max-w-xl text-sm leading-7 text-slate-500">
-          Whether you are looking for a specialist, exploring treatment
-          options or simply taking the next step in your health journey,
-          Apollo JBP Hospitals is here to help.
+          Whether you are looking for a specialist, exploring treatment options
+          or simply taking the next step in your health journey, Apollo JBP
+          Hospitals is here to help.
         </p>
 
         <div className="mt-9 flex flex-wrap justify-center gap-4">
-
           <button
             onClick={onOpenAppointmentModal}
             className="group flex items-center gap-3 rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] px-7 py-3.5 text-sm font-bold text-[#3A2B0A] shadow-[0_12px_30px_rgba(200,149,46,0.25)] transition-all hover:-translate-y-1"
           >
             Book an Appointment
-
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
 
-          <button
-            className="group flex items-center gap-3 rounded-full border border-[#0E526B]/15 bg-white px-7 py-3.5 text-sm font-bold text-[#0E526B] shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-          >
+          <button className="group flex items-center gap-3 rounded-full border border-[#0E526B]/15 bg-white px-7 py-3.5 text-sm font-bold text-[#0E526B] shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
             Explore Our Care
-
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" />
           </button>
-
         </div>
       </div>
     </section>
