@@ -6,22 +6,22 @@ import {
   PhoneCall,
   Mail,
   MapPin,
-  Send,
   ShieldCheck,
-  Globe,
-  Share2,
   ChevronRight,
   HeartPulse,
   Sparkles,
   Calendar,
   CheckCircle2,
   ArrowUp,
-  Award,
-  Clock,
-  Building,
-  UserCheck,
-  Stethoscope,
 } from "lucide-react";
+
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+} from "react-icons/fa";
 
 export default function Footer({ onOpenAppointmentModal }) {
   const [subscribedEmail, setSubscribedEmail] = useState("");
@@ -113,9 +113,9 @@ export default function Footer({ onOpenAppointmentModal }) {
         </div>
 
         {/* Main 5-Column Navigation Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/15">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-white/15">
           {/* Column 1: Hospital Brand & Campus Info */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="sm:col-span-2 lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2 rounded-2xl shadow-md border border-white/40">
                 <img
@@ -147,7 +147,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                   Global Square, Patan Rd, Karmeta, Jabalpur, MP 482002
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <PhoneCall className="w-4 h-4 text-[#F59E0B] shrink-0" />
                 <span>
                   Emergency:{" "}
@@ -173,27 +173,46 @@ export default function Footer({ onOpenAppointmentModal }) {
             </div>
 
             {/* Social Icons */}
-            <div className="pt-2 flex items-center gap-2.5">
+            <div className="pt-2 flex items-center gap-3 flex-wrap">
               {[
-                { label: "Website", icon: Globe, href: "/" },
-                { label: "Location", icon: MapPin, href: "/contact" },
                 {
-                  label: "Health Library",
-                  icon: Stethoscope,
-                  href: "/health-library",
+                  label: "Facebook",
+                  icon: FaFacebookF,
+                  href: "https://www.facebook.com/apollojbphospitals/",
                 },
-                { label: "Emergency", icon: PhoneCall, href: "/emergency" },
+                {
+                  label: "Twitter",
+                  icon: FaTwitter,
+                  href: "https://x.com/apollojbp/",
+                },
+                {
+                  label: "Instagram",
+                  icon: FaInstagram,
+                  href: "https://www.instagram.com/apollojbphospitals/",
+                },
+                {
+                  label: "LinkedIn",
+                  icon: FaLinkedinIn,
+                  href: "https://www.linkedin.com/company/apollojbphospitals/",
+                },
+                {
+                  label: "YouTube",
+                  icon: FaYoutube,
+                  href: "https://www.youtube.com/@ApolloJbpHospitals",
+                },
               ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <a
                     key={idx}
                     href={item.href}
-                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 text-slate-200 border border-white/20 flex items-center justify-center transition-all duration-300 shadow-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-white/20 hover:bg-[#F59E0B] hover:text-slate-950 text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-105"
                     aria-label={item.label}
                   >
-                    <Icon className="w-4 h-4" />
-                  </Link>
+                    <Icon className="w-5 h-5 fill-current" />
+                  </a>
                 );
               })}
             </div>
@@ -238,7 +257,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                 { label: "Contact & Location Map", href: "/contact" },
                 { label: "Emergency Care (24/7)", href: "/emergency" },
                 { label: "Book Appointment", href: "/contact" },
-                { label: "MP Service Reach", href: "/contact#reach" },
+                { label: "MP Service Reach", href: "/contact" },
               ].map((link, idx) => (
                 <li key={idx}>
                   {link.onClick ? (
@@ -264,7 +283,7 @@ export default function Footer({ onOpenAppointmentModal }) {
           </div>
 
           {/* Column 4: Newsletter & Accreditation */}
-          <div className="space-y-4">
+          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
             <h4 className="font-serif-apollo text-xs font-bold text-[#FEF3C7] uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
               Health Newsletter
@@ -288,7 +307,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                     value={subscribedEmail}
                     onChange={(e) => setSubscribedEmail(e.target.value)}
                     placeholder="Your email address..."
-                    className="w-full px-2.5 py-1.5 text-xs text-white placeholder-slate-300 bg-transparent focus:outline-none"
+                    className="w-full px-2.5 py-1.5 text-xs text-white placeholder-slate-300 bg-transparent focus:outline-none min-w-0"
                   />
                   <button
                     type="submit"
@@ -315,7 +334,7 @@ export default function Footer({ onOpenAppointmentModal }) {
         </div>
 
         {/* Bottom Bar & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <span>
               © {new Date().getFullYear()} Apollo Hospitals Jabalpur. All Rights
@@ -323,16 +342,16 @@ export default function Footer({ onOpenAppointmentModal }) {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <Link
-              href="/contact"
+              href="/privacy-policy"
               className="hover:text-[#F59E0B] transition-colors"
             >
               Privacy Policy
             </Link>
             <span>•</span>
             <Link
-              href="/contact"
+              href="/terms-of-service"
               className="hover:text-[#F59E0B] transition-colors"
             >
               Terms of Use
@@ -347,7 +366,7 @@ export default function Footer({ onOpenAppointmentModal }) {
 
             <button
               onClick={scrollToTop}
-              className="ml-4 p-2 rounded-full bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 text-white transition-all shadow-md"
+              className="ml-2 sm:ml-4 p-2 rounded-full bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 text-white transition-all shadow-md active:scale-95"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-4 h-4" />

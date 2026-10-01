@@ -12,7 +12,6 @@ import {
   Sparkles,
   Search,
   Share2,
-  Bookmark,
   CheckCircle2,
   ShieldCheck,
   TrendingUp,
@@ -23,6 +22,7 @@ import {
 
 export default function HealthArticles() {
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -127,6 +127,14 @@ export default function HealthArticles() {
     );
   }
 
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedArticle(null);
+      setIsClosing(false);
+    }, 250);
+  };
+
   const filteredArticles = articles.filter((item) => {
     const matchesCategory =
       activeCategory === "All" || item.category === activeCategory;
@@ -154,7 +162,7 @@ export default function HealthArticles() {
       id="health-articles"
       className="relative py-20 lg:py-28 overflow-hidden bg-[#EDF6FB]"
     >
-      {/* ───── Dynamic Background Pattern & Floating Particles ───── */}
+      {/* ───── Background Pattern & Floating Particles ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="ha-orb ha-orb-1" />
         <div className="ha-orb ha-orb-2" />
@@ -169,22 +177,6 @@ export default function HealthArticles() {
             WebkitMaskImage:
               "radial-gradient(ellipse 70% 60% at 50% 40%, black 15%, transparent 75%)",
           }}
-        />
-        <span
-          className="ha-sparkle"
-          style={{ top: "14%", left: "7%", animationDelay: "0s" }}
-        />
-        <span
-          className="ha-sparkle"
-          style={{ top: "65%", left: "4%", animationDelay: "1.5s" }}
-        />
-        <span
-          className="ha-sparkle"
-          style={{ top: "22%", left: "92%", animationDelay: "2.1s" }}
-        />
-        <span
-          className="ha-sparkle"
-          style={{ top: "82%", left: "89%", animationDelay: "0.9s" }}
         />
       </div>
 
@@ -230,28 +222,22 @@ export default function HealthArticles() {
           </div>
         </div>
 
-        {/* ───── Featured Article Hero (Glow Card) ───── */}
+        {/* ───── Featured Article Hero ───── */}
         {searchQuery === "" && activeCategory === "All" && (
           <div className="mb-12 relative p-[1.5px] rounded-[2.25rem] bg-gradient-to-r from-[#F59E0B]/50 via-[#1D82A6]/40 to-[#F59E0B]/50 shadow-[0_25px_50px_-12px_rgba(15,52,72,0.25)]">
             <div className="relative rounded-[calc(2.25rem-1.5px)] overflow-hidden bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] p-8 sm:p-10 lg:p-12 text-white">
-              {/* Background Watermark Icon */}
               <div className="absolute -right-8 -bottom-10 pointer-events-none opacity-[0.08] text-white">
                 <Heart className="w-96 h-96" />
               </div>
-
-              <div className="absolute inset-0 bg-[radial-gradient(#1D82A6_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
-              <div className="absolute -top-24 -right-16 w-80 h-80 bg-[#F6D98A]/20 rounded-full blur-[90px] pointer-events-none ha-glow" />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
                 <div className="lg:col-span-8 space-y-4">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F6D98A]/20 border border-[#F6D98A]/40 text-[#FEF3C7] text-[11px] font-bold uppercase tracking-wider">
-                      <TrendingUp className="w-3.5 h-3.5 text-[#F6D98A]" />{" "}
-                      Featured Guide
+                      <TrendingUp className="w-3.5 h-3.5 text-[#F6D98A]" /> Featured Guide
                     </span>
                     <span className="text-xs text-slate-100/90 flex items-center gap-1 font-medium">
-                      <Clock className="w-3.5 h-3.5 text-[#F6D98A]" />{" "}
-                      {featuredArticle.readTime}
+                      <Clock className="w-3.5 h-3.5 text-[#F6D98A]" /> {featuredArticle.readTime}
                     </span>
                   </div>
 
@@ -269,12 +255,8 @@ export default function HealthArticles() {
                         <UserCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="font-bold text-white">
-                          {featuredArticle.author}
-                        </div>
-                        <div className="text-[10px] text-slate-100/80">
-                          {featuredArticle.authorRole}
-                        </div>
+                        <div className="font-bold text-white">{featuredArticle.author}</div>
+                        <div className="text-[10px] text-slate-100/80">{featuredArticle.authorRole}</div>
                       </div>
                     </div>
                   </div>
@@ -284,8 +266,7 @@ export default function HealthArticles() {
                       onClick={() => setSelectedArticle(featuredArticle)}
                       className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-[0_10px_30px_rgba(197,146,46,0.45)] hover:shadow-[0_16px_40px_rgba(197,146,46,0.65)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
                       style={{
-                        background:
-                          "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                        background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
                       }}
                     >
                       <BookOpen className="w-4 h-4 text-[#3A2B0A]" />
@@ -295,17 +276,13 @@ export default function HealthArticles() {
                   </div>
                 </div>
 
-                {/* Right Decorative Badge Column */}
                 <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#F6D98A] to-[#C8952E] flex items-center justify-center text-[#0B3446] shadow-xl mb-3">
                     <ShieldCheck className="w-8 h-8" />
                   </div>
-                  <div className="text-sm font-extrabold text-white">
-                    100% Peer Verified
-                  </div>
+                  <div className="text-sm font-extrabold text-white">100% Peer Verified</div>
                   <p className="text-[11px] text-slate-100/90 mt-1 leading-relaxed">
-                    Reviewed by accredited medical practitioners to ensure
-                    maximum diagnostic accuracy.
+                    Reviewed by accredited medical practitioners to ensure maximum diagnostic accuracy.
                   </p>
                 </div>
               </div>
@@ -333,7 +310,7 @@ export default function HealthArticles() {
           ))}
         </div>
 
-        {/* ───── 3D Arc / Curved Carousel Section ───── */}
+        {/* ───── Arc Carousel Section ───── */}
         {filteredArticles.length === 0 ? (
           <div className="text-center py-16 bg-white/60 rounded-3xl border border-slate-200">
             <p className="text-sm font-bold text-slate-600">
@@ -352,26 +329,21 @@ export default function HealthArticles() {
           </div>
         ) : (
           <div className="relative py-10 my-4 perspective-1000">
-            {/* Carousel Arc Container */}
             <div className="relative min-h-[460px] sm:min-h-[480px] flex items-center justify-center w-full overflow-visible">
               {filteredArticles.map((item, index) => {
                 const Icon = item.icon;
-
-                // Calculate distance relative to active card
                 let offset = index - activeIndex;
                 const total = filteredArticles.length;
 
-                // Circular loop positioning for smooth transition
                 if (offset > total / 2) offset -= total;
                 if (offset < -total / 2) offset += total;
 
                 const absOffset = Math.abs(offset);
                 const isCenter = offset === 0;
 
-                // 3D Arc Transforms
-                const translateX = offset * 280; // horizontal separation
-                const translateZ = -absOffset * 160; // depth arc curvature
-                const rotateY = offset * -22; // perspective arc angle
+                const translateX = offset * 280;
+                const translateZ = -absOffset * 160;
+                const rotateY = offset * -22;
                 const scale = Math.max(1 - absOffset * 0.15, 0.75);
                 const opacity = Math.max(1 - absOffset * 0.35, 0);
 
@@ -398,31 +370,16 @@ export default function HealthArticles() {
                     }`}
                   >
                     <div className="h-full rounded-[calc(1.5rem-2px)] bg-white/95 backdrop-blur-md p-6 sm:p-7 flex flex-col justify-between overflow-hidden relative">
-                      {/* Very Light Background Watermark Icon */}
-                      <div className="absolute -right-6 -bottom-6 pointer-events-none opacity-[0.06] text-[#0E526B] group-hover:scale-110 transition-transform duration-500">
-                        <Icon className="w-48 h-48" />
-                      </div>
-
-                      {/* Top Medical Badge Overlay on Active Card */}
-                      {isCenter && (
-                        <div className="absolute top-0 right-0 bg-gradient-to-l from-[#C8952E] to-[#F6D98A] text-[#0B3446] text-[9px] font-black tracking-widest uppercase px-3 py-1 rounded-bl-xl shadow-sm z-10">
-                          Verified Guide
-                        </div>
-                      )}
-
                       <div className="relative z-10">
-                        {/* Category & Read Time */}
                         <div className="flex items-center justify-between gap-2 mb-4">
                           <span className="text-[10px] font-extrabold uppercase text-[#0E526B] bg-[#EBF5F8] px-3 py-1 rounded-full border border-[#1D82A6]/30">
                             {item.category}
                           </span>
                           <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
-                            <Clock className="w-3.5 h-3.5 text-[#C8952E]" />{" "}
-                            {item.readTime}
+                            <Clock className="w-3.5 h-3.5 text-[#C8952E]" /> {item.readTime}
                           </span>
                         </div>
 
-                        {/* Animated Icon Container */}
                         <div
                           className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-500 ${
                             isCenter
@@ -433,7 +390,6 @@ export default function HealthArticles() {
                           <Icon className="w-7 h-7" />
                         </div>
 
-                        {/* Article Titles */}
                         <h3 className="text-lg sm:text-xl font-extrabold text-[#0B3446] leading-snug tracking-tight">
                           {item.title}
                         </h3>
@@ -447,13 +403,9 @@ export default function HealthArticles() {
                         </p>
                       </div>
 
-                      {/* Author & Action Bar */}
                       <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
                         <div className="text-[11px] text-slate-500 font-medium">
-                          By{" "}
-                          <span className="font-bold text-[#0B3446]">
-                            {item.author}
-                          </span>
+                          By <span className="font-bold text-[#0B3446]">{item.author}</span>
                         </div>
                         <div className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#0E526B]">
                           <span>{isCenter ? "Read Article" : "View"}</span>
@@ -466,18 +418,16 @@ export default function HealthArticles() {
               })}
             </div>
 
-            {/* Arc Navigation Controls */}
+            {/* Navigation Controls */}
             {filteredArticles.length > 1 && (
               <div className="flex items-center justify-center gap-4 mt-6 z-30 relative">
                 <button
                   onClick={handlePrev}
-                  className="w-11 h-11 rounded-full bg-white text-[#0B3446] border border-[#1D82A6]/30 shadow-md hover:bg-[#0E526B] hover:text-white hover:border-[#0E526B] transition-all flex items-center justify-center cursor-pointer active:scale-95"
-                  aria-label="Previous article"
+                  className="w-11 h-11 rounded-full bg-white text-[#0B3446] border border-[#1D82A6]/30 shadow-md hover:bg-[#0E526B] hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
 
-                {/* Dots indicator */}
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-[#1D82A6]/20">
                   {filteredArticles.map((_, idx) => (
                     <button
@@ -488,15 +438,13 @@ export default function HealthArticles() {
                           ? "w-6 bg-[#0E526B]"
                           : "w-2 bg-[#1D82A6]/30 hover:bg-[#1D82A6]/60"
                       }`}
-                      aria-label={`Go to article ${idx + 1}`}
                     />
                   ))}
                 </div>
 
                 <button
                   onClick={handleNext}
-                  className="w-11 h-11 rounded-full bg-white text-[#0B3446] border border-[#1D82A6]/30 shadow-md hover:bg-[#0E526B] hover:text-white hover:border-[#0E526B] transition-all flex items-center justify-center cursor-pointer active:scale-95"
-                  aria-label="Next article"
+                  className="w-11 h-11 rounded-full bg-white text-[#0B3446] border border-[#1D82A6]/30 shadow-md hover:bg-[#0E526B] hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -508,20 +456,25 @@ export default function HealthArticles() {
 
       {/* ───── Article Reader Modal ───── */}
       {selectedArticle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0B3446]/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[#1D82A6]/40 relative max-h-[90vh] overflow-y-auto no-scrollbar">
-            {/* Very Light Background Icon inside Modal */}
-            <div className="absolute -right-8 -bottom-8 pointer-events-none opacity-[0.04] text-[#0E526B]">
-              {(() => {
-                const ModalIcon = selectedArticle.icon;
-                return <ModalIcon className="w-72 h-72" />;
-              })()}
-            </div>
-
+        <div
+          onClick={handleCloseModal}
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0B3446]/70 backdrop-blur-md transition-opacity duration-300 ${
+            isClosing ? "opacity-0" : "opacity-100 animate-fade-in"
+          }`}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`bg-white rounded-[2rem] max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[#1D82A6]/40 relative max-h-[90vh] overflow-y-auto no-scrollbar transform transition-all duration-300 ${
+              isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
+            }`}
+          >
             {/* Close Button */}
             <button
-              onClick={() => setSelectedArticle(null)}
-              className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-[#0B3446] hover:text-white text-slate-600 flex items-center justify-center transition-colors cursor-pointer z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseModal();
+              }}
+              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-slate-100 hover:bg-[#0B3446] hover:text-white text-slate-600 flex items-center justify-center transition-all duration-200 cursor-pointer z-20 shadow-sm hover:rotate-90"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
@@ -540,7 +493,7 @@ export default function HealthArticles() {
                 </span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B3446] tracking-tight leading-snug">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B3446] tracking-tight leading-snug pr-8">
                 {selectedArticle.title}
               </h3>
 
@@ -585,8 +538,8 @@ export default function HealthArticles() {
                   <CheckCircle2 className="w-4 h-4" /> Verified Medical Content
                 </div>
                 <button
-                  onClick={() => setSelectedArticle(null)}
-                  className="px-6 py-2.5 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  onClick={handleCloseModal}
+                  className="px-6 py-2.5 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer active:scale-95"
                   style={{
                     background:
                       "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
@@ -604,22 +557,6 @@ export default function HealthArticles() {
         .perspective-1000 {
           perspective: 1000px;
         }
-
-        .ha-glow {
-          animation: haGlowPulse 6s ease-in-out infinite;
-        }
-        @keyframes haGlowPulse {
-          0%,
-          100% {
-            opacity: 0.5;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.08);
-          }
-        }
-
         .ha-orb {
           position: absolute;
           border-radius: 9999px;
@@ -632,7 +569,6 @@ export default function HealthArticles() {
           left: -100px;
           background: radial-gradient(circle, #bfe3f2, transparent 70%);
           opacity: 0.5;
-          animation: haFloat1 16s ease-in-out infinite;
         }
         .ha-orb-2 {
           width: 320px;
@@ -641,7 +577,6 @@ export default function HealthArticles() {
           right: -140px;
           background: radial-gradient(circle, #f3dfa8, transparent 70%);
           opacity: 0.4;
-          animation: haFloat2 20s ease-in-out infinite;
         }
         .ha-orb-3 {
           width: 280px;
@@ -650,54 +585,6 @@ export default function HealthArticles() {
           left: 30%;
           background: radial-gradient(circle, #cdeaf7, transparent 70%);
           opacity: 0.4;
-          animation: haFloat3 18s ease-in-out infinite;
-        }
-        @keyframes haFloat1 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(40px, 40px) scale(1.08);
-          }
-        }
-        @keyframes haFloat2 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(-40px, 30px) scale(1.06);
-          }
-        }
-        @keyframes haFloat3 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(30px, -35px) scale(1.05);
-          }
-        }
-        .ha-sparkle {
-          position: absolute;
-          width: 4px;
-          height: 4px;
-          border-radius: 9999px;
-          background: #c8952e;
-          box-shadow: 0 0 8px 2px rgba(200, 149, 46, 0.5);
-          animation: haTwinkle 3.5s ease-in-out infinite;
-        }
-        @keyframes haTwinkle {
-          0%,
-          100% {
-            opacity: 0;
-            transform: scale(0.6);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.2);
-          }
         }
         .no-scrollbar::-webkit-scrollbar {
           display: none;

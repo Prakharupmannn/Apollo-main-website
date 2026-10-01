@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   Calendar,
   UserCheck,
@@ -17,7 +19,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Book Appointment",
       desc: "Schedule your visit today with top specialists",
       icon: Calendar,
-      action: onOpenAppointmentModal,
+      href: "/contact",
       badge: "Fast Track",
     },
     {
@@ -25,7 +27,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Find a Doctor",
       desc: "Search doctors in your city & specialty",
       icon: UserCheck,
-      href: "#doctors",
+      href: "/doctors",
       badge: "13,000+ Experts",
     },
     {
@@ -33,7 +35,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Health Checkup",
       desc: "Expert, clinical, comprehensive preventive plans",
       icon: Activity,
-      href: "#specialities",
+      href: "/ourspecialities",
       badge: "Full Body Care",
     },
     {
@@ -41,7 +43,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Book Ambulance",
       desc: "Fully equipped ambulance with trained paramedics, at your doorstep",
       icon: Ambulance,
-      href: "tel:1066",
+      href: "/patientcare/ambulance",
       badge: "Rapid Response",
     },
     {
@@ -49,7 +51,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Emergency Care",
       desc: "24x7 critical care, trauma & ambulance service",
       icon: Siren,
-      href: "tel:1066",
+      href: "/emergency",
       badge: "24/7 Rapid",
       highlight: true,
     },
@@ -91,17 +93,19 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       {/* ───── Action Cards ───── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {actionCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.id}
-              onClick={card.action ? card.action : undefined}
-              className={`group relative p-[1.5px] rounded-[1.75rem] cursor-pointer transition-all duration-300 hover:-translate-y-2 ${
-                card.highlight
-                  ? "bg-gradient-to-br from-red-500 via-red-600 to-[#0E526B] shadow-[0_10px_30px_rgba(239,68,68,0.35)] hover:shadow-[0_20px_45px_rgba(239,68,68,0.5)]"
-                  : "bg-gradient-to-br from-[#1D82A6]/60 via-white/10 to-[#F59E0B]/60 shadow-[0_10px_30px_rgba(6,32,43,0.3)] hover:shadow-[0_20px_45px_rgba(6,32,43,0.5)]"
-              }`}
-            >
+  const Icon = card.icon;
+
+  return (
+    <Link
+      key={card.id}
+      href={card.href || "#"}
+      onClick={card.action ? card.action : undefined}
+      className={`group relative p-[1.5px] rounded-[1.75rem] cursor-pointer transition-all duration-300 hover:-translate-y-2 ${
+        card.highlight
+          ? "bg-gradient-to-br from-red-500 via-red-600 to-[#0E526B] shadow-[0_10px_30px_rgba(239,68,68,0.35)] hover:shadow-[0_20px_45px_rgba(239,68,68,0.5)]"
+          : "bg-gradient-to-br from-[#1D82A6]/60 via-white/10 to-[#F59E0B]/60 shadow-[0_10px_30px_rgba(6,32,43,0.3)] hover:shadow-[0_20px_45px_rgba(6,32,43,0.5)]"
+      }`}
+    >
               {/* Inner card surface using the new bright ocean theme */}
               <div className="relative h-full rounded-[calc(1.75rem-1.5px)] p-6 flex flex-col justify-between overflow-hidden transition-colors duration-300 bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]">
                 {/* Glow blob top-right, blooms on hover */}
@@ -175,7 +179,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

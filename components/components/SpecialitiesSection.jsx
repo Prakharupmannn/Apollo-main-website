@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+
 import {
   Heart,
   Activity,
@@ -125,15 +127,29 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
           style={{
             backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 30%, black 15%, transparent 75%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 30%, black 15%, transparent 75%)",
+            maskImage:
+              "radial-gradient(ellipse 70% 60% at 50% 30%, black 15%, transparent 75%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 70% 60% at 50% 30%, black 15%, transparent 75%)",
           }}
         />
 
-        <span className="sp-sparkle" style={{ top: "12%", left: "10%", animationDelay: "0s" }} />
-        <span className="sp-sparkle" style={{ top: "68%", left: "6%", animationDelay: "1.4s" }} />
-        <span className="sp-sparkle" style={{ top: "20%", left: "88%", animationDelay: "2.2s" }} />
-        <span className="sp-sparkle" style={{ top: "78%", left: "92%", animationDelay: "0.8s" }} />
+        <span
+          className="sp-sparkle"
+          style={{ top: "12%", left: "10%", animationDelay: "0s" }}
+        />
+        <span
+          className="sp-sparkle"
+          style={{ top: "68%", left: "6%", animationDelay: "1.4s" }}
+        />
+        <span
+          className="sp-sparkle"
+          style={{ top: "20%", left: "88%", animationDelay: "2.2s" }}
+        />
+        <span
+          className="sp-sparkle"
+          style={{ top: "78%", left: "92%", animationDelay: "0.8s" }}
+        />
 
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C8952E]/30 to-transparent" />
       </div>
@@ -167,7 +183,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
           </div>
 
           <a
-            href="#all-specialities"
+            href="/ourspecialities"
             className="group relative inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-[#1D82A6]/20 shadow-sm hover:shadow-md hover:border-[#C8952E]/50 transition-all duration-300 ease-out hover:-translate-y-0.5 shrink-0"
           >
             <span className="text-xs font-bold text-[#06202B] group-hover:text-[#1D82A6] transition-colors tracking-wide">
@@ -321,9 +337,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl relative overflow-hidden">
             {/* Gradient header banner */}
-            <div
-              className="relative px-7 pt-7 pb-16 bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]"
-            >
+            <div className="relative px-7 pt-7 pb-16 bg-gradient-to-b from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]">
               <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#F6D98A]/25 blur-2xl" />
               <button
                 onClick={() => setActiveSpecialty(null)}
@@ -376,11 +390,8 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
                 >
                   Close
                 </button>
-                <button
-                  onClick={() => {
-                    setActiveSpecialty(null);
-                    onOpenAppointmentModal();
-                  }}
+                <Link
+                  href="/contact"
                   className="px-6 py-2.5 rounded-full text-xs font-bold text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 transition-all"
                   style={{
                     background:
@@ -388,7 +399,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
                   }}
                 >
                   Book {activeSpecialty.name} Specialist
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -502,16 +513,31 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
           animation: spFloat3 18s ease-in-out infinite;
         }
         @keyframes spFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes spFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         @keyframes spFloat3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -35px) scale(1.05); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(30px, -35px) scale(1.05);
+          }
         }
         .sp-sparkle {
           position: absolute;
@@ -523,8 +549,15 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
           animation: spTwinkle 3.5s ease-in-out infinite;
         }
         @keyframes spTwinkle {
-          0%, 100% { opacity: 0; transform: scale(0.6); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%,
+          100% {
+            opacity: 0;
+            transform: scale(0.6);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
       `}</style>
     </section>

@@ -1099,12 +1099,28 @@ export default function ContactPage() {
                             }
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors"
                           >
-                            <option>General Inquiry</option>
-                            <option>Cardiology OPD</option>
-                            <option>Neurology & Neurosurgery</option>
-                            <option>Oncology / Cancer Care</option>
-                            <option>TPA & Cashless Insurance</option>
-                            <option>Emergency & Trauma Care</option>
+                            <option>Gastro Sciences</option>
+                            <option>Onco Sciences</option>
+                            <option>Cardiac Sciences</option>
+                            <option>Neuro Sciences</option>
+                            <option>Nephro Sciences</option>
+                            <option>Ortho-Joint & Spine</option>
+                            <option>Critical Care</option>
+                            <option>Preventive Health Checkup</option>
+                            <option>Pediatric Nephrology</option>
+                            <option>Neonatology</option>
+                            <option>Pulmonology</option>
+                            <option>Paediatrics</option>
+                            <option>Obstetrics & Gynecology</option>
+                            <option>Dental Clinic</option>
+                            <option>Ophthalmology</option>
+                            <option>ENT</option>
+                            <option>Anesthesiology</option>
+                            <option>Dermatology & Cosmetology</option>
+                            <option>General Medicine</option>
+                            <option>Sleep Medicine</option>
+                            <option>Urology</option>
+                            <option>Second Opinion</option>
                           </select>
                         </div>
                       </div>
