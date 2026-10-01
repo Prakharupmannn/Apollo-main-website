@@ -105,41 +105,41 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
     { label: "About Us", href: "/aboutus" },
     {
       label: "Centres of Excellence",
-      href: "/center-of-excellence",
+      href: "/centres-of-excellence",
       dropdown: [
         {
           name: "Gastro Sciences",
-          href: "/center-of-excellence#gastro-sciences",
+          href: "/centres-of-excellence/gastro",
           desc: "Digestive & Liver Care Institute",
         },
         {
           name: "Onco Sciences",
-          href: "/center-of-excellence#onco-sciences",
+          href: "/centres-of-excellence/onco",
           desc: "CyberKnife & Precision Cancer Care",
         },
         {
           name: "Cardiac Sciences",
-          href: "/center-of-excellence#cardiac-sciences",
+          href: "/centres-of-excellence/cardiac",
           desc: "24/7 STEMI & Heart Surgery Hub",
         },
         {
           name: "Neuro Sciences",
-          href: "/center-of-excellence#neuro-sciences",
+          href: "/centres-of-excellence/neuro",
           desc: "Brain, Spine & Stroke Care Unit",
         },
         {
           name: "Nephro Sciences",
-          href: "/center-of-excellence#nephro-sciences",
+          href: "/centres-of-excellence/nephro",
           desc: "24/7 Dialysis & Kidney Care",
         },
         {
           name: "Ortho-Joint and Spine Sciences",
-          href: "/center-of-excellence#ortho-sciences",
+          href: "/centres-of-excellence/ortho-joint-spine",
           desc: "Robotic Joint & Spine Surgery",
         },
         {
           name: "Critical Care",
-          href: "/center-of-excellence#critical-care",
+          href: "/centres-of-excellence/critical-care",
           desc: "Level-1 CCU & Trauma ER",
         },
       ],
@@ -218,7 +218,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
             {/* Right Side: Interactive Utility Actions */}
             <div className="flex items-center gap-5">
               <a
-                href="#find-doctor"
+                href="/doctors"
                 className="flex items-center gap-1.5 text-white/90 hover:text-white transition-colors duration-200 group cursor-pointer"
               >
                 <UserCheck className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform drop-shadow-[0_0_6px_rgba(252,211,77,0.5)]" />
