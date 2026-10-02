@@ -14,6 +14,7 @@ import {
   Plus,
 } from "lucide-react";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function HeroSection({
@@ -153,7 +154,6 @@ export default function HeroSection({
           <HeartPulse className="w-4 h-4 text-[#C8952E]/25" />
         </span>
 
-        
         {/* <svg
           className="absolute top-28 left-0 w-[140%] opacity-[0.16] hero-pulse-line"
           height="60"
@@ -257,6 +257,7 @@ export default function HeroSection({
 
             {/* CTAs */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1">
+              {/* Book an Appointment */}
               <button
                 onClick={onOpenAppointmentModal}
                 className="group flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
@@ -269,24 +270,27 @@ export default function HeroSection({
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
-              <span
-                className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #0E526B 0%, #1D82A6 100%)",
-                }}
-              />
+              {/* Find a Doctor */}
+              <Link
+                href="/doctors"
+                className="group relative flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold border border-[#1D82A6] text-[#0E526B] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+              >
+                <span
+                  className="absolute inset-0 -z-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #0E526B 0%, #1D82A6 100%)",
+                  }}
+                />
 
-              {/* Soft shimmer sweep */}
-              {/* <span className="absolute inset-0 -z-10 overflow-hidden rounded-full">
-                <span className="hero-btn-shimmer" />
-              </span> */}
+                <ShieldCheck className="w-4 h-4 text-[#C8952E] group-hover:text-white transition-colors duration-300" />
 
-              <ShieldCheck className="w-4 h-4 text-[#C8952E] group-hover:text-white transition-colors duration-300" />
-              <span className="group-hover:text-white transition-colors duration-300">
-                Find a Doctor
-              </span>
-              <ArrowRight className="w-4 h-4 text-[#C8952E] group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                <span className="group-hover:text-white transition-colors duration-300">
+                  Find a Doctor
+                </span>
+
+                <ArrowRight className="w-4 h-4 text-[#C8952E] group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+              </Link>
             </div>
 
             {/* Search bar */}
