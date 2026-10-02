@@ -99,9 +99,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Prevent background scrolling when sidebar drawer is open
+  // Prevent background scrolling when sidebar drawer or mobile menu is open
   useEffect(() => {
-    if (sidebarOpen) {
+    if (sidebarOpen || mobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -109,7 +109,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [sidebarOpen]);
+  }, [sidebarOpen, mobileMenuOpen]);
 
   const handleRequestAppointment = () => {
     setSidebarOpen(false);
@@ -220,6 +220,15 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
   return (
     <>
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs xl:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
+
       <header className="fixed top-0 left-0 right-0 z-50">
         <div
           className={`w-full max-w-[1920px] mx-auto bg-white rounded-t-none rounded-b-xl sm:rounded-b-2xl transition-all duration-300 ${
@@ -411,37 +420,37 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               </button>
             </div>
 
-            {/* Mobile / tablet toggle */}
+            {/* Mobile / tablet toggle button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg border border-slate-200 text-[#0A5F7A] hover:bg-slate-50 transition-colors shrink-0"
+              className="xl:hidden p-2 rounded-xl border border-slate-200 text-[#0A5F7A] hover:bg-[#EDF6FB] active:bg-[#D8ECF5] transition-all shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0A5F7A]/30"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
 
           {/* Mobile / tablet menu drawer */}
           <div
-            className={`xl:hidden overflow-hidden transition-all duration-300 ease-out ${
+            className={`xl:hidden overflow-hidden transition-all duration-300 ease-in-out ${
               mobileMenuOpen
-                ? "max-h-[calc(100dvh-4.5rem)] opacity-100"
+                ? "max-h-[calc(100dvh-4.5rem)] opacity-100 border-t border-slate-100"
                 : "max-h-0 opacity-0"
             }`}
           >
-            <div className="border-t border-slate-100 px-4 sm:px-6 py-4 sm:py-5 space-y-4 max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pb-4 border-b border-slate-100">
+            <div className="px-4 sm:px-6 py-4 space-y-4 max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pb-3 border-b border-slate-100">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     setSidebarOpen(true);
                   }}
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold text-[#3A2B0A]"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold text-[#3A2B0A] shadow-sm hover:opacity-95 transition-opacity"
                   style={{
                     background:
                       "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
@@ -451,7 +460,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 </button>
                 <a
                   href="tel:1800-123-6666"
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-500 text-white shadow-sm hover:bg-rose-600 transition-colors"
                 >
                   <PhoneCall className="w-3.5 h-3.5 animate-bounce" /> Emergency
                   1800-123-6666
@@ -461,48 +470,82 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               <ul className="space-y-1">
                 {navItems.map((item) => {
                   const expanded = mobileExpanded === item.label;
+                  const hasDropdown = Boolean(
+                    item.dropdown && item.dropdown.length > 0
+                  );
+
                   return (
-                    <li key={item.label}>
-                      <div className="flex items-center justify-between">
+                    <li
+                      key={item.label}
+                      className="rounded-xl overflow-hidden transition-colors"
+                    >
+                      {hasDropdown ? (
+                        /* Items with dropdown: clicking the row toggles the submenu expansion */
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMobileExpanded(expanded ? null : item.label)
+                          }
+                          className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition-all text-left cursor-pointer ${
+                            expanded
+                              ? "bg-[#EDF6FB] text-[#0A5F7A] font-bold"
+                              : isActive(item.href)
+                              ? "text-[#0A5F7A] font-semibold bg-slate-50"
+                              : "text-slate-700 hover:text-[#0A5F7A] hover:bg-slate-50"
+                          }`}
+                          aria-label={`Toggle ${item.label} menu`}
+                          aria-expanded={expanded}
+                        >
+                          <span className="flex items-center gap-2">
+                            {item.label}
+                            {expanded && (
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#2A8FAF]/15 text-[#0A5F7A]">
+                                {item.dropdown.length} options
+                              </span>
+                            )}
+                          </span>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 text-[#0A5F7A] ${
+                              expanded ? "rotate-180" : "opacity-75"
+                            }`}
+                          />
+                        </button>
+                      ) : (
+                        /* Items without dropdown: direct link */
                         <Link
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex-1 block py-2.5 text-sm font-medium transition-colors ${
+                          className={`block py-2.5 px-3 rounded-xl text-sm font-medium transition-colors ${
                             isActive(item.href)
-                              ? "text-[#0A5F7A] font-semibold"
-                              : "text-slate-600 hover:text-[#0A5F7A]"
+                              ? "text-[#0A5F7A] font-semibold bg-[#EDF6FB]"
+                              : "text-slate-700 hover:text-[#0A5F7A] hover:bg-slate-50"
                           }`}
                         >
                           {item.label}
                         </Link>
+                      )}
 
-                        {item.dropdown && (
-                          <button
-                            onClick={() =>
-                              setMobileExpanded(expanded ? null : item.label)
-                            }
-                            className="p-2 -mr-2 text-slate-500 hover:text-[#0A5F7A] transition-colors"
-                            aria-label={`Toggle ${item.label} submenu`}
-                            aria-expanded={expanded}
-                          >
-                            <ChevronDown
-                              className={`w-4 h-4 transition-transform duration-200 ${
-                                expanded ? "rotate-180 text-[#0A5F7A]" : ""
-                              }`}
-                            />
-                          </button>
-                        )}
-                      </div>
-
-                      {item.dropdown && (
+                      {/* Dropdown submenu list */}
+                      {hasDropdown && (
                         <div
-                          className={`overflow-hidden transition-all duration-300 ease-out ${
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
                             expanded
-                              ? "max-h-[40rem] opacity-100"
+                              ? "max-h-[50rem] opacity-100 mt-1 mb-2"
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          <div className="ml-2 pl-3 border-l-2 border-[#2A8FAF]/30 space-y-0.5 pb-2">
+                          <div className="ml-2 pl-3 border-l-2 border-[#2A8FAF]/30 space-y-1 py-1">
+                            {/* Main Overview link for this section */}
+                            <Link
+                              href={item.href}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-2 py-2 px-2.5 rounded-lg text-xs font-bold text-[#0A5F7A] bg-[#EDF6FB]/70 hover:bg-[#EDF6FB] transition-colors"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
+                              <span>Explore All {item.label}</span>
+                              <ArrowRight className="w-3.5 h-3.5 ml-auto text-[#C8952E]" />
+                            </Link>
+
                             {item.dropdown.map((sub) => {
                               const meta =
                                 DROPDOWN_ICON_MAP[sub.name] ||
@@ -513,7 +556,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                                   key={sub.name}
                                   href={sub.href}
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className="flex items-center gap-3 py-2 rounded-lg hover:bg-[#EDF6FB] transition-colors"
+                                  className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-slate-100/90 active:bg-slate-200/90 transition-colors group"
                                 >
                                   <div
                                     className={`w-8 h-8 rounded-lg bg-gradient-to-br ${meta.color} text-white flex items-center justify-center shadow-sm shrink-0`}
@@ -521,11 +564,11 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                                     <SubIcon className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <div className="text-[13px] font-bold text-[#0A5F7A] leading-tight">
+                                    <div className="text-[13px] font-bold text-slate-800 group-hover:text-[#0A5F7A] leading-tight">
                                       {sub.name}
                                     </div>
                                     {sub.desc && (
-                                      <p className="text-[11.5px] text-slate-500 mt-0.5 leading-snug">
+                                      <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                                         {sub.desc}
                                       </p>
                                     )}

@@ -720,11 +720,13 @@ export default function JobDetailPage() {
                         </span>
                       </label>
 
-                      {/* Mock reCAPTCHA (see note below the code for the real one) */}
-                      {/* Real Google reCAPTCHA */}
+                      {/* Google reCAPTCHA */}
                       <div className="pt-1">
                         <ReCAPTCHA
-                          sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                          sitekey={
+                            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
+                            "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                          }
                           onChange={(token) =>
                             setAppForm({
                               ...appForm,
