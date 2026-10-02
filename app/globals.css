@@ -283,3 +283,19 @@ body {
 .thin-scroll::-webkit-scrollbar-thumb:hover {
   background: #0e526b;
 }
+
+/* GPU Acceleration & Content Visibility Optimizations */
+.gpu-accel {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+img {
+  decoding: async;
+}

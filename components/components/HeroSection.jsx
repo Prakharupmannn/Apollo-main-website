@@ -386,6 +386,8 @@ export default function HeroSection({
                   <img
                     src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGhvc3BpdGFsfGVufDB8fDB8fHww"
                     alt="Apollo doctor caring for a patient"
+                    fetchPriority="high"
+                    loading="eager"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />

@@ -728,6 +728,8 @@ export default function CareersPage() {
                 <img
                   src="/images/careers/career.png"
                   alt="Apollo Hospitals Jabalpur careers"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-[340px] sm:h-[420px] lg:h-[460px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B3446]/40 via-transparent to-transparent" />

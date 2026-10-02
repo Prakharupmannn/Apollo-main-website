@@ -78,6 +78,8 @@ export default function DoctorsImageFlip() {
             <img
               src={current.src}
               alt={current.alt}
+              loading="lazy"
+              decoding="async"
               className="h-[360px] w-full object-cover sm:h-[450px]"
             />
 
@@ -99,6 +101,8 @@ export default function DoctorsImageFlip() {
           <img
             src={images[0].src}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="h-[360px] w-full object-cover sm:h-[450px]"
           />
         </div>
