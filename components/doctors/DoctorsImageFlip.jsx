@@ -5,23 +5,11 @@ import { useEffect, useState } from "react";
 
 const images = [
   {
-    src: "/images/doctors/karunakarreddy.png",
-    alt: "Apollo JBP Oncology Doctor",
-  },
-  {
     src: "/images/doctors/hanumanthu2.png",
     alt: "Apollo JBP Doctor",
   },
   {
-    src: "/images/doctors/arun.webp",
-    alt: "Apollo JBP Doctor",
-  },
-  {
-    src: "/images/doctors/shreyas.png",
-    alt: "Apollo JBP Doctor",
-  },
-  {
-    src: "/images/doctors/jayaram.jpeg",
+    src: "/images/doctors/group2.webp",
     alt: "Apollo JBP Doctor",
   },
 ];

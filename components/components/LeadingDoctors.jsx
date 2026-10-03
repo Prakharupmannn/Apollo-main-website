@@ -112,7 +112,7 @@ export default function LeadingDoctors({ onOpenAppointmentModal }) {
           </div>
 
           <a
-            href="#doctors"
+            href="/doctors"
             className="group shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-[#0E526B] bg-white/90 backdrop-blur-sm border border-[#0E526B]/20 hover:border-[#0E526B]/40 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
           >
             View All Doctors
