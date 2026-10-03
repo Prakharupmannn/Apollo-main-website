@@ -299,3 +299,31 @@ body {
 img {
   decoding: async;
 }
+
+/* ── Hide Google Translate UI ── */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.skiptranslate,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+font {
+  background: transparent !important;
+  box-shadow: none !important;
+}

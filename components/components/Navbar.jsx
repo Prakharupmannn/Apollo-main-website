@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { LanguageSwitcher } from "./GoogleTranslate";
 
 import {
   Search,
@@ -277,10 +278,18 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 className="flex items-center gap-1.5 px-2.5 md:px-3 py-0.5 rounded-full bg-rose-500/90 text-white border border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_0_12px_rgba(244,63,94,0.5)] transition-all duration-200 cursor-pointer font-bold tracking-wider whitespace-nowrap"
               >
                 <PhoneCall className="w-3.5 h-3.5 animate-bounce text-white" />
-                <span>Emergency: 1800-123-6666</span>
+                <span>
+                  Emergency:{" "}
+                  <span className="notranslate" translate="no">
+                    1800-123-6666
+                  </span>
+                </span>
               </a>
 
-              {/* <span className="h-3 w-0.5 bg-white/25 rounded-full" /> */}
+              <span className="h-3 w-0.5 bg-white/25 rounded-full" />
+
+              {/* Language switcher (tablet & laptop) */}
+              <LanguageSwitcher variant="light" showIcon />
 
               <button
                 onClick={onOpenSearchModal}
@@ -319,7 +328,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                         : "text-slate-600 hover:text-[#0A5F7A]"
                     }`}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
                     {item.dropdown && (
                       <ChevronDown
                         className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -395,7 +404,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                             }}
                           >
                             <Calendar className="w-3.5 h-3.5" />
-                            Book a Consultation
+                            <span>Book a Consultation</span>
                           </button>
                         </div>
                       </div>
@@ -416,23 +425,31 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 }}
               >
                 <Calendar className="w-3.5 h-3.5" />
-                Book an Appointment
+                <span>Book an Appointment</span>
               </button>
             </div>
 
-            {/* Mobile / tablet toggle button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-xl border border-slate-200 text-[#0A5F7A] hover:bg-[#EDF6FB] active:bg-[#D8ECF5] transition-all shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0A5F7A]/30"
-              aria-label="Toggle menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
+            {/* Right group on phones/tablets: language switcher (phones only) + menu toggle */}
+            <div className="flex items-center gap-2 xl:hidden shrink-0">
+              {/* Phones only: the top bar is hidden here, so show the switcher beside the menu button */}
+              <div className="sm:hidden">
+                <LanguageSwitcher variant="dark" showIcon />
+              </div>
+
+              {/* Mobile / tablet toggle button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-xl border border-slate-200 text-[#0A5F7A] hover:bg-[#EDF6FB] active:bg-[#D8ECF5] transition-all shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0A5F7A]/30"
+                aria-label="Toggle menu"
+                aria-expanded={mobileMenuOpen}
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Mobile / tablet menu drawer */}
@@ -456,14 +473,20 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                       "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
                   }}
                 >
-                  <Calendar className="w-3.5 h-3.5" /> Book Appointment
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Book Appointment</span>
                 </button>
                 <a
                   href="tel:1800-123-6666"
                   className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-500 text-white shadow-sm hover:bg-rose-600 transition-colors"
                 >
-                  <PhoneCall className="w-3.5 h-3.5 animate-bounce" /> Emergency
-                  1800-123-6666
+                  <PhoneCall className="w-3.5 h-3.5 animate-bounce" />
+                  <span>
+                    Emergency{" "}
+                    <span className="notranslate" translate="no">
+                      1800-123-6666
+                    </span>
+                  </span>
                 </a>
               </div>
 
@@ -497,10 +520,10 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                           aria-expanded={expanded}
                         >
                           <span className="flex items-center gap-2">
-                            {item.label}
+                            <span>{item.label}</span>
                             {expanded && (
                               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#2A8FAF]/15 text-[#0A5F7A]">
-                                {item.dropdown.length} options
+                                {`${item.dropdown.length} options`}
                               </span>
                             )}
                           </span>
@@ -521,7 +544,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                               : "text-slate-700 hover:text-[#0A5F7A] hover:bg-slate-50"
                           }`}
                         >
-                          {item.label}
+                          <span>{item.label}</span>
                         </Link>
                       )}
 
@@ -542,7 +565,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                               className="flex items-center gap-2 py-2 px-2.5 rounded-lg text-xs font-bold text-[#0A5F7A] bg-[#EDF6FB]/70 hover:bg-[#EDF6FB] transition-colors"
                             >
                               <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
-                              <span>Explore All {item.label}</span>
+                              <span>{`Explore All ${item.label}`}</span>
                               <ArrowRight className="w-3.5 h-3.5 ml-auto text-[#C8952E]" />
                             </Link>
 
@@ -629,7 +652,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
             <div className="min-w-0">
               <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#F6D98A]/20 text-[#F6D98A] border border-[#F6D98A]/30 uppercase tracking-widest">
                 <Sparkles className="w-3 h-3 shrink-0" />
-                World-Class Healthcare
+                <span>World-Class Healthcare</span>
               </span>
               <h2 className="text-base sm:text-lg font-bold mt-1 text-white leading-tight">
                 Apollo JBP Hospitals
@@ -657,7 +680,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   href="tel:7566123666"
                   className="inline-flex flex-wrap items-center gap-1.5 mt-2 text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors"
                 >
-                  <span>Emergency Hotline: <strong>7566123666</strong></span>
+                  <span>
+                    Emergency Hotline:{" "}
+                    <strong className="notranslate" translate="no">
+                      7566123666
+                    </strong>
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -693,7 +721,8 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <h4 className="text-xs font-bold text-slate-800">Phone Consultation</h4>
                   <a
                     href="tel:7566123666"
-                    className="text-sm font-bold text-[#0A5F7A] hover:underline mt-0.5 block"
+                    className="notranslate text-sm font-bold text-[#0A5F7A] hover:underline mt-0.5 block"
+                    translate="no"
                   >
                     +91 7566123666
                   </a>

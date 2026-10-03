@@ -2,6 +2,7 @@ import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/components/Navbar";
 import Footer from "../components/components/Footer";
+import { GoogleTranslateLoader } from "../components/components/GoogleTranslate";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -34,17 +35,28 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${fraunces.variable} ${manrope.variable} scroll-smooth`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${manrope.variable} scroll-smooth`}
+    >
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
-      <body className="font-sans bg-[#FAF7F2] text-gray-900 antialiased selection:bg-[#C69A48] selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="font-sans bg-[#FAF7F2] text-gray-900 antialiased selection:bg-[#C69A48] selection:text-white"
+      >
+        {/* Loads Google Translate once for the whole site */}
+        <GoogleTranslateLoader />
+
         <Navbar />
 
         <main>{children}</main>
-           
-        <Footer />     
+
+        <Footer />
       </body>
     </html>
   );
