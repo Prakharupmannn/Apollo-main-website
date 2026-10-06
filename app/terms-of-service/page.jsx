@@ -1,7 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
-import Link from "next/link";
+import PolicySidebarNav from "../../components/components/PolicySidebarNav";
 import {
   ShieldAlert,
   FileText,
@@ -9,7 +6,6 @@ import {
   Share2,
   Clock,
   Mail,
-  ChevronRight,
   Sparkles,
   PhoneCall,
   CheckCircle2,
@@ -21,26 +17,23 @@ import {
   MessageSquare,
 } from "lucide-react";
 
+export const metadata = {
+  title: "Terms of Service | Apollo JBP Hospitals, Jabalpur",
+  description:
+    "Legal Terms, Treatment Authorization & Consent Policy for Apollo JBP Hospitals, Jabalpur.",
+};
+
+// ✅ FIX: Use string names instead of Lucide component references
+const sections = [
+  { id: "section-1", title: "1. Authorization & Scope", iconName: "FileText" },
+  { id: "section-2", title: "2. Information Disclosure & Transfer", iconName: "Share2" },
+  { id: "section-3", title: "3. Retention of Personal Information", iconName: "Clock" },
+  { id: "section-4", title: "4. Patient Rights & Consent", iconName: "UserCheck" },
+  { id: "section-5", title: "5. Diagnostic Samples & Research", iconName: "FlaskConical" },
+  { id: "section-6", title: "6. Communications & Final Consent", iconName: "MessageSquare" },
+];
+
 export default function TermsOfServicePage() {
-  const [activeSection, setActiveSection] = useState("section-1");
-
-  const sections = [
-    { id: "section-1", title: "1. Authorization & Scope", icon: FileText },
-    { id: "section-2", title: "2. Information Disclosure & Transfer", icon: Share2 },
-    { id: "section-[#3]", title: "3. Retention of Personal Information", icon: Clock },
-    { id: "section-4", title: "4. Patient Rights & Consent", icon: UserCheck },
-    { id: "section-5", title: "5. Diagnostic Samples & Research", icon: FlaskConical },
-    { id: "section-6", title: "6. Communications & Final Consent", icon: MessageSquare },
-  ];
-
-  const scrollToSection = (id) => {
-    setActiveSection(id);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-800 selection:bg-[#F59E0B]/30 selection:text-[#0E526B]">
       {/* Hero Header Section */}
@@ -99,37 +92,7 @@ export default function TermsOfServicePage() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">
                   Table of Contents
                 </h3>
-                <nav className="space-y-1">
-                  {sections.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => scrollToSection(item.id)}
-                        className={`w-full flex items-center justify-between text-left text-xs font-semibold px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                          isActive
-                            ? "bg-[#0E526B] text-white shadow-md"
-                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Icon
-                            className={`w-4 h-4 shrink-0 ${
-                              isActive ? "text-[#F59E0B]" : "text-slate-400"
-                            }`}
-                          />
-                          <span className="truncate">{item.title}</span>
-                        </div>
-                        <ChevronRight
-                          className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                            isActive ? "rotate-90 text-[#F59E0B]" : "text-slate-300"
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </nav>
+                <PolicySidebarNav sections={sections} />
               </div>
 
               {/* Quick Legal Support Card */}
@@ -325,7 +288,7 @@ export default function TermsOfServicePage() {
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs text-slate-700">
                 <div className="font-bold text-slate-900">Key Scientific Research Conditions:</div>
                 <ul className="list-disc list-inside space-y-1.5 text-slate-600">
-                  <span>Samples are used strictly after intended medical diagnostic testing is complete.</span>
+                  <li>Samples are used strictly after intended medical diagnostic testing is complete.</li>
                   <li>Treatment data shared with researchers will never disclose your identity.</li>
                   <li>Research use offers no financial benefit to patients, but helps future disease treatments.</li>
                   <li><strong>Opt-Out Option:</strong> You retain the option to disallow research use of your samples and data.</li>

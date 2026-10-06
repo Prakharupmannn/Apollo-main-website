@@ -1,4 +1,4 @@
-import { Fraunces, Manrope } from "next/font/google";
+import { Fraunces, Manrope, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/components/Navbar";
 import Footer from "../components/components/Footer";
@@ -15,6 +15,13 @@ const manrope = Manrope({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-manrope",
+  display: "swap",
+});
+
+const deva = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-deva",
   display: "swap",
 });
 
@@ -39,11 +46,26 @@ export default function RootLayout({ children }) {
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${manrope.variable} scroll-smooth`}
+      className={`${fraunces.variable} ${manrope.variable} ${deva.variable} scroll-smooth`}
     >
       <head>
-        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://images.unsplash.com"
+          crossOrigin="anonymous"
+        />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://translate.google.com" />
+        <link
+          rel="preconnect"
+          href="https://translate.googleapis.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preconnect"
+          href="https://www.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
       <body
         suppressHydrationWarning

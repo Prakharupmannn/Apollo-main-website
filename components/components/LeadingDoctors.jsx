@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Star, Calendar, ArrowRight, Stethoscope, Award, Quote, Building2, HeartPulse, Activity, Brain } from "lucide-react";
 
 export default function LeadingDoctors({ onOpenAppointmentModal }) {
@@ -111,13 +112,13 @@ export default function LeadingDoctors({ onOpenAppointmentModal }) {
             </p>
           </div>
 
-          <a
+          <Link
             href="/doctors"
             className="group shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-[#0E526B] bg-white/90 backdrop-blur-sm border border-[#0E526B]/20 hover:border-[#0E526B]/40 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
           >
             View All Doctors
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
         </div>
 
         {/* ───── Doctors Bento Layout ───── */}

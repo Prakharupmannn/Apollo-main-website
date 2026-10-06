@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 @theme {
   --color-apollo-teal: #1D82A6;
   --color-apollo-teal-dark: #0E526B;
@@ -130,24 +132,6 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #F59E0B;
 }
-/* 
-@keyframes statsMarquee {
-  from {
-    transform: translateX(-100%);
-  }
-
-  to {
-    transform: translateX(100%);
-  }
-}
-
-.stats-marquee {
-  animation: statsMarquee 10s linear infinite;
-}
-
-.stats-marquee-container:hover .stats-marquee {
-  animation-play-state: paused;
-} */
 
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -326,4 +310,128 @@ body {
 font {
   background: transparent !important;
   box-shadow: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL TEXT SAFETY: works for every language
+   ═══════════════════════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  text-wrap: balance;          /* evens out line lengths in headings */
+}
+p, li, blockquote {
+  overflow-wrap: break-word;
+  text-wrap: pretty;           /* avoids single-word last lines */
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 7rem;    /* anchor links stop below the fixed navbar */
+}
+
+/* Gradient text (bg-clip-text) cuts off glyph tails, so add breathing room */
+.bg-clip-text,
+.text-gold-gradient,
+.text-flame-gradient {
+  padding-block: 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HINDI / TRANSLATED MODE (lightweight selectors)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Devanagari font */
+:is(html.translated-ltr, html[lang="hi"]) :is(body, .font-serif-apollo, button, input, textarea) {
+  font-family: var(--font-deva), "Noto Sans Devanagari", "Nirmala UI", "Mangal", system-ui, sans-serif;
+}
+
+/* Taller line-height stops overlapping (tag selectors only, cheap) */
+:is(html.translated-ltr, html[lang="hi"]) :is(h1, h2, h3, h4) {
+  line-height: 1.4 !important;
+}
+:is(html.translated-ltr, html[lang="hi"]) :is(h5, h6, p, li, label, a, button, span) {
+  line-height: 1.55 !important;
+}
+
+/* Letter-spacing breaks Devanagari conjuncts */
+:is(html.translated-ltr, html[lang="hi"]) :is(h1, h2, h3, h4, h5, h6, p, li, a, button, span, label) {
+  letter-spacing: normal !important;
+}
+
+/* Italic / very heavy weights look broken in Devanagari */
+:is(html.translated-ltr, html[lang="hi"]) .italic {
+  font-style: normal;
+}
+:is(html.translated-ltr, html[lang="hi"]) :is(.font-black, .font-extrabold) {
+  font-weight: 700;
+}
+
+/* Micro text minimum size (class selectors, not [class*=...]) */
+:is(html.translated-ltr, html[lang="hi"]) :is(.text-\[8px\], .text-\[9px\], .text-\[10px\]) {
+  font-size: 11px !important;
+}
+
+/* Allow long Hindi labels to wrap */
+:is(html.translated-ltr, html[lang="hi"]) .whitespace-nowrap {
+  white-space: normal;
+}
+:is(html.translated-ltr, html[lang="hi"]) :is(.line-clamp-2, .line-clamp-3) {
+  padding-bottom: 0.1em;
+}
+
+.notranslate {
+  line-height: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SWITCH BOOST: pause heavy effects while the language changes
+   (class is added/removed automatically by the switcher)
+   ═══════════════════════════════════════════════════════════ */
+html.lang-switching :is(
+  .animate-ping, .animate-bounce, .animate-pulse, .animate-pulse-glow,
+  .cs-float-card, .cs-orb, .cs-pulse-ring, .cs-shimmer,
+  .anim-float, .anim-float-slow, .anim-spin-slow, .anim-spin-rev,
+  .anim-blob, .btn-shimmer, .photo-shine
+),
+html.lang-switching :is(.cs-orb, .cs-float-card)::after {
+  animation-play-state: paused !important;
+}
+html.lang-switching :is(
+  .backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-xl, .backdrop-blur-2xl,
+  .glass-teal, .glass-teal-card
+) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE / ACCESSIBILITY
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keep Google's hidden widget in the layout (off-screen), because
+   display:none stops mobile browsers from building the dropdown */
+#google_translate_element {
+  position: absolute !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Stop Google's top offset from pushing the fixed navbar down */
+html.translated-ltr,
+html.translated-rtl {
+  margin-top: 0 !important;
 }

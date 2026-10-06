@@ -4,6 +4,7 @@ import {
   MapPin, Search, ShieldCheck, Stethoscope, UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Btn, Head, Section } from "../../components/doctors/ui";
 
 import Steps from "../../components/doctors/Steps";
@@ -730,9 +731,11 @@ function PatientStories() {
 
                 <div className="flex gap-4">
 
-                  <img
+                  <Image
                     src={item.image}
-                    alt=""
+                    alt={item.name || ""}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 rounded-2xl object-cover"
                   />
 

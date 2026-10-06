@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { LanguageSwitcher } from "./GoogleTranslate";
 
@@ -76,8 +77,15 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    let currentScrolled = false;
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 20;
+      if (isScrolled !== currentScrolled) {
+        currentScrolled = isScrolled;
+        setScrolled(isScrolled);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -181,7 +189,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         },
         {
           name: "Make Appointment",
-          href: "/contact",
+          href: "/patientcare/appointment",
           desc: "Instant Doctor Consultation Booking",
         },
         {
@@ -253,13 +261,13 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
             {/* Right Side: Interactive Utility Actions */}
             <div className="flex items-center gap-3 md:gap-5 shrink-0">
-              <a
+              <Link
                 href="/doctors"
                 className="flex items-center gap-1.5 text-white/90 hover:text-white transition-colors duration-200 group cursor-pointer whitespace-nowrap"
               >
                 <UserCheck className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform drop-shadow-[0_0_6px_rgba(252,211,77,0.5)]" />
                 <span>Find a Doctor</span>
-              </a>
+              </Link>
 
               <span className="h-3 w-0.5 bg-white/25 rounded-full" />
 
@@ -304,9 +312,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
           {/* Main row */}
           <div className="flex items-center justify-between gap-3 px-3 sm:px-5 xl:px-6 py-2 sm:py-2.5">
             <Link href="/" className="flex items-center shrink-0 group">
-              <img
+              <Image
                 src="/images/apollologo.png"
                 alt="Apollo JBP Hospitals Jabalpur"
+                width={180}
+                height={48}
+                priority
                 className="h-9 sm:h-11 xl:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.03]"
               />
             </Link>
@@ -643,9 +654,11 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
           {/* Logo & Tagline */}
           <div className="flex items-center gap-3 pr-10">
             <div className="p-1.5 sm:p-2 bg-white rounded-xl shadow-md shrink-0">
-              <img
+              <Image
                 src="/images/apollologo.png"
                 alt="Apollo JBP Hospitals"
+                width={140}
+                height={40}
                 className="h-8 sm:h-10 w-auto object-contain"
               />
             </div>

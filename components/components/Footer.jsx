@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   PhoneCall,
   Mail,
@@ -118,11 +119,11 @@ export default function Footer({ onOpenAppointmentModal }) {
           <div className="sm:col-span-2 lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2 rounded-2xl shadow-md border border-white/40">
-                <img
+                <Image
                   src="/images/apollologo.png"
                   alt="Apollo Hospitals Logo"
-                  loading="lazy"
-                  decoding="async"
+                  width={160}
+                  height={40}
                   className="h-10 w-auto object-contain"
                 />
               </div>

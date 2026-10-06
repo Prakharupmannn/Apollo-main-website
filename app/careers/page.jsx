@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
@@ -725,11 +726,11 @@ export default function CareersPage() {
                 transition={{ duration: 0.7, delay: 0.15 }}
                 className="relative rounded-[2rem] overflow-hidden shadow-[0_30px_70px_rgba(10,95,122,0.25)] border-4 border-white"
               >
-                <img
+                <Image
                   src="/images/careers/career.png"
                   alt="Apollo Hospitals Jabalpur careers"
-                  loading="lazy"
-                  decoding="async"
+                  width={800}
+                  height={460}
                   className="w-full h-[340px] sm:h-[420px] lg:h-[460px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B3446]/40 via-transparent to-transparent" />
@@ -1102,14 +1103,14 @@ export default function CareersPage() {
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </Link>
 
-                                <button
+                                {/* <button
                                   type="button"
                                   onClick={() => openApply(job)}
                                   className="px-3.5 py-1.5 rounded-full text-[11px] font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
                                   style={goldGradient}
                                 >
                                   Apply Now
-                                </button>
+                                </button> */}
                               </div>
                             </div>
                           </motion.div>

@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
 import Script from "next/script";
 import { Languages } from "lucide-react";
 
 const COOKIE = "googtrans";
 
+/* ───────── cookie helpers ───────── */
 function readLang() {
   if (typeof document === "undefined") return "en";
   const m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
@@ -14,10 +19,10 @@ function readLang() {
 
 function writeCookie(value) {
   const host = window.location.hostname;
-  document.cookie = `${COOKIE}=${value}; path=/`;
+  document.cookie = `${COOKIE}=${value}; path=/; max-age=31536000`;
   if (host.includes(".")) {
-    document.cookie = `${COOKIE}=${value}; path=/; domain=.${host}`;
-    document.cookie = `${COOKIE}=${value}; path=/; domain=${host}`;
+    document.cookie = `${COOKIE}=${value}; path=/; max-age=31536000; domain=.${host}`;
+    document.cookie = `${COOKIE}=${value}; path=/; max-age=31536000; domain=${host}`;
   }
 }
 
@@ -31,10 +36,82 @@ function clearCookie() {
   }
 }
 
-/* ───────── Put this ONCE in layout.js ───────── */
+/* ───────── shared language store ─────────
+   The phone switcher and the tablet/laptop switcher are both mounted,
+   so they must share one state or they go out of sync. */
+let currentLang = "en";
+let switching = false;
+const listeners = new Set();
+
+function setGlobalLang(next) {
+  currentLang = next;
+  listeners.forEach((fn) => fn());
+}
+function subscribe(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+const getSnapshot = () => currentLang;
+const getServerSnapshot = () => "en";
+
+/* ───────── translator helpers ───────── */
+function findCombo() {
+  return document.querySelector("select.goog-te-combo");
+}
+
+/* Waits for Google's hidden dropdown (slow on mobile) instead of reloading at once */
+function waitForCombo(timeoutMs = 4000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tick = () => {
+      const combo = findCombo();
+      if (combo && combo.options.length > 1) return resolve(combo);
+      if (Date.now() - start >= timeoutMs) return resolve(null);
+      setTimeout(tick, 80);
+    };
+    tick();
+  });
+}
+
+function applyLang(combo, next) {
+  const hasOption = Array.from(combo.options).some((o) => o.value === next);
+  combo.value = hasOption ? next : "";
+  combo.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function hasTranslatedLeftovers() {
+  return !!document.querySelector('body font[style*="vertical-align"]');
+}
+
+function whenDomSettles(onQuiet, quietMs = 200, maxMs = 2000) {
+  let timer;
+  let finished = false;
+  let hardCap;
+  const obs = new MutationObserver(() => {
+    clearTimeout(timer);
+    timer = setTimeout(finish, quietMs);
+  });
+  function finish() {
+    if (finished) return;
+    finished = true;
+    clearTimeout(timer);
+    clearTimeout(hardCap);
+    obs.disconnect();
+    onQuiet();
+  }
+  obs.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+  timer = setTimeout(finish, quietMs);
+  hardCap = setTimeout(finish, maxMs);
+}
+
+/* ───────── Put this ONCE in layout ───────── */
 export function GoogleTranslateLoader() {
   useEffect(() => {
-    // Stops React from crashing when Google Translate rewrites text nodes
+    // Keep React from crashing when Google rewrites text nodes
     if (typeof Node === "function" && !Node.prototype.__gtPatched) {
       Node.prototype.__gtPatched = true;
 
@@ -50,11 +127,26 @@ export function GoogleTranslateLoader() {
         return origInsert.apply(this, arguments);
       };
     }
+    setGlobalLang(readLang());
   }, []);
 
   return (
     <>
-      <div id="google_translate_element" style={{ display: "none" }} />
+      {/* Off-screen (not display:none) so mobile browsers still build the dropdown */}
+      <div
+        id="google_translate_element"
+        className="notranslate"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: 0,
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          pointerEvents: "none",
+        }}
+      />
       <Script id="gt-init" strategy="afterInteractive">
         {`
           window.googleTranslateElementInit = function () {
@@ -79,21 +171,60 @@ export function GoogleTranslateLoader() {
 
 /* ───────── Sliding gold pill switcher ───────── */
 export function LanguageSwitcher({ variant = "light", showIcon = false }) {
-  const [lang, setLang] = useState("en");
+  const lang = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  // Read the saved language after mount (avoids hydration mismatch)
+  // Make sure the saved language is read on mount
   useEffect(() => {
-    setLang(readLang());
+    setGlobalLang(readLang());
   }, []);
 
-  const isHi = lang === "hi";
+  const change = useCallback(
+    (next) => {
+      if (next === currentLang || switching) return;
+      switching = true;
 
-  const change = (next) => {
-    if (next === lang) return;
-    if (next === "hi") writeCookie("/en/hi");
-    else clearCookie();
-    window.location.reload();
-  };
+      const root = document.documentElement;
+
+      // 1. Pill moves instantly (all switchers update together)
+      setGlobalLang(next);
+
+      // 2. Save choice
+      if (next === "hi") writeCookie("/en/hi");
+      else clearCookie();
+
+      // 3. Free the main thread while translating
+      root.classList.add("lang-switching");
+
+      const finishUp = () => {
+        root.classList.remove("lang-switching");
+        switching = false;
+      };
+
+      // 4. Let the pill paint, then translate
+      requestAnimationFrame(async () => {
+        const combo = await waitForCombo(4000);
+
+        // Translator never loaded: the cookie is set, so a reload applies it
+        if (!combo) {
+          window.location.reload();
+          return;
+        }
+
+        applyLang(combo, next);
+
+        whenDomSettles(() => {
+          finishUp();
+          // English did not fully restore: reload once
+          if (next === "en" && hasTranslatedLeftovers()) {
+            window.location.reload();
+          }
+        });
+      });
+    },
+    [],
+  );
+
+  const isHi = lang === "hi";
 
   const track =
     variant === "light"
@@ -105,7 +236,10 @@ export function LanguageSwitcher({ variant = "light", showIcon = false }) {
       : "text-slate-600 hover:text-[#0A5F7A]";
 
   return (
-    <div className="notranslate flex items-center gap-1.5 shrink-0" translate="no">
+    <div
+      className="notranslate flex items-center gap-1.5 shrink-0"
+      translate="no"
+    >
       {showIcon && (
         <Languages className="w-3.5 h-3.5 text-amber-300 drop-shadow-[0_0_6px_rgba(252,211,77,0.5)]" />
       )}
@@ -127,7 +261,7 @@ export function LanguageSwitcher({ variant = "light", showIcon = false }) {
           type="button"
           onClick={() => change("en")}
           aria-pressed={!isHi}
-          className={`relative z-10 px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide transition-colors duration-300 cursor-pointer border-0 bg-transparent ${
+          className={`relative z-10 min-h-[28px] min-w-[36px] px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide transition-colors duration-300 cursor-pointer border-0 bg-transparent [touch-action:manipulation] ${
             !isHi ? "text-[#3A2B0A]" : inactive
           }`}
         >
@@ -137,7 +271,7 @@ export function LanguageSwitcher({ variant = "light", showIcon = false }) {
           type="button"
           onClick={() => change("hi")}
           aria-pressed={isHi}
-          className={`relative z-10 px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-extrabold transition-colors duration-300 cursor-pointer border-0 bg-transparent ${
+          className={`relative z-10 min-h-[28px] min-w-[36px] px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-extrabold transition-colors duration-300 cursor-pointer border-0 bg-transparent [touch-action:manipulation] ${
             isHi ? "text-[#3A2B0A]" : inactive
           }`}
         >

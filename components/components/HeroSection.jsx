@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function HeroSection({
   onOpenAppointmentModal,
@@ -176,20 +176,13 @@ export default function HeroSection({
           preserveAspectRatio="none"
           fill="none"
         >
-          <motion.path
+          <path
             d="M0 60 L260 60 L285 20 L310 100 L335 60 L360 60 L1200 60"
             stroke="#C8952E"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: [0, 1], opacity: [0, 1, 1, 0] }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              repeatDelay: 1.2,
-              ease: "easeInOut",
-            }}
+            className="hero-heartbeat-path"
           />
         </svg>
 
@@ -229,11 +222,11 @@ export default function HeroSection({
             </div>
 
             {/* Headline */}
-            <div className="space-y-3">
+            <div className="space-y-5">
               <span className="block font-serif italic text-xl sm:text-2xl text-[#C8952E] font-medium">
                 Touching Lives, Healing Hope
               </span>
-              <h1 className="text-[2.6rem] sm:text-5xl xl:text-[3.4rem] font-extrabold text-[#0B3446] tracking-tight leading-[1.08]">
+              <h1 className="text-[2.6rem] sm:text-5xl xl:text-[3.4rem] font-extrabold text-[#0B3446] tracking-tight leading-[1.25] break-words">
                 Expert Care for a{" "}
                 <span
                   className="bg-clip-text text-transparent"
@@ -248,7 +241,7 @@ export default function HeroSection({
             </div>
 
             {/* Description */}
-            <p className="text-[15px] sm:text-base text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
+            <p className="text-[15px] sm:text-base text-slate-600 leading-[1.8] max-w-xl mx-auto lg:mx-0 break-words">
               Advanced healthcare, trusted by millions, for every stage of life.
               Combining 40+ years of clinical excellence, robotic surgical
               precision, and world-renowned specialists — because every life
@@ -256,11 +249,11 @@ export default function HeroSection({
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-1">
               {/* Book an Appointment */}
               <button
                 onClick={onOpenAppointmentModal}
-                className="group flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+                className="group flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold leading-relaxed whitespace-normal text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 style={{
                   background:
                     "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
@@ -307,7 +300,7 @@ export default function HeroSection({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search doctors, specialities (e.g. Cardiology, Dr. Sangita)..."
-                  className="w-full px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
+                  className="w-full min-w-0 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
                 />
                 <button
                   type="submit"
@@ -323,7 +316,7 @@ export default function HeroSection({
             </div>
 
             {/* Trust badges */}
-            <div className="pt-5 mt-2 grid grid-cols-3 gap-4 border-t border-[#0E526B]/10 max-w-lg mx-auto lg:mx-0 text-left">
+            <div className="pt-5 mt-2 grid grid-cols-3 gap-5 border-t border-[#0E526B]/10 max-w-lg mx-auto lg:mx-0 text-left">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg bg-white/70 backdrop-blur-sm flex items-center justify-center shrink-0 shadow-sm">
                   <ShieldCheck className="w-4.5 h-4.5 text-[#0E526B]" />
@@ -383,12 +376,13 @@ export default function HeroSection({
               {/* Main image frame */}
               <div className="relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(15,52,72,0.30)] border-[6px] border-white bg-white">
                 <div className="relative h-[440px] sm:h-[500px] w-full overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGhvc3BpdGFsfGVufDB8fDB8fHww"
+                  <Image
+                    src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&auto=format&fit=crop&q=80"
                     alt="Apollo doctor caring for a patient"
-                    fetchPriority="high"
-                    loading="eager"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    priority
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />
 
@@ -720,6 +714,44 @@ export default function HeroSection({
           }
           50% {
             transform: translateY(-10px);
+          }
+        }
+
+        .hero-heartbeat-path {
+          stroke-dasharray: 1200;
+          stroke-dashoffset: 1200;
+          animation: heartbeatDraw 5s ease-in-out infinite;
+        }
+        @keyframes heartbeatDraw {
+          0% {
+            stroke-dashoffset: 1200;
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          70% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+          }
+          85%, 100% {
+            stroke-dashoffset: 0;
+            opacity: 0;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-mesh,
+          .hero-orb,
+          .hero-ring,
+          .hero-sparkle,
+          .hero-particle,
+          .hero-[#wave],
+          .hero-wave,
+          .hero-aura,
+          .hero-float-slow,
+          .hero-heartbeat-path {
+            animation: none !important;
           }
         }
       `}</style>

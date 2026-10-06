@@ -1,499 +1,865 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CalendarPlus,
   Calendar,
   Clock,
-  UserCheck,
   Stethoscope,
   PhoneCall,
   CheckCircle2,
   Sparkles,
-  MessageCircle,
-  Building2,
-  ChevronRight,
-  ShieldCheck,
   User,
-  Phone,
-  Mail,
-  FileText,
-  AlertCircle,
-  HeartPulse,
+  MapPin,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  Award,
+  Sun,
+  Sunset,
+  Moon,
+  
 } from "lucide-react";
-import AppointmentModal from "../../../components/components/AppointmentModal";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
+// Import data from external JSON file
+import appointmentData from "../../../data/appointmentData";
 
-const goldGradient = {
-  background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+const goldGradientStyle = {
+  background: "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)",
 };
 
 export default function MakeAppointmentPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [step, setStep] = useState(1); // 1: Doctor/Specialty, 2: Slot, 3: Details, 4: Confirmed
+  // Step 1: Details | Step 2: Slot Booking | Step 3: Confirmation Pass
+  const [step, setStep] = useState(1);
 
+  // Form State containing all fields
   const [booking, setBooking] = useState({
-    department: "Cardiology",
-    doctor: "Dr. Vivek Gupta",
-    date: new Date().toISOString().split("T")[0],
-    slot: "10:30 AM",
     patientName: "",
-    patientPhone: "",
-    patientEmail: "",
-    notes: "",
+    ageValue: "",
+    ageUnit: "Year",
+    gender: "MALE",
+    contact: "",
+    sameWhatsapp: true,
+    whatsappNumber: "",
+    scheme: "",
+    appointmentDate: "2026-10-07",
+    consultant: "DR CHARU PATHAK",
+    pinCode: "",
+    state: "MADHYA PRADESH",
+    district: "",
+    tehsil: "",
+    village: "",
+    wardNumber: "",
+    address: "",
+    slot: "09:30:00",
   });
 
-  const doctorsList = [
-    { name: "Dr. Vivek Gupta", dept: "Cardiology", qual: "MD, DM (Cardiology)", exp: "24+ Yrs Exp", fee: "₹800" },
-    { name: "Dr. Rajeev Verma", dept: "Oncology", qual: "MCh (Surgical Oncology)", exp: "22+ Yrs Exp", fee: "₹900" },
-    { name: "Dr. Alok Agrawal", dept: "Gastroenterology", qual: "DM (Gastroenterology)", exp: "18+ Yrs Exp", fee: "₹750" },
-    { name: "Dr. Nitin Saxena", dept: "Neurology", qual: "MCh (Neurosurgery)", exp: "19+ Yrs Exp", fee: "₹850" },
-    { name: "Dr. Deepak Shrivastava", dept: "Orthopaedics", qual: "MS (Ortho), MCh (UK)", exp: "21+ Yrs Exp", fee: "₹800" },
-    { name: "Dr. Prashant Choubey", dept: "Nephrology", qual: "DM (Nephrology)", exp: "17+ Yrs Exp", fee: "₹750" },
-    { name: "Dr. Saurabh Dubey", dept: "Critical Care", qual: "MD, IDCCM", exp: "18+ Yrs Exp", fee: "₹800" },
-  ];
+  // Filter Searches
+  const [docSearch, setDocSearch] = useState("");
+  const [schemeSearch, setSchemeSearch] = useState("");
 
-  const timeSlots = ["09:30 AM", "10:30 AM", "11:30 AM", "02:00 PM", "04:30 PM", "06:00 PM"];
+  const filteredDoctors = useMemo(() => {
+    if (!docSearch.trim()) return appointmentData.consultants;
+    return appointmentData.consultants.filter((d) =>
+      d.toLowerCase().includes(docSearch.toLowerCase())
+    );
+  }, [docSearch]);
 
-  const handleNextStep = (e) => {
+  const filteredSchemes = useMemo(() => {
+    if (!schemeSearch.trim()) return appointmentData.schemes;
+    return appointmentData.schemes.filter((s) =>
+      s.toLowerCase().includes(schemeSearch.toLowerCase())
+    );
+  }, [schemeSearch]);
+
+  const handleNextToSlots = (e) => {
     e.preventDefault();
-    if (step < 3) setStep(step + 1);
-    else if (step === 3) setStep(4);
+    setStep(2);
+  };
+
+  const handleFinalSubmit = () => {
+    setStep(3);
   };
 
   return (
-    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
-      {/* ───── Background Orbs ───── */}
-      <style jsx>{`
-        .apt-orb {
-          position: absolute;
-          border-radius: 9999px;
-          pointer-events: none;
-        }
-        .apt-orb-1 {
-          width: 380px;
-          height: 380px;
-          top: -120px;
-          left: -100px;
-          background: radial-gradient(circle, #bfe3f2, transparent 70%);
-          opacity: 0.5;
-          animation: aptFloat1 16s ease-in-out infinite;
-        }
-        .apt-orb-2 {
-          width: 340px;
-          height: 340px;
-          top: 30%;
-          right: -120px;
-          background: radial-gradient(circle, #f3dfa8, transparent 70%);
-          opacity: 0.45;
-          animation: aptFloat2 20s ease-in-out infinite;
-        }
-        @keyframes aptFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
-        }
-        @keyframes aptFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
-        }
-      `}</style>
-
-      {/* Dotted texture */}
+    <main className="relative min-h-screen bg-[#F0F6FA] text-slate-900 pt-28 pb-24 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
+      {/* Background Glowing Mesh Effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="apt-orb apt-orb-1" />
-        <div className="apt-orb apt-orb-2" />
-        <div
-          className="absolute inset-0 opacity-[0.3]"
-          style={{
-            backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
-            backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
-          }}
-        />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-[#1D82A6]/20 via-[#0A5F7A]/15 to-transparent blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 -right-40 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-[#F6D98A]/30 via-[#C8952E]/15 to-transparent blur-3xl" />
       </div>
 
-      <div className="relative z-10">
-        {/* ───── Hero Header Section ───── */}
-        <motion.section
-          initial="hidden"
-          animate="show"
-          variants={fadeUp}
-          className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-10"
-        >
-          <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#F6D98A]/80 via-[#1D82A6]/40 to-[#C8952E]/80 shadow-[0_30px_70px_rgba(10,95,122,0.35)]">
-            <div className="relative rounded-[calc(2rem-1.5px)] overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] p-8 sm:p-12 md:p-16 text-white">
-              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#F6D98A]/25 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#0B3446]/40 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px] pointer-events-none" />
-              <CalendarPlus className="absolute -right-10 -bottom-10 w-80 h-80 opacity-[0.06] text-white -rotate-12 pointer-events-none" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* HERO SECTION */}
+        <section className="relative mb-12">
+          <div className="relative rounded-[2.5rem] p-[2px] bg-gradient-to-r from-[#F6D98A] via-[#1D82A6] to-[#C8952E] shadow-[0_25px_60px_-15px_rgba(10,95,122,0.35)]">
+            <div className="relative rounded-[calc(2.5rem-2px)] bg-gradient-to-br from-[#042835] via-[#0A5F7A] to-[#0D2E3A] overflow-hidden text-white p-8 sm:p-14">
+              
+              {/* Decorative Geometric Overlay */}
+              <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="relative z-10 max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-[#FEF3C7] text-xs font-bold mb-6 shadow-inner">
-                  <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
-                  <span>Official Online Booking Portal • Apollo Hospitals Jabalpur</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div className="lg:col-span-8 space-y-5">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#FEF3C7] text-xs font-semibold">
+                    <Sparkles className="w-4 h-4 text-[#F6D98A] animate-spin" style={{ animationDuration: '8s' }} />
+                    <span>Apollo Hospitals Jabalpur • Express Digital Booking</span>
+                  </div>
+
+                  <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                    Book Your OPD <br />
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F6D98A] via-[#FFFFFF] to-[#E3AF4D]">
+                      Doctor Appointment
+                    </span>
+                  </h1>
+
+                  <p className="text-slate-200/90 text-xs sm:text-base leading-relaxed max-w-2xl font-light">
+                    Fast-track your consultation. Complete your patient registration, select your panel scheme, and reserve your preferred consultation window seamlessly.
+                  </p>
+
+                  {/* Feature Highlights */}
+                  <div className="pt-2 flex flex-wrap gap-4 text-xs font-medium text-slate-300">
+                    <div className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-[#F6D98A]" />
+                      <span>Instant Confirmation</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Award className="w-4 h-4 text-[#F6D98A]" />
+                      <span>Verified Specialists</span>
+                    </div>
+                  </div>
                 </div>
 
-                <h1 className="font-serif-apollo text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-4">
-                  Book Your Doctor{" "}
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{
-                      backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #C8952E 100%)",
-                    }}
-                  >
-                    Appointment
-                  </span>
-                </h1>
-
-                <p className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-2xl">
-                  Select your preferred specialist doctor, date, and time slot. Enjoy priority registration and instant SMS/WhatsApp confirmation.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-4">
-                  <a
-                    href="https://wa.me/9575308686?text=Hello%20Apollo%20Jabalpur,%20I%20want%20to%20book%20an%20appointment"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3.5 rounded-full bg-emerald-600 text-white font-extrabold text-xs shadow-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 cursor-pointer"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Instant WhatsApp Booking (+91 9575308686)</span>
-                  </a>
-
+                <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-4">
                   <a
                     href="tel:18001236666"
-                    className="px-6 py-3.5 rounded-full bg-rose-600 text-white font-extrabold text-xs shadow-md hover:bg-rose-700 transition-colors flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md font-bold text-xs transition-all flex items-center justify-center gap-3 shadow-lg hover:scale-[1.02]"
                   >
-                    <PhoneCall className="w-4 h-4" />
-                    <span>Tollfree Helpline: 1800-123-6666</span>
+                    <PhoneCall className="w-4 h-4 text-[#F6D98A]" />
+                    <span>Help Desk: 1800-123-6666</span>
                   </a>
                 </div>
               </div>
             </div>
           </div>
-        </motion.section>
+        </section>
 
-        {/* ───── Step Wizard & Form ───── */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#1D82A6]/40 via-white to-[#C8952E]/50 shadow-2xl">
-            <div className="bg-white rounded-[calc(2rem-1.5px)] p-6 sm:p-10">
-              
-              {/* Stepper Header */}
-              {step < 4 && (
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
-                  {[
-                    { num: 1, title: "Doctor & Specialty" },
-                    { num: 2, title: "Date & Time Slot" },
-                    { num: 3, title: "Patient Details" },
-                  ].map((s) => (
-                    <div key={s.num} className="flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                          step >= s.num
-                            ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-white shadow-md"
-                            : "bg-slate-100 text-slate-400"
-                        }`}
-                      >
-                        {s.num}
-                      </div>
-                      <span className={`text-xs font-bold hidden sm:inline ${step >= s.num ? "text-[#0B3446]" : "text-slate-400"}`}>
-                        {s.title}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* STEPPER PROGRESS BAR */}
+        <div className="max-w-4xl mx-auto mb-10">
+          <div className="flex items-center justify-between relative">
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -z-0 -translate-y-1/2" />
+            <div
+              className="absolute top-1/2 left-0 h-1 bg-[#1D82A6] -z-0 -translate-y-1/2 transition-all duration-500"
+              style={{
+                width: step === 1 ? "0%" : step === 2 ? "50%" : "100%",
+              }}
+            />
 
+            {/* Step 1 Indicator */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                  step >= 1
+                    ? "bg-[#0A5F7A] text-white ring-4 ring-white shadow-md"
+                    : "bg-slate-200 text-slate-500"
+                }`}
+              >
+                1
+              </div>
+              <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                Patient Info
+              </span>
+            </div>
+
+            {/* Step 2 Indicator */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                  step >= 2
+                    ? "bg-[#0A5F7A] text-white ring-4 ring-white shadow-md"
+                    : "bg-slate-200 text-slate-500"
+                }`}
+              >
+                2
+              </div>
+              <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                Select Slot
+              </span>
+            </div>
+
+            {/* Step 3 Indicator */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                  step === 3
+                    ? "bg-emerald-600 text-white ring-4 ring-white shadow-md"
+                    : "bg-slate-200 text-slate-500"
+                }`}
+              >
+                3
+              </div>
+              <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                Pass Ticket
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* MAIN CONTAINER */}
+        <section className="max-w-6xl mx-auto">
+          <div className="relative p-[1.5px] rounded-[2.5rem] bg-gradient-to-b from-white via-[#1D82A6]/30 to-[#C8952E]/40 shadow-2xl">
+            <div className="bg-white rounded-[calc(2.5rem-1.5px)] p-6 sm:p-10 lg:p-12">
               <AnimatePresence mode="wait">
-                {/* STEP 1: SELECT DOCTOR & SPECIALTY */}
+                
+                {/* STEP 1: DEMOGRAPHICS & DETAILS FORM */}
                 {step === 1 && (
-                  <motion.div
+                  <motion.form
                     key="step1"
-                    initial={{ opacity: 0, x: -16 }}
+                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 16 }}
-                    className="space-y-6"
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                    onSubmit={handleNextToSlots}
+                    className="space-y-10"
                   >
+                    {/* SECTION 1: PATIENT IDENTITY */}
                     <div>
-                      <h3 className="font-serif-apollo text-xl font-black text-[#0B3446] mb-1">
-                        Select Specialty & Doctor
-                      </h3>
-                      <p className="text-xs text-slate-500">Choose your required clinical department or doctor for consultation.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {doctorsList.map((doc, idx) => {
-                        const isSelected = booking.doctor === doc.name;
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => setBooking({ ...booking, doctor: doc.name, department: doc.dept })}
-                            className={`p-4 rounded-2xl cursor-pointer border transition-all duration-200 flex flex-col justify-between ${
-                              isSelected
-                                ? "bg-[#EDF6FB] border-[#1D82A6] shadow-md translate-x-1"
-                                : "bg-white border-slate-200 hover:border-[#1D82A6]/40 hover:bg-slate-50"
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <div className="text-xs font-black text-[#0B3446]">{doc.name}</div>
-                                <div className="text-[11px] font-extrabold text-[#0E526B]">{doc.dept}</div>
-                                <div className="text-[10px] text-slate-500">{doc.qual}</div>
-                              </div>
-                              <span className="text-[10px] font-bold text-[#C8952E] bg-[#FEF3C7] px-2 py-0.5 rounded-full shrink-0">
-                                {doc.exp}
-                              </span>
-                            </div>
-
-                            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                              <span className="text-slate-500">OPD Consultation Fee:</span>
-                              <span className="font-extrabold text-[#0B3446]">{doc.fee}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="pt-4 flex justify-end">
-                      <button
-                        onClick={() => setStep(2)}
-                        className="px-8 py-3.5 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2"
-                        style={goldGradient}
-                      >
-                        <span>Next: Pick Date & Slot</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* STEP 2: SELECT DATE & SLOT */}
-                {step === 2 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 16 }}
-                    className="space-y-6"
-                  >
-                    <div>
-                      <h3 className="font-serif-apollo text-xl font-black text-[#0B3446] mb-1">
-                        Select Preferred Date & Time Slot
-                      </h3>
-                      <p className="text-xs text-slate-500">Consultation with <span className="font-bold text-[#0E526B]">{booking.doctor}</span> ({booking.department}).</p>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-extrabold text-slate-700 mb-2">
-                          Appointment Date *
-                        </label>
-                        <input
-                          type="date"
-                          value={booking.date}
-                          min={new Date().toISOString().split("T")[0]}
-                          onChange={(e) => setBooking({ ...booking, date: e.target.value })}
-                          className="w-full sm:w-64 px-4 py-3 rounded-xl border border-slate-300 font-semibold text-xs focus:border-[#1D82A6] focus:outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-extrabold text-slate-700 mb-2">
-                          Available OPD Time Slots *
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {timeSlots.map((slot) => {
-                            const isSelected = booking.slot === slot;
-                            return (
-                              <button
-                                key={slot}
-                                type="button"
-                                onClick={() => setBooking({ ...booking, slot })}
-                                className={`py-3 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                                  isSelected
-                                    ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-white shadow-md"
-                                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
-                                }`}
-                              >
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>{slot}</span>
-                              </button>
-                            );
-                          })}
+                      <div className="flex items-center gap-3 pb-3 mb-6 border-b border-slate-100">
+                        <div className="p-2.5 rounded-xl bg-[#0A5F7A]/10 text-[#0A5F7A]">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-black text-[#0B3446]">
+                            1. Patient Demographics & Contact
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Provide complete legal name, age, gender, and mobile details.
+                          </p>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="pt-4 flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={() => setStep(1)}
-                        className="px-6 py-3 rounded-xl text-xs font-extrabold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        Back
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setStep(3)}
-                        className="px-8 py-3.5 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2"
-                        style={goldGradient}
-                      >
-                        <span>Next: Patient Details</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* STEP 3: PATIENT INFORMATION */}
-                {step === 3 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 16 }}
-                    className="space-y-6"
-                  >
-                    <div>
-                      <h3 className="font-serif-apollo text-xl font-black text-[#0B3446] mb-1">
-                        Patient Information & Contact
-                      </h3>
-                      <p className="text-xs text-slate-500">Provide details for instant booking SMS confirmation.</p>
-                    </div>
-
-                    <form onSubmit={handleNextStep} className="space-y-4 text-xs">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {/* Patient Name */}
                         <div>
-                          <label className="block font-bold text-slate-700 mb-1.5">
-                            Patient Full Name *
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Patient Name <span className="text-rose-500">*</span>
                           </label>
                           <input
                             type="text"
                             required
                             value={booking.patientName}
-                            onChange={(e) => setBooking({ ...booking, patientName: e.target.value })}
-                            placeholder="e.g. Rajesh Kumar"
-                            className="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
+                            onChange={(e) =>
+                              setBooking({ ...booking, patientName: e.target.value })
+                            }
+                            placeholder="ENTER PATIENT NAME"
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold uppercase focus:bg-white focus:border-[#1D82A6] outline-none transition-all"
                           />
                         </div>
 
+                        {/* Age of Patient */}
                         <div>
-                          <label className="block font-bold text-slate-700 mb-1.5">
-                            Mobile Number (for SMS & WhatsApp) *
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Age of Patient <span className="text-rose-500">*</span>
                           </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              required
+                              min="0"
+                              value={booking.ageValue}
+                              onChange={(e) =>
+                                setBooking({ ...booking, ageValue: e.target.value })
+                              }
+                              placeholder="Enter Age"
+                              className="w-3/5 px-3 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none"
+                            />
+                            <select
+                              value={booking.ageUnit}
+                              onChange={(e) =>
+                                setBooking({ ...booking, ageUnit: e.target.value })
+                              }
+                              className="w-2/5 px-2 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white outline-none cursor-pointer"
+                            >
+                              <option value="Year">Year</option>
+                              <option value="Month">Month</option>
+                              <option value="Days">Days</option>
+                              <option value="Hours">Hours</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Patient Gender */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Patient Gender <span className="text-rose-500">*</span>
+                          </label>
+                          <select
+                            required
+                            value={booking.gender}
+                            onChange={(e) =>
+                              setBooking({ ...booking, gender: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                          >
+                            <option value="MALE">Select Gender (MALE)</option>
+                            <option value="FEMALE">FEMALE</option>
+                            <option value="TRANSGENDER">TRANSGENDER</option>
+                          </select>
+                        </div>
+
+                        {/* Contact & WhatsApp Sync */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                              Contact <span className="text-rose-500">*</span>
+                            </label>
+                            <label className="inline-flex items-center gap-1 cursor-pointer text-[10px] text-[#0A5F7A] font-bold">
+                              <input
+                                type="checkbox"
+                                checked={booking.sameWhatsapp}
+                                onChange={(e) =>
+                                  setBooking({
+                                    ...booking,
+                                    sameWhatsapp: e.target.checked,
+                                    whatsappNumber: e.target.checked
+                                      ? booking.contact
+                                      : "",
+                                  })
+                                }
+                                className="rounded border-slate-300 text-[#0A5F7A] focus:ring-[#0A5F7A]"
+                              />
+                              <span>Same whatsapp</span>
+                            </label>
+                          </div>
                           <input
                             type="tel"
                             required
-                            value={booking.patientPhone}
-                            onChange={(e) => setBooking({ ...booking, patientPhone: e.target.value })}
-                            placeholder="+91 98765 43210"
-                            className="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
+                            value={booking.contact}
+                            onChange={(e) =>
+                              setBooking({
+                                ...booking,
+                                contact: e.target.value,
+                                whatsappNumber: booking.sameWhatsapp
+                                  ? e.target.value
+                                  : booking.whatsappNumber,
+                              })
+                            }
+                            placeholder="Enter Contact Number"
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none"
+                          />
+                        </div>
+
+                        {/* WhatsApp Number Field */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            WhatsApp Number
+                          </label>
+                          <input
+                            type="tel"
+                            disabled={booking.sameWhatsapp}
+                            value={
+                              booking.sameWhatsapp
+                                ? booking.contact
+                                : booking.whatsappNumber
+                            }
+                            onChange={(e) =>
+                              setBooking({
+                                ...booking,
+                                whatsappNumber: e.target.value,
+                              })
+                            }
+                            placeholder="Enter WhatsApp Number"
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none disabled:opacity-60"
                           />
                         </div>
                       </div>
+                    </div>
 
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1.5">
-                          Email Address (Optional)
-                        </label>
-                        <input
-                          type="email"
-                          value={booking.patientEmail}
-                          onChange={(e) => setBooking({ ...booking, patientEmail: e.target.value })}
-                          placeholder="rajesh@example.com"
-                          className="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
-                        />
+                    {/* SECTION 2: LOCATION & ADDRESS */}
+                    <div>
+                      <div className="flex items-center gap-3 pb-3 mb-6 border-b border-slate-100">
+                        <div className="p-2.5 rounded-xl bg-[#0A5F7A]/10 text-[#0A5F7A]">
+                          <MapPin className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-black text-[#0B3446]">
+                            2. Residential Location & Address
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Provide locality, PIN code, district, and address details.
+                          </p>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1.5">
-                          Symptoms / Reason for Visit (Optional)
-                        </label>
-                        <textarea
-                          rows={3}
-                          value={booking.notes}
-                          onChange={(e) => setBooking({ ...booking, notes: e.target.value })}
-                          placeholder="Brief description of symptoms..."
-                          className="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none resize-none"
-                        />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {/* PIN Code */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            PIN Code
+                          </label>
+                          <input
+                            type="text"
+                            value={booking.pinCode}
+                            onChange={(e) =>
+                              setBooking({ ...booking, pinCode: e.target.value })
+                            }
+                            placeholder="ENTER PIN CODE"
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold uppercase focus:bg-white focus:border-[#1D82A6] outline-none"
+                          />
+                        </div>
+
+                        {/* State */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            State <span className="text-rose-500">*</span>
+                          </label>
+                          <select
+                            required
+                            value={booking.state}
+                            onChange={(e) =>
+                              setBooking({ ...booking, state: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                          >
+                            <option value="MADHYA PRADESH">MADHYA PRADESH</option>
+                            <option value="MAHARASHTRA">MAHARASHTRA</option>
+                            <option value="CHHATTISGARH">CHHATTISGARH</option>
+                            <option value="UTTAR PRADESH">UTTAR PRADESH</option>
+                          </select>
+                        </div>
+
+                        {/* District */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            District <span className="text-rose-500">*</span>
+                          </label>
+                          <select
+                            required
+                            value={booking.district}
+                            onChange={(e) =>
+                              setBooking({ ...booking, district: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                          >
+                            <option value="">Select District</option>
+                            {appointmentData.districts.map((d) => (
+                              <option key={d} value={d}>
+                                {d}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Tehsil */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Tehsil
+                          </label>
+                          <select
+                            value={booking.tehsil}
+                            onChange={(e) =>
+                              setBooking({ ...booking, tehsil: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                          >
+                            <option value="">Select Tahsil Name</option>
+                            {appointmentData.tehsils.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Village */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Village
+                          </label>
+                          <select
+                            value={booking.village}
+                            onChange={(e) =>
+                              setBooking({ ...booking, village: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                          >
+                            <option value="">Select Village Name</option>
+                            {appointmentData.villages.map((v) => (
+                              <option key={v} value={v}>
+                                {v}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Ward Number */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Ward Number
+                          </label>
+                          <input
+                            type="text"
+                            value={booking.wardNumber}
+                            onChange={(e) =>
+                              setBooking({ ...booking, wardNumber: e.target.value })
+                            }
+                            placeholder="Enter Ward Number"
+                            className="w-full px-4 py-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none"
+                          />
+                        </div>
+
+                        {/* Full Address */}
+                        <div className="sm:col-span-2">
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Address <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={booking.address}
+                            onChange={(e) =>
+                              setBooking({ ...booking, address: e.target.value })
+                            }
+                            placeholder="Enter Address"
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SECTION 3: SCHEME, DATE & CONSULTANT */}
+                    <div>
+                      <div className="flex items-center gap-3 pb-3 mb-6 border-b border-slate-100">
+                        <div className="p-2.5 rounded-xl bg-[#0A5F7A]/10 text-[#0A5F7A]">
+                          <Stethoscope className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-black text-[#0B3446]">
+                            3. Scheme Panel & Doctor Consultation
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Select applicable panel scheme and doctor specialty.
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="pt-4 flex items-center justify-between">
-                        <button
-                          type="button"
-                          onClick={() => setStep(2)}
-                          className="px-6 py-3 rounded-xl text-xs font-extrabold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                        >
-                          Back
-                        </button>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        {/* Scheme Name */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Scheme Name <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="space-y-1.5">
+                            <input
+                              type="text"
+                              placeholder="Filter scheme..."
+                              value={schemeSearch}
+                              onChange={(e) => setSchemeSearch(e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] outline-none"
+                            />
+                            <select
+                              required
+                              value={booking.scheme}
+                              onChange={(e) =>
+                                setBooking({ ...booking, scheme: e.target.value })
+                              }
+                              className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                            >
+                              <option value="">Select Scheme Name</option>
+                              {filteredSchemes.map((sch) => (
+                                <option key={sch} value={sch}>
+                                  {sch}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
 
-                        <button
-                          type="submit"
-                          className="px-8 py-3.5 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2"
-                          style={goldGradient}
-                        >
-                          <span>Confirm & Complete Booking</span>
-                          <CheckCircle2 className="w-4 h-4 text-[#3A2B0A]" />
-                        </button>
+                        {/* Appointment Date */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Appointment Date <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="date"
+                            required
+                            value={booking.appointmentDate}
+                            onChange={(e) =>
+                              setBooking({
+                                ...booking,
+                                appointmentDate: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:bg-white focus:border-[#1D82A6] outline-none"
+                          />
+                        </div>
+
+                        {/* Consultant Dropdown */}
+                        <div>
+                          <label className="block text-[11px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Consultant <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="space-y-1.5">
+                            <input
+                              type="text"
+                              placeholder="Filter doctor..."
+                              value={docSearch}
+                              onChange={(e) => setDocSearch(e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] outline-none"
+                            />
+                            <select
+                              required
+                              value={booking.consultant}
+                              onChange={(e) =>
+                                setBooking({
+                                  ...booking,
+                                  consultant: e.target.value,
+                                })
+                              }
+                              className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:bg-white focus:border-[#1D82A6] outline-none cursor-pointer"
+                            >
+                              {filteredDoctors.map((doc) => (
+                                <option key={doc} value={doc}>
+                                  {doc}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
                       </div>
-                    </form>
+                    </div>
+
+                    {/* ACTION BUTTON */}
+                    <div className="pt-6 border-t border-slate-100 flex justify-end">
+                      <button
+                        type="submit"
+                        className="w-full sm:w-auto px-10 py-4 rounded-2xl text-xs font-black text-[#3A2B0A] shadow-xl hover:shadow-2xl transition-all cursor-pointer flex items-center justify-center gap-3 transform hover:-translate-y-0.5"
+                        style={goldGradientStyle}
+                      >
+                        <span>Proceed to Slot Booking</span>
+                        <ArrowRight className="w-4 h-4 text-[#3A2B0A]" />
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+
+                {/* STEP 2: DEDICATED ATTRACTIVE SLOT BOOKING SECTION */}
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-8"
+                  >
+                    {/* Header Summary Bar */}
+                    <div className="p-6 rounded-3xl bg-gradient-to-r from-[#06384A] to-[#0A5F7A] text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-bold text-[#F6D98A] uppercase tracking-wider">
+                          Booking Details
+                        </div>
+                        <h3 className="text-lg font-black">{booking.patientName || "Patient"}</h3>
+                        <p className="text-xs text-slate-200">
+                          {booking.consultant} • {booking.appointmentDate}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold flex items-center gap-2 transition-all"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>Edit Patient Info</span>
+                      </button>
+                    </div>
+
+                    {/* Slot Picker Title */}
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-[#0A5F7A]/10 text-[#0A5F7A]">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-black text-[#0B3446]">
+                            Select Preferred Time Slot
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Choose an available time window for your visit.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-xs font-bold text-[#0A5F7A]">
+                        Selected Slot:{" "}
+                        <span className="text-rose-600 font-extrabold">
+                          {booking.slot}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* TIME SLOTS GRID CATEGORIZED */}
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {appointmentData.timeSlots.map((s) => {
+                          const isSel = booking.slot === s.time;
+                          const isVisitors = s.note === "Visitors Only";
+                          return (
+                            <button
+                              key={s.time}
+                              type="button"
+                              onClick={() => setBooking({ ...booking, slot: s.time })}
+                              className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-between gap-3 ${
+                                isSel
+                                  ? "bg-[#0A5F7A] border-[#0A5F7A] text-white shadow-xl scale-105 ring-2 ring-[#F6D98A]"
+                                  : isVisitors
+                                  ? "bg-amber-100/70 border-amber-300 text-amber-900 hover:bg-amber-200"
+                                  : "bg-emerald-50/60 border-emerald-200 text-slate-800 hover:bg-emerald-100/70"
+                              }`}
+                            >
+                              <div
+                                className={`p-2 rounded-xl ${
+                                  isSel ? "bg-white/20" : "bg-white/60"
+                                }`}
+                              >
+                                <Clock className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <div className="text-[10px] font-bold opacity-80">
+                                  {booking.appointmentDate}
+                                </div>
+                                <div className="text-sm font-black tracking-tight mt-0.5">
+                                  {s.time}
+                                </div>
+                                {s.note && (
+                                  <div className="text-[9px] font-black mt-1.5 px-2 py-0.5 rounded bg-rose-600 text-white inline-block">
+                                    {s.note}
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* SLOTS FOOTER & SUBMIT */}
+                    <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleFinalSubmit}
+                        className="w-full sm:w-auto px-10 py-4 rounded-2xl text-xs font-black text-[#3A2B0A] shadow-xl hover:shadow-2xl transition-all cursor-pointer flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+                        style={goldGradientStyle}
+                      >
+                        <span>Confirm & Generate Registration Pass</span>
+                        <ChevronRight className="w-4 h-4 text-[#3A2B0A]" />
+                      </button>
+                    </div>
                   </motion.div>
                 )}
 
-                {/* STEP 4: CONFIRMED */}
-                {step === 4 && (
+                {/* STEP 3: CONFIRMATION PASS */}
+                {step === 3 && (
                   <motion.div
-                    key="step4"
-                    initial={{ opacity: 0, scale: 0.96 }}
+                    key="step3"
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    className="p-8 text-center space-y-6"
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.4 }}
+                    className="p-4 text-center space-y-6"
                   >
-                    <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xl">
+                    <div className="w-20 h-20 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xl">
                       <CheckCircle2 className="w-10 h-10" />
                     </div>
 
-                    <div className="space-y-2">
-                      <h3 className="font-serif-apollo text-2xl font-black text-emerald-950">
-                        Appointment Confirmed Successfully!
+                    <div>
+                      <h3 className="text-2xl font-black text-emerald-950">
+                        Registration Confirmed!
                       </h3>
-                      <p className="text-xs text-slate-600 max-w-md mx-auto">
-                        Thank you, <span className="font-bold text-[#0B3446]">{booking.patientName || "Patient"}</span>. Your appointment pass has been registered.
+                      <p className="text-xs text-slate-600 max-w-sm mx-auto mt-1">
+                        Your appointment has been logged for{" "}
+                        <span className="font-bold text-[#0B3446]">
+                          {booking.patientName}
+                        </span>
+                        .
                       </p>
                     </div>
 
-                    <div className="bg-[#EDF6FB] p-6 rounded-2xl border border-[#1D82A6]/20 max-w-md mx-auto text-left text-xs space-y-2 font-mono shadow-sm">
-                      <div className="flex justify-between"><span className="font-bold text-slate-600">Booking Pass ID:</span> <span className="font-bold text-[#0A5F7A]">APO-JBP-8842</span></div>
-                      <div className="flex justify-between"><span className="font-bold text-slate-600">Doctor:</span> <span className="font-bold text-[#0B3446]">{booking.doctor}</span></div>
-                      <div className="flex justify-between"><span className="font-bold text-slate-600">Department:</span> <span className="font-bold text-[#0E526B]">{booking.department}</span></div>
-                      <div className="flex justify-between"><span className="font-bold text-slate-600">Date & Slot:</span> <span className="font-bold text-[#C8952E]">{booking.date} at {booking.slot}</span></div>
-                      <div className="flex justify-between"><span className="font-bold text-slate-600">Location:</span> <span className="font-bold text-slate-800">Global Square, Patan Rd, Karmeta, Jabalpur</span></div>
+                    {/* PASS TICKET CARD */}
+                    <div className="relative p-6 rounded-3xl bg-gradient-to-br from-[#06384A] to-[#0A5F7A] text-white max-w-lg mx-auto text-left text-xs space-y-4 shadow-2xl overflow-hidden border border-white/20">
+                      <div className="flex justify-between items-center pb-3 border-b border-white/15">
+                        <span className="font-extrabold text-[#F6D98A] tracking-wider uppercase text-[10px]">
+                          Pass ID: APO-JBP-9921
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold">
+                          CONFIRMED
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-1 text-[11px]">
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Patient Name:
+                          </span>{" "}
+                          <span className="font-bold">{booking.patientName}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Age / Gender:
+                          </span>{" "}
+                          <span className="font-bold">
+                            {booking.ageValue} {booking.ageUnit} • {booking.gender}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Consultant:
+                          </span>{" "}
+                          <span className="font-bold text-[#F6D98A]">
+                            {booking.consultant}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Selected Slot:
+                          </span>{" "}
+                          <span className="font-bold">
+                            {booking.appointmentDate} ({booking.slot})
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Scheme:
+                          </span>{" "}
+                          <span className="font-bold">{booking.scheme || "N/A"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-300 block text-[9px] uppercase">
+                            Contact:
+                          </span>{" "}
+                          <span className="font-bold">{booking.contact}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <div className="pt-4">
                       <button
+                        type="button"
                         onClick={() => setStep(1)}
-                        className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#0A5F7A] text-white text-xs font-extrabold cursor-pointer"
+                        className="px-8 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all"
                       >
                         Book Another Appointment
                       </button>
-
-                      <a
-                        href="https://wa.me/9575308686?text=Hello%20Apollo%20Jabalpur,%20I%20have%20booked%20appointment%20pass%20APO-JBP-8842"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full sm:w-auto px-6 py-3 rounded-full bg-emerald-600 text-white text-xs font-extrabold cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        <span>Send to WhatsApp</span>
-                      </a>
                     </div>
                   </motion.div>
                 )}
@@ -501,40 +867,7 @@ export default function MakeAppointmentPage() {
             </div>
           </div>
         </section>
-
-        {/* ───── Trust Footer Banner ───── */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div className="relative p-[1.5px] rounded-3xl bg-gradient-to-r from-[#1D82A6]/30 via-[#C8952E]/40 to-[#1D82A6]/30 shadow-md">
-            <div className="rounded-[calc(1.5rem-1.5px)] bg-white p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] flex items-center justify-center text-[#F6D98A] shadow-lg shrink-0">
-                  <Building2 className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-base font-extrabold text-[#0B3446]">
-                    Apollo JBP Hospitals • Jabalpur, MP
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    For walk-in OPD registration: Global Square, Patan Rd, Karmeta, Jabalpur 482002.
-                  </p>
-                </div>
-              </div>
-
-              <a
-                href="tel:18001236666"
-                className="px-6 py-3 rounded-full text-xs font-extrabold bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-colors shrink-0"
-              >
-                Emergency Call: 1800-123-6666
-              </a>
-            </div>
-          </div>
-        </section>
       </div>
-
-      <AppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </main>
   );
 }

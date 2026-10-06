@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import Navbar from "../components/components/Navbar";
 import HeroSection from "../components/components/HeroSection";
 import QuickActionsGrid from "../components/components/QuickActionsGrid";
@@ -11,9 +12,13 @@ import LeadingDoctors from "../components/components/LeadingDoctors";
 import AppointmentBanner from "../components/components/AppointmentBanner";
 import PatientTestimonials from "../components/components/PatientTestimonials";
 import HealthArticles from "../components/components/HealthArticles";
-import AppointmentModal from "../components/components/AppointmentModal";
 import Footer from "../components/components/Footer";
 import { Search, X } from "lucide-react";
+
+const AppointmentModal = dynamic(
+  () => import("../components/components/AppointmentModal"),
+  { ssr: false }
+);
 
 export default function Home() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);

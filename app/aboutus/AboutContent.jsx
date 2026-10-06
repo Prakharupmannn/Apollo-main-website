@@ -2592,7 +2592,7 @@ function Quality() {
               </div>
 
               {/* Floating glass info card — bottom — now a link to /doctors */}
-              <a
+              <Link
                 href="/doctors"
                 className="group/card absolute bottom-8 left-8 right-8 z-20 block rounded-2xl border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur-xl transition-transform duration-500 hover:-translate-y-1"
               >
@@ -2613,7 +2613,7 @@ function Quality() {
 
                   <ArrowRight className="h-4 w-4 shrink-0 text-[#0E526B] transition-transform duration-300 group-hover/card:translate-x-1" />
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -2641,13 +2641,13 @@ function Quality() {
             </p>
 
             {/* ===== Meet Our Doctors CTA ===== */}
-            <a
+            <Link
               href="/doctors"
               className="group mt-6 inline-flex items-center gap-2.5 rounded-full bg-[#0E526B] px-5 py-2.5 text-xs font-bold text-white shadow-[0_10px_25px_rgba(14,82,107,0.18)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#06202B]"
             >
               Meet Our Doctors
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            </Link>
 
             {/* ===== Verification line ===== */}
             <div className="relative mt-10">

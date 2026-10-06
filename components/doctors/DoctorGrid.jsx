@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Clock3,
@@ -70,13 +71,16 @@ function DoctorPhoto({ src, name, tone }) {
   }
 
   return (
-    <img
-      src={src}
-      alt={name}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className="doctor-photo h-full w-full object-cover object-top transition-transform duration-700"
-    />
+    <div className="relative h-full w-full">
+      <Image
+        src={src}
+        alt={name}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        onError={() => setFailed(true)}
+        className="doctor-photo object-cover object-top transition-transform duration-700"
+      />
+    </div>
   );
 }
 function DoctorCard({ doctor }) {

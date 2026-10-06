@@ -182,7 +182,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
             </p>
           </div>
 
-          <a
+          <Link
             href="/ourspecialities"
             className="group relative inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-[#1D82A6]/20 shadow-sm hover:shadow-md hover:border-[#C8952E]/50 transition-all duration-300 ease-out hover:-translate-y-0.5 shrink-0"
           >
@@ -192,7 +192,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
             <span className="w-6 h-6 rounded-full bg-[#EBF5F8] group-hover:bg-[#C8952E] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
               <ArrowRight className="w-3.5 h-3.5 text-[#1D82A6] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300" />
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Premium Bento Grid */}

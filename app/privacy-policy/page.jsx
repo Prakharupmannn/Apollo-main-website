@@ -1,7 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
-import Link from "next/link";
+import PolicySidebarNav from "../../components/components/PolicySidebarNav";
 import {
   ShieldCheck,
   Lock,
@@ -9,10 +6,8 @@ import {
   UserCheck,
   FileText,
   Clock,
-  ArrowRight,
   Database,
   Share2,
-  ChevronRight,
   Sparkles,
   PhoneCall,
   CheckCircle2,
@@ -20,30 +15,27 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+export const metadata = {
+  title: "Privacy Policy | Apollo JBP Hospitals, Jabalpur",
+  description:
+    "Patient Data Protection & Privacy Standard for Apollo JBP Hospitals, Jabalpur.",
+};
+
+const sections = [
+  { id: "section-1", title: "1. Information Collection & Usage", iconName: "Database" },
+  { id: "section-2", title: "2. Email Communications", iconName: "Mail" },
+  { id: "section-3", title: "3. Data Retention & Sharing", iconName: "Share2" },
+  { id: "section-4", title: "4. Data Security Standards", iconName: "Lock" },
+  { id: "section-5", title: "5. User Rights & Choices", iconName: "UserCheck" },
+  { id: "section-6", title: "6. Contact & Grievance", iconName: "PhoneCall" },
+];
+
 export default function PrivacyPolicyPage() {
-  const [activeSection, setActiveSection] = useState("section-1");
-
-  const sections = [
-    { id: "section-1", title: "1. Information Collection & Usage", icon: Database },
-    { id: "section-2", title: "2. Email Communications", icon: Mail },
-    { id: "section-3", title: "3. Data Retention & Sharing", icon: Share2 },
-    { id: "section-4", title: "4. Data Security Standards", icon: Lock },
-    { id: "section-5", title: "5. User Rights & Choices", icon: UserCheck },
-    { id: "section-6", title: "6. Contact & Grievance", icon: PhoneCall },
-  ];
-
-  const scrollToSection = (id) => {
-    setActiveSection(id);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-800 selection:bg-[#F59E0B]/30 selection:text-[#0E526B]">
       {/* Hero Header Section */}
-      <section className="relative overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#1b708f] to-[#0E526B] text-white pt-31 pb-24 border-b border-[#F59E0B]/30">
+      <section className="relative overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#1b708f] to-[#0E526B] text-white pt-32 pb-24 border-b border-[#F59E0B]/30">
         {/* Background Mesh & Glow Orbs */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#F59E0B]/15 rounded-full blur-3xl" />
@@ -100,37 +92,7 @@ export default function PrivacyPolicyPage() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">
                   Table of Contents
                 </h3>
-                <nav className="space-y-1">
-                  {sections.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => scrollToSection(item.id)}
-                        className={`w-full flex items-center justify-between text-left text-xs font-semibold px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                          isActive
-                            ? "bg-[#0E526B] text-white shadow-md"
-                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Icon
-                            className={`w-4 h-4 shrink-0 ${
-                              isActive ? "text-[#F59E0B]" : "text-slate-400"
-                            }`}
-                          />
-                          <span className="truncate">{item.title}</span>
-                        </div>
-                        <ChevronRight
-                          className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                            isActive ? "rotate-90 text-[#F59E0B]" : "text-slate-300"
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </nav>
+                <PolicySidebarNav sections={sections} />
               </div>
 
               {/* Quick Contact Card */}
