@@ -19,7 +19,6 @@ import {
   BadgeCheck,
   Stethoscope,
 } from "lucide-react";
-import AppointmentModal from "../../../components/components/AppointmentModal";
 import { caseStudiesData, departments } from "../../../data/caseStudiesData";
 
 const fadeUp = {
@@ -106,7 +105,7 @@ function CardImageCarousel({ images, alt, duration = 3800 }) {
 
 /* ───────────────────────── Premium glass case study card ───────────────────────── */
 
-function CaseCard({ c, index, onOpenModal }) {
+function CaseCard({ c, index }) {
   const Icon = c.icon;
   const initials = c.doctor
     .replace(/^Dr\.?\s*/i, "")
@@ -319,7 +318,6 @@ function CaseCard({ c, index, onOpenModal }) {
 }
 
 export default function CaseStudiesPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -545,17 +543,18 @@ export default function CaseStudiesPage() {
               </p>
 
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-7 sm:mb-8">
-                <motion.button
-                  whileHover={{ scale: 1.04, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setIsModalOpen(true)}
-                  className="cs-shimmer relative overflow-hidden px-5 sm:px-7 py-3 sm:py-3.5 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_10px_30px_rgba(200,149,46,0.35)] hover:shadow-xl transition-all cursor-pointer flex items-center gap-2"
-                  style={goldGradient}
-                >
-                  <UserCheck className="w-4 h-4" />
-                  <span>Consult Clinical Team</span>
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
+                <Link href="/patientcare/appointment">
+                  <motion.div
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="cs-shimmer relative overflow-hidden px-5 sm:px-7 py-3 sm:py-3.5 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_10px_30px_rgba(200,149,46,0.35)] hover:shadow-xl transition-all cursor-pointer flex items-center gap-2"
+                    style={goldGradient}
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>Consult Clinical Team</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.div>
+                </Link>
 
                 <a
                   href="#department-filters"
@@ -653,12 +652,12 @@ export default function CaseStudiesPage() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setIsModalOpen(true)}
+                <Link
+                  href="/patientcare/appointment"
                   className="px-3 sm:px-3.5 py-2 rounded-full bg-[#0E526B] text-white text-[11px] font-bold hover:bg-[#0A5F7A] transition-colors shrink-0"
                 >
                   Book Now
-                </button>
+                </Link>
               </motion.div>
 
               <motion.div
@@ -741,12 +740,7 @@ export default function CaseStudiesPage() {
             {filteredCases.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 lg:gap-x-7 gap-y-8 sm:gap-y-10 items-stretch w-full max-w-xl mx-auto md:max-w-none">
                 {filteredCases.map((c, i) => (
-                  <CaseCard
-                    key={c.slug}
-                    c={c}
-                    index={i}
-                    onOpenModal={() => setIsModalOpen(true)}
-                  />
+                  <CaseCard key={c.slug} c={c} index={i} />
                 ))}
               </div>
             ) : (
@@ -781,24 +775,20 @@ export default function CaseStudiesPage() {
                 </div>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setIsModalOpen(true)}
-                className="cs-shimmer relative overflow-hidden w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
-                style={goldGradient}
-              >
-                Request Case Consultation
-              </motion.button>
+              <Link href="/patientcare/appointment">
+                <motion.div
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="cs-shimmer relative overflow-hidden w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0 text-center"
+                  style={goldGradient}
+                >
+                  Request Case Consultation
+                </motion.div>
+              </Link>
             </div>
           </div>
         </section>
       </div>
-
-      <AppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </main>
   );
 }

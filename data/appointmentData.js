@@ -34,6 +34,7 @@ const appointmentData = {
   ],
 
   consultants: [
+    "Select Doctors",
     "DINESH KUMAR SAROJ",
     "DR ACHIN VERMA",
     "DR AVATAR PACHORI",
@@ -245,7 +246,7 @@ const appointmentData = {
     },
     {
       time: "10:00:00",
-      note: "",
+      note: "Booked",
     },
     {
       time: "10:15:00",
@@ -256,8 +257,8 @@ const appointmentData = {
       note: "",
     },
     { 
-      time: "10:30:00",
-      note: "",
+      time: "10:40:00",
+      note: "Booked",
     },
   ],
 };

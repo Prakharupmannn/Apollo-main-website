@@ -1,21 +1,22 @@
 
+
+
 import {
-  ArrowRight, CalendarDays, CheckCircle2, ChevronDown, Clock3, Heart,
+  ArrowRight,ChevronRight,RotateCcw,SlidersHorizontal,X, CalendarDays, CheckCircle2, ChevronDown, Clock3, Heart,
   MapPin, Search, ShieldCheck, Stethoscope, UsersRound,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { Btn, Head, Section } from "../../components/doctors/ui";
+import { Btn, Head, Section } from "@/components/doctors/ui";
 
-import Steps from "../../components/doctors/Steps";
-import Cta from "../../components/doctors/Cta";
+import Steps from "@/components/doctors/Steps";
+import Cta from "@/components/doctors/Cta";
 
 import { rawDoctors } from "@/data/doctorsPage";
 import { hospital } from "@/data/siteData";
 import DoctorsHero from "../../components/doctors/DoctorsHero"
-import DoctorsImageFlip from "../../components/doctors/DoctorsImageFlip";
-import DoctorGrid from "../../components/doctors/DoctorGrid";
-import DoctorFinder from "../../components/doctors/DoctorFinder";
+import DoctorsImageFlip from "@/components/doctors/DoctorsImageFlip";
+import DoctorGrid from "@/components/doctors/DoctorGrid";
+import DoctorFinder from "@/components/doctors/DoctorFinder";
 
 const PAGE_SIZE = 12;
 
@@ -248,7 +249,7 @@ export default async function DoctorsPage({ searchParams }) {
   );
 
   return (
-    <main className="overflow-hidden bg-[#F8FCFD] text-[#06202B]">
+    <main className="overflow-clip bg-[#F8FCFD] text-[#06202B]">
       <DoctorsHero hospital={hospital} />
       <DoctorFinder
   search={search}
@@ -257,14 +258,16 @@ export default async function DoctorsPage({ searchParams }) {
   total={rawDoctors.length}
 />
       <SpecialtyRail active={specialty} counts={counts} />
-      <WhyApollo />
-      <ApolloDoctorsIntro hospital={hospital} />
+      
 
       <DoctorDirectory
         doctors={filteredDoctors}
         search={search}
         specialty={specialty}
       />
+
+      <WhyApollo />
+      <ApolloDoctorsIntro hospital={hospital} />
 
       <Steps steps={steps} />
       <PatientStories />
@@ -440,7 +443,7 @@ function ApolloDoctorsIntro({ hospital }) {
 
           <DoctorsImageFlip />
 
-          <div className="absolute bottom-6 right-[-10px] rounded-[18px] bg-[#06202B] px-5 py-4 text-white shadow-xl">
+          <div className="absolute bottom-6 right-[-10px] rounded-[18px] bg-[#1c4455] px-5 py-4 text-white shadow-xl">
 
             <p className="text-[8px] uppercase tracking-[0.2em] text-[#DDBB63]">
               Advanced Facility
@@ -575,10 +578,10 @@ function DoctorDirectory({ doctors, search, specialty }) {
     specialties.find((s) => s.slug === specialty)?.title || "All Specialties";
 
   return (
-    <section
-      id="expert-doctors"
-      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-[#F1F8FA] via-white to-[#F7FBFD] px-6 py-16 lg:px-10 lg:py-24"
-    >
+   <section
+  id="expert-doctors"
+  className="relative scroll-mt-24 overflow-clip bg-gradient-to-b from-[#F1F8FA] via-white to-[#F7FBFD] px-6 py-16 lg:px-10 lg:py-24"
+>
       <div className="pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-[#0E526B]/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-32 bottom-20 h-96 w-96 rounded-full bg-[#C8952E]/10 blur-3xl" />
 
@@ -615,59 +618,159 @@ function DoctorDirectory({ doctors, search, specialty }) {
   );
 }
 
+
+
 function DoctorFilters({ search, specialty }) {
   const items = specialties.filter((s) => s.slug !== "all");
+  const hasSpecialty = Boolean(specialty) && specialty !== "all";
+  const activeItem = items.find((s) => s.slug === specialty);
+  const activeCount = (hasSpecialty ? 1 : 0) + (search ? 1 : 0);
+
+  const buildHref = (next) => {
+    const qs = new URLSearchParams();
+    if (next.search) qs.set("search", next.search);
+    if (next.specialty) qs.set("specialty", next.specialty);
+    return `/doctors${qs.toString() ? `?${qs}` : ""}#expert-doctors`;
+  };
 
   return (
-    <aside className="hidden h-fit rounded-[24px] border border-[#E2ECEF] bg-white p-5 shadow-[0_10px_30px_rgba(6,32,43,.04)] lg:sticky lg:top-28 lg:block">
-      <div className="flex items-center justify-between border-b border-[#EDF2F4] pb-4">
-        <h3 className="text-sm font-bold text-[#06202B]">Filter Doctors</h3>
-        <Link
-          href="/doctors#expert-doctors"
-          className="text-[10px] font-bold text-[#C8952E]"
-        >
-          Reset All
-        </Link>
-      </div>
+    <aside className="hidden self-start lg:sticky lg:top-28 lg:block">
+      <div className="relative overflow-hidden rounded-[28px] border border-[#E2ECEF] bg-white/90 shadow-[0_20px_50px_-20px_rgba(6,32,43,.18)] backdrop-blur">
+        {/* accent line */}
+        <div className="h-1 w-full bg-gradient-to-r from-[#0E526B] via-[#3C93AE] to-[#C8952E]" />
 
-      <FilterGroup title="Specialty">
-        {items.map((item) => {
-          const checked = specialty === item.slug;
-          const qs = new URLSearchParams();
-          if (search) qs.set("search", search);
-          if (!checked) qs.set("specialty", item.slug);
-          const href = `/doctors${qs.toString() ? `?${qs}` : ""}#expert-doctors`;
-
-          return (
-            <Link
-              key={item.slug}
-              href={href}
-              className={[
-                "flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs transition",
-                checked
-                  ? "bg-[#0E526B]/10 font-bold text-[#0E526B]"
-                  : "text-[#607681] hover:bg-[#F3F9FB]",
-              ].join(" ")}
-            >
-              <span
-                className={[
-                  "flex h-4 w-4 items-center justify-center rounded border",
-                  checked ? "border-[#0E526B] bg-[#0E526B] text-white" : "border-[#C9D9DF]",
-                ].join(" ")}
-              >
-                {checked && <CheckCircle2 className="h-3 w-3" />}
+        <div className="p-5">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#0E526B] to-[#1B7A99] text-white shadow-[0_6px_14px_-4px_rgba(14,82,107,.5)]">
+                <SlidersHorizontal className="h-4 w-4" />
               </span>
-              {item.title}
-            </Link>
-          );
-        })}
-      </FilterGroup>
+              <div>
+                <h3 className="text-sm font-bold leading-none text-[#06202B]">
+                  Filter Doctors
+                </h3>
+                <p className="mt-1 text-[10px] text-[#607681]">
+                  {activeCount > 0 ? `${activeCount} active` : "Refine your search"}
+                </p>
+              </div>
+            </div>
 
-      <FilterGroup title="Location">
-        <p className="flex items-center gap-2 px-2 py-1.5 text-xs text-[#607681]">
-          <MapPin className="h-3.5 w-3.5 text-[#0E526B]" /> Jabalpur
-        </p>
-      </FilterGroup>
+            {activeCount > 0 && (
+              <Link
+                href="/doctors#expert-doctors"
+                className="inline-flex items-center gap-1 rounded-full bg-[#C8952E]/10 px-2.5 py-1 text-[10px] font-bold text-[#A87A1F] transition hover:bg-[#C8952E]/20"
+              >
+                <RotateCcw className="h-3 w-3" /> Reset
+              </Link>
+            )}
+          </div>
+
+          {/* Search */}
+          <form action="/doctors" method="get" className="mt-5">
+            {hasSpecialty && <input type="hidden" name="specialty" value={specialty} />}
+            <div className="group flex items-center gap-2 rounded-2xl border border-[#E2ECEF] bg-[#F7FBFD] px-3.5 py-2.5 transition focus-within:border-[#0E526B]/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#0E526B]/10">
+              <Search className="h-4 w-4 shrink-0 text-[#0E526B]/60" />
+              <input
+                type="text"
+                name="search"
+                defaultValue={search || ""}
+                placeholder="Search doctor name"
+                className="w-full bg-transparent text-xs text-[#06202B] outline-none placeholder:text-[#8FA3AB]"
+              />
+            </div>
+          </form>
+
+          {/* Active chips */}
+          {activeCount > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {search && (
+                <Link
+                  href={buildHref({ specialty: hasSpecialty ? specialty : "" })}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#0E526B]/10 py-1 pl-3 pr-2 text-[11px] font-semibold text-[#0E526B] transition hover:bg-[#0E526B]/15"
+                >
+                  “{search}” <X className="h-3 w-3" />
+                </Link>
+              )}
+              {hasSpecialty && activeItem && (
+                <Link
+                  href={buildHref({ search })}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#0E526B]/10 py-1 pl-3 pr-2 text-[11px] font-semibold text-[#0E526B] transition hover:bg-[#0E526B]/15"
+                >
+                  {activeItem.title} <X className="h-3 w-3" />
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Specialty */}
+          <FilterGroup title="Specialty">
+            <div className="max-h-[calc(100vh-24rem)] min-h-[160px] space-y-1 overflow-y-auto pr-1 [scrollbar-color:#C9D9DF_transparent] [scrollbar-width:thin]">
+              {items.map((item) => {
+                const checked = specialty === item.slug;
+                const href = buildHref({
+                  search,
+                  specialty: checked ? "" : item.slug,
+                });
+
+                return (
+                  <Link
+                    key={item.slug}
+                    href={href}
+                    aria-current={checked ? "true" : undefined}
+                    className={[
+                      "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs transition-all duration-200",
+                      checked
+                        ? "bg-gradient-to-r from-[#0E526B]/12 to-[#0E526B]/[0.03] font-bold text-[#0E526B]"
+                        : "text-[#4F6670] hover:translate-x-0.5 hover:bg-[#F3F9FB] hover:text-[#0E526B]",
+                    ].join(" ")}
+                  >
+                    {/* gold indicator */}
+                    <span
+                      className={[
+                        "absolute left-0 top-1/2 w-[3px] -translate-y-1/2 rounded-r-full bg-[#C8952E] transition-all duration-200",
+                        checked ? "h-5 opacity-100" : "h-0 opacity-0",
+                      ].join(" ")}
+                    />
+                    <span
+                      className={[
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition",
+                        checked
+                          ? "border-[#0E526B] bg-[#0E526B] text-white"
+                          : "border-[#C9D9DF] group-hover:border-[#0E526B]/50",
+                      ].join(" ")}
+                    >
+                      {checked && <CheckCircle2 className="h-3.5 w-3.5" />}
+                    </span>
+                    <span className="flex-1">{item.title}</span>
+                    <ChevronRight
+                      className={[
+                        "h-3.5 w-3.5 transition",
+                        checked
+                          ? "text-[#0E526B]"
+                          : "text-transparent group-hover:text-[#0E526B]/40",
+                      ].join(" ")}
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+          </FilterGroup>
+
+          {/* Location */}
+          {/* <FilterGroup title="Location">
+            <div className="flex items-center gap-3 rounded-2xl border border-[#E2ECEF] bg-gradient-to-br from-[#F7FBFD] to-white p-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8952E]/10 text-[#C8952E]">
+                <MapPin className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-[#06202B]">Jabalpur</p>
+                <p className="text-[10px] text-[#607681]">Madhya Pradesh</p>
+              </div>
+            </div>
+          </FilterGroup> */}
+        </div>
+      </div>
     </aside>
   );
 }
@@ -695,7 +798,7 @@ function FilterGroup({ title, children }) {
 
 function PatientStories() {
   return (
-    <section className="bg-[#06202B] px-6 py-16 text-white lg:px-10 lg:py-20">
+    <section className="bg-[#133a4b] px-6 py-16 text-white lg:px-10 lg:py-20">
 
       <div className="mx-auto max-w-7xl">
 
@@ -731,11 +834,9 @@ function PatientStories() {
 
                 <div className="flex gap-4">
 
-                  <Image
+                  <img
                     src={item.image}
-                    alt={item.name || ""}
-                    width={64}
-                    height={64}
+                    alt=""
                     className="h-16 w-16 rounded-2xl object-cover"
                   />
 

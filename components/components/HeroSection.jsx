@@ -17,10 +17,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
-export default function HeroSection({
-  onOpenAppointmentModal,
-  onSearchSubmit,
-}) {
+export default function HeroSection({ onSearchSubmit }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -251,8 +248,8 @@ export default function HeroSection({
             {/* CTAs */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-1">
               {/* Book an Appointment */}
-              <button
-                onClick={onOpenAppointmentModal}
+              <Link
+                href="/patientcare/appointment"
                 className="group flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold leading-relaxed whitespace-normal text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 style={{
                   background:
@@ -261,7 +258,7 @@ export default function HeroSection({
               >
                 Book an Appointment
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
 
               {/* Find a Doctor */}
               <Link
@@ -421,8 +418,8 @@ export default function HeroSection({
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={onOpenAppointmentModal}
+                  <Link
+                    href="/patientcare/appointment"
                     className="px-3.5 py-2 rounded-full text-xs font-bold text-white shrink-0 hover:brightness-105 transition-all"
                     style={{
                       background:
@@ -430,7 +427,7 @@ export default function HeroSection({
                     }}
                   >
                     Book Now
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -734,7 +731,8 @@ export default function HeroSection({
             stroke-dashoffset: 0;
             opacity: 1;
           }
-          85%, 100% {
+          85%,
+          100% {
             stroke-dashoffset: 0;
             opacity: 0;
           }

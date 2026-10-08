@@ -391,7 +391,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
                   Close
                 </button>
                 <Link
-                  href="/contact"
+                  href="/patientcare/appointment"
                   className="px-6 py-2.5 rounded-full text-xs font-bold text-[#3A2B0A] shadow-[0_6px_20px_rgba(197,146,46,0.4)] hover:shadow-[0_10px_28px_rgba(197,146,46,0.55)] hover:-translate-y-0.5 transition-all"
                   style={{
                     background:

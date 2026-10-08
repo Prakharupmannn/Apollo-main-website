@@ -268,7 +268,7 @@ function Hero({ c }) {
             <p className="mt-7 max-w-md text-base leading-8 text-slate-500">{c.description}</p>
 
             <div className="mt-9 flex flex-wrap gap-4">
-              <Btn href="/contact">Book an Appointment</Btn>
+              <Btn href="/patientcare/appointment">Book an Appointment</Btn>
               <Btn href={c.doctors?.length ? "#doctors" : "/doctors"} v="line" icon={ArrowUpRight}>View Specialists</Btn>
             </div>
           </Reveal>
@@ -632,7 +632,7 @@ function DoctorCard({ d, i }) {
                 )}
 
                 <Link
-                  href={`/contact?doctor=${encodeURIComponent(
+                  href={`/patientcare/appointment?doctor=${encodeURIComponent(
                     d.slug || d.name
                   )}`}
                   className="flex items-center justify-between rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] py-1.5 pl-5 pr-1.5 text-xs font-extrabold text-[#3A2B0A] shadow-[0_10px_28px_rgba(200,149,46,.35)]"
@@ -703,7 +703,7 @@ function DoctorCard({ d, i }) {
                 )}
 
                 <Link
-                  href={`/contact?doctor=${encodeURIComponent(
+                  href={`/patientcare/appointment?doctor=${encodeURIComponent(
                     d.slug || d.name
                   )}`}
                   className="group/b flex items-center justify-between rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] py-1.5 pl-5 pr-1.5 text-xs font-extrabold text-[#3A2B0A] shadow-[0_10px_28px_rgba(200,149,46,.35)] transition hover:brightness-105"
@@ -799,7 +799,7 @@ function Cta({ c }) {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Btn href="/contact">Book an Appointment</Btn>
+            <Btn href="/patientcare/appointment">Book an Appointment</Btn>
             <Btn href="/centres-of-excellence" v="line">All Centres</Btn>
           </div>
         </div>

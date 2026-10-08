@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
 import {
   Search,
   BookOpen,
@@ -30,8 +33,8 @@ import {
   TrendingUp,
   Stethoscope,
   Zap,
+  ArrowLeft,
 } from "lucide-react";
-import AppointmentModal from "../../components/components/AppointmentModal";
 import healthData from "./healthLibraryData.json";
 
 /* ───────────── Static helpers (outside component) ───────────── */
@@ -41,12 +44,36 @@ const goldStyle = {
 };
 
 const A_Z_CONDITIONS = [
-  { name: "Dry Eye Syndrome (MGD)", dept: "Ophthalmology", desc: "Schirmer tear test analysis and tear film hydration therapy." },
-  { name: "Endobronchial Ultrasound (EBUS)", dept: "Pulmonology", desc: "Minimally invasive diagnostic technology for lung biopsy and TB/cancer staging." },
-  { name: "Giant Bullae & Bullectomy", dept: "Thoracic Surgery", desc: "Surgical removal of dilated air sacs to restore vital breathing capacity." },
-  { name: "Pediatric Urinary Tract Infection (UTI)", dept: "Pediatric Nephrology", desc: "Specialist evaluation and DMSA scan testing for child kidney protection." },
-  { name: "Winter Hypertension & Cardiac Care", dept: "Cardiology", desc: "24/7 STEMI Cath Lab standby and arterial blood pressure management." },
-  { name: "Winter Joint & Knee Osteoarthritis", dept: "Ortho & Joint", desc: "Robotic joint replacement and hyaluronic intra-articular therapy." },
+  {
+    name: "Dry Eye Syndrome (MGD)",
+    dept: "Ophthalmology",
+    desc: "Schirmer tear test analysis and tear film hydration therapy.",
+  },
+  {
+    name: "Endobronchial Ultrasound (EBUS)",
+    dept: "Pulmonology",
+    desc: "Minimally invasive diagnostic technology for lung biopsy and TB/cancer staging.",
+  },
+  {
+    name: "Giant Bullae & Bullectomy",
+    dept: "Thoracic Surgery",
+    desc: "Surgical removal of dilated air sacs to restore vital breathing capacity.",
+  },
+  {
+    name: "Pediatric Urinary Tract Infection (UTI)",
+    dept: "Pediatric Nephrology",
+    desc: "Specialist evaluation and DMSA scan testing for child kidney protection.",
+  },
+  {
+    name: "Winter Hypertension & Cardiac Care",
+    dept: "Cardiology",
+    desc: "24/7 STEMI Cath Lab standby and arterial blood pressure management.",
+  },
+  {
+    name: "Winter Joint & Knee Osteoarthritis",
+    dept: "Ortho & Joint",
+    desc: "Robotic joint replacement and hyaluronic intra-articular therapy.",
+  },
 ];
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -60,19 +87,27 @@ const renderInline = (text) =>
       </strong>
     ) : (
       <span key={i}>{part}</span>
-    )
+    ),
   );
 
 /* ───────────── Hero helpers ───────────── */
 
-const IST_TIME = () =>
-  new Date().toLocaleTimeString("en-IN", {
+const IST_PARTS = () => {
+  const parts = new Intl.DateTimeFormat("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: true,
     timeZone: "Asia/Kolkata",
-  });
+  }).formatToParts(new Date());
+  const get = (type) => parts.find((p) => p.type === type)?.value ?? "";
+  return {
+    h: get("hour"),
+    m: get("minute"),
+    s: get("second"),
+    p: get("dayPeriod"),
+  };
+};
 
 // gently wander a number inside a range
 const wander = (v, min, max, step = 1) => {
@@ -82,7 +117,9 @@ const wander = (v, min, max, step = 1) => {
 
 function Photo({ src, alt, className = "" }) {
   return (
-    <div className={`relative rounded-full overflow-hidden bg-gradient-to-br from-[#0B3446] to-[#2A8FAF] ${className}`}>
+    <div
+      className={`relative rounded-full overflow-hidden bg-gradient-to-br from-[#0B3446] to-[#2A8FAF] ${className}`}
+    >
       {src && (
         <img
           src={src}
@@ -108,15 +145,16 @@ function HeroLive({
   goldStyle,
 }) {
   // LIVE VALUES (simulated). Replace with real API / websocket data later.
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState(null);
+
   const [bpm, setBpm] = useState(72);
   const [doctors, setDoctors] = useState(38);
   const [icuBeds, setIcuBeds] = useState(9);
   const [eta, setEta] = useState(6);
 
   useEffect(() => {
-    setTime(IST_TIME());
-    const t = setInterval(() => setTime(IST_TIME()), 1000);
+    setTime(IST_PARTS());
+    const t = setInterval(() => setTime(IST_PARTS()), 1000);
     const h = setInterval(() => setBpm((v) => wander(v, 66, 80)), 1300);
     const d = setInterval(() => {
       setDoctors((v) => wander(v, 34, 44));
@@ -132,7 +170,8 @@ function HeroLive({
 
   const goTo = (q) => {
     setSearchQuery(q);
-    if (activeTab !== "articles" && activeTab !== "news") setActiveTab("articles");
+    if (activeTab !== "articles" && activeTab !== "news")
+      setActiveTab("articles");
   };
 
   const p1 = articles[0]?.image;
@@ -140,7 +179,13 @@ function HeroLive({
   const p3 = articles[2]?.image;
 
   const liveStats = [
-    { icon: Clock, value: time || "--:--", label: "Jabalpur time (IST)", wide: true },
+    {
+      icon: Clock,
+      isTime: true,
+      value: "--:--:--",
+      label: "Jabalpur time (IST)",
+      wide: true,
+    },
     { icon: Stethoscope, value: doctors, label: "Doctors on duty" },
     { icon: Activity, value: icuBeds, label: "ICU beds free" },
     { icon: Siren, value: `${eta} min`, label: "Ambulance ETA" },
@@ -200,7 +245,9 @@ function HeroLive({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-400" />
             </span>
-            <span className="tracking-wide">Live from Apollo Hospitals Jabalpur</span>
+            <span className="tracking-wide">
+              Live from Apollo Hospitals Jabalpur
+            </span>
             <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
           </div>
 
@@ -208,14 +255,19 @@ function HeroLive({
             Health Information, Medical Blogs &{" "}
             <span
               className="bg-clip-text text-transparent hx-sheen"
-              style={{ backgroundImage: "linear-gradient(90deg,#F6D98A,#FFFFFF,#C8952E,#F6D98A)" }}
+              style={{
+                backgroundImage:
+                  "linear-gradient(90deg,#F6D98A,#FFFFFF,#C8952E,#F6D98A)",
+              }}
             >
               Apollo News
             </span>
           </h1>
 
           <p className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
-            Real-time medical updates, EBUS pulmonary diagnostics, insurance TPA guides and doctor-reviewed articles, straight from Apollo Hospitals Jabalpur.
+            Real-time medical updates, EBUS pulmonary diagnostics, insurance TPA
+            guides and doctor-reviewed articles, straight from Apollo Hospitals
+            Jabalpur.
           </p>
 
           {/* search — a single glowing pill */}
@@ -278,15 +330,25 @@ function HeroLive({
                 >
                   <div className="flex items-center gap-2 text-[#F6D98A]">
                     <Icon className="w-4 h-4" />
-                    <span className="text-[10px] font-bold text-white/70">{s.label}</span>
+                    <span className="text-[10px] font-bold text-white/70">
+                      {s.label}
+                    </span>
                   </div>
                   <div
-                    key={String(s.value)}
-                    className={`mt-1 font-serif-apollo font-black leading-none hx-tick ${
-                      s.wide ? "text-lg sm:text-xl" : "text-2xl sm:text-3xl"
-                    }`}
+                    key={s.isTime ? "ist-time" : String(s.value)}
+                    className={`mt-1 font-serif-apollo font-black leading-none ${
+                      s.isTime ? "" : "hx-tick"
+                    } ${s.wide ? "text-lg sm:text-xl" : "text-2xl sm:text-3xl"}`}
                   >
-                    {s.value}
+                    {s.isTime ? (
+                      time ? (
+                        <FlipTime h={time.h} m={time.m} s={time.s} p={time.p} />
+                      ) : (
+                        s.value
+                      )
+                    ) : (
+                      s.value
+                    )}
                   </div>
                 </div>
               );
@@ -295,10 +357,12 @@ function HeroLive({
 
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] font-semibold text-white/80">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-300" /> 100% doctor reviewed
+              <ShieldCheck className="w-4 h-4 text-emerald-300" /> 100% doctor
+              reviewed
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Radio className="w-4 h-4 text-[#F6D98A]" /> {articles.length} live articles and news
+              <Radio className="w-4 h-4 text-[#F6D98A]" /> {articles.length}{" "}
+              live articles and news
             </span>
           </div>
         </div>
@@ -316,32 +380,55 @@ function HeroLive({
           <div className="relative hx-float-slow">
             <span className="absolute inset-0 rounded-full bg-[#F6D98A]/40 hx-halo" />
             <div className="relative p-[3px] rounded-full bg-gradient-to-br from-[#F6D98A] via-white to-[#C8952E] shadow-[0_30px_70px_rgba(0,0,0,0.35)]">
-              <Photo src={p1} alt="Apollo health story" className="w-52 h-52 sm:w-64 sm:h-64 lg:w-72 lg:h-72" />
+              <Photo
+                src={p3}
+                alt="Apollo health story"
+                className="w-52 h-52 sm:w-64 sm:h-64 lg:w-72 lg:h-72"
+              />
             </div>
           </div>
 
           {/* satellite photos */}
           <div className="absolute top-[4%] right-[4%] hx-float">
             <div className="p-[2px] rounded-full bg-white/70 shadow-xl">
-              <Photo src={p2} alt="Apollo news" className="w-20 h-20 sm:w-28 sm:h-28" />
+              <Photo
+                src={p1}
+                alt="Apollo news"
+                className="w-20 h-20 sm:w-28 sm:h-28"
+              />
             </div>
           </div>
-          <div className="absolute bottom-[6%] left-[2%] hx-float" style={{ animationDelay: "-2.5s" }}>
+          <div
+            className="absolute bottom-[6%] left-[2%] hx-float"
+            style={{ animationDelay: "-2.5s" }}
+          >
             <div className="p-[2px] rounded-full bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-xl">
-              <Photo src={p3} alt="Apollo care" className="w-24 h-24 sm:w-32 sm:h-32" />
+              <Photo
+                src={p2}
+                alt="Apollo care"
+                className="w-24 h-24 sm:w-32 sm:h-32"
+              />
             </div>
           </div>
 
           {/* floating live tags */}
-          <div className="absolute top-[18%] left-0 sm:left-[2%] hx-float" style={{ animationDelay: "-1.2s" }}>
+          <div
+            className="absolute top-[18%] left-0 sm:left-[2%] hx-float"
+            style={{ animationDelay: "-1.2s" }}
+          >
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0B3446]/55 backdrop-blur-md text-xs font-bold shadow-lg">
               <HeartPulse className="w-4 h-4 text-rose-400 hx-beat" />
-              <span key={bpm} className="hx-tick tabular-nums">{bpm}</span>
+              <span key={bpm} className="hx-tick tabular-nums">
+                {bpm}
+              </span>
               <span className="text-white/70 font-semibold">bpm live</span>
             </div>
           </div>
 
-          <div className="absolute bottom-[26%] right-0 hx-float" style={{ animationDelay: "-3.6s" }}>
+          <div
+            className="absolute bottom-[26%] right-0 hx-float"
+            style={{ animationDelay: "-3.6s" }}
+          >
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0B3446]/55 backdrop-blur-md text-xs font-bold shadow-lg">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -366,7 +453,10 @@ function HeroLive({
           fill="#EDF6FB"
           fillOpacity="0.45"
         />
-        <path d="M0 95 C260 50 520 125 780 88 C1040 50 1250 110 1440 80 V120 H0 Z" fill="#EDF6FB" />
+        <path
+          d="M0 95 C260 50 520 125 780 88 C1040 50 1250 110 1440 80 V120 H0 Z"
+          fill="#EDF6FB"
+        />
       </svg>
 
       <style jsx>{`
@@ -376,56 +466,125 @@ function HeroLive({
           filter: drop-shadow(0 0 6px #f6d98a);
         }
         @keyframes hxEcg {
-          from { stroke-dashoffset: 180; }
-          to { stroke-dashoffset: -1000; }
+          from {
+            stroke-dashoffset: 180;
+          }
+          to {
+            stroke-dashoffset: -1000;
+          }
         }
-        .hx-spin { animation: hxSpin 42s linear infinite; }
-        .hx-spin-rev { animation: hxSpin 30s linear infinite reverse; }
+        .hx-spin {
+          animation: hxSpin 42s linear infinite;
+        }
+        .hx-spin-rev {
+          animation: hxSpin 30s linear infinite reverse;
+        }
         @keyframes hxSpin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
-        .hx-float { animation: hxFloat 7s ease-in-out infinite; }
-        .hx-float-slow { animation: hxFloat 9s ease-in-out infinite; }
+        .hx-float {
+          animation: hxFloat 7s ease-in-out infinite;
+        }
+        .hx-float-slow {
+          animation: hxFloat 9s ease-in-out infinite;
+        }
         @keyframes hxFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-14px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-14px);
+          }
         }
-        .hx-halo { animation: hxHalo 3.2s ease-out infinite; }
+        .hx-halo {
+          animation: hxHalo 3.2s ease-out infinite;
+        }
         @keyframes hxHalo {
-          0% { transform: scale(1); opacity: 0.55; }
-          100% { transform: scale(1.32); opacity: 0; }
+          0% {
+            transform: scale(1);
+            opacity: 0.55;
+          }
+          100% {
+            transform: scale(1.32);
+            opacity: 0;
+          }
         }
-        .hx-beat { animation: hxBeat 1s ease-in-out infinite; }
+        .hx-beat {
+          animation: hxBeat 1s ease-in-out infinite;
+        }
         @keyframes hxBeat {
-          0%, 100% { transform: scale(1); }
-          15% { transform: scale(1.3); }
-          30% { transform: scale(1); }
-          45% { transform: scale(1.18); }
+          0%,
+          100% {
+            transform: scale(1);
+          }
+          15% {
+            transform: scale(1.3);
+          }
+          30% {
+            transform: scale(1);
+          }
+          45% {
+            transform: scale(1.18);
+          }
         }
-        .hx-tick { animation: hxTick 0.45s ease-out; }
+        .hx-tick {
+          animation: hxTick 0.45s ease-out;
+        }
         @keyframes hxTick {
-          from { opacity: 0; transform: translateY(6px); }
-          to { opacity: 1; transform: none; }
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
         }
         .hx-sheen {
           background-size: 250% 100%;
           animation: hxSheen 5s linear infinite;
         }
         @keyframes hxSheen {
-          to { background-position: -250% 0; }
+          to {
+            background-position: -250% 0;
+          }
         }
-        .hx-breathe { animation: hxBreathe 8s ease-in-out infinite; }
+        .hx-breathe {
+          animation: hxBreathe 8s ease-in-out infinite;
+        }
         @keyframes hxBreathe {
-          0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.12); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.12);
+            opacity: 1;
+          }
         }
-        .hx-wave { animation: hxWave 9s ease-in-out infinite alternate; }
+        .hx-wave {
+          animation: hxWave 9s ease-in-out infinite alternate;
+        }
         @keyframes hxWave {
-          to { transform: translateX(-40px); }
+          to {
+            transform: translateX(-40px);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
-          .hx-ecg, .hx-spin, .hx-spin-rev, .hx-float, .hx-float-slow, .hx-halo,
-          .hx-beat, .hx-sheen, .hx-breathe, .hx-wave {
+          .hx-ecg,
+          .hx-spin,
+          .hx-spin-rev,
+          .hx-float,
+          .hx-float-slow,
+          .hx-halo,
+          .hx-beat,
+          .hx-sheen,
+          .hx-breathe,
+          .hx-wave {
             animation: none;
           }
         }
@@ -434,10 +593,45 @@ function HeroLive({
   );
 }
 
+function FlipValue({ value }) {
+  return (
+    <span
+      className="relative inline-block tabular-nums"
+      style={{ perspective: 400 }}
+    >
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={value}
+          initial={{ rotateX: -90, opacity: 0 }}
+          animate={{ rotateX: 0, opacity: 1 }}
+          exit={{ rotateX: 90, opacity: 0 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="inline-block"
+          style={{ transformOrigin: "50% 50%", backfaceVisibility: "hidden" }}
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+function FlipTime({ h, m, s, p }) {
+  return (
+    <span className="inline-flex items-baseline">
+      <FlipValue value={h} />
+      <span>:</span>
+      <FlipValue value={m} />
+      <span>:</span>
+      <FlipValue value={s} />
+      {p && <span>&nbsp;{p}</span>}
+    </span>
+  );
+}
+
 /* ───────────── Page ───────────── */
 
 export default function HealthLibraryPage() {
-  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [contentType, setContentType] = useState("all"); // 'all' | 'blog' | 'news'
@@ -454,11 +648,19 @@ export default function HealthLibraryPage() {
   const [bmiResult, setBmiResult] = useState(null);
 
   // Water Hydration state
-  const [waterData, setWaterData] = useState({ weight: 65, activity: "moderate" });
+  const [waterData, setWaterData] = useState({
+    weight: 65,
+    activity: "moderate",
+  });
   const [waterResult, setWaterResult] = useState(null);
 
   // Heart Screener State
-  const [heartCheck, setHeartCheck] = useState({ age: "30-45", smoking: "no", exercise: "regular", bp: "normal" });
+  const [heartCheck, setHeartCheck] = useState({
+    age: "30-45",
+    smoking: "no",
+    exercise: "regular",
+    bp: "normal",
+  });
   const [heartRisk, setHeartRisk] = useState(null);
 
   const categories = healthData.categories;
@@ -470,7 +672,8 @@ export default function HealthLibraryPage() {
   // Filtered articles list based on search, category & content type
   const filteredArticles = useMemo(() => {
     return articles.filter((art) => {
-      const matchesCategory = selectedCategory === "All" || art.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "All" || art.category === selectedCategory;
       const matchesType = effectiveType === "all" || art.type === effectiveType;
       const queryLower = searchQuery.toLowerCase();
       const matchesSearch =
@@ -492,7 +695,7 @@ export default function HealthLibraryPage() {
 
   const savedArticles = useMemo(
     () => articles.filter((a) => bookmarkedIds.includes(a.id)),
-    [articles, bookmarkedIds]
+    [articles, bookmarkedIds],
   );
 
   const featuredArticle = filteredArticles[0];
@@ -500,7 +703,7 @@ export default function HealthLibraryPage() {
 
   const availableLetters = useMemo(
     () => new Set(A_Z_CONDITIONS.map((c) => c.name[0].toUpperCase())),
-    []
+    [],
   );
 
   const visibleConditions = useMemo(
@@ -508,11 +711,13 @@ export default function HealthLibraryPage() {
       activeLetter
         ? A_Z_CONDITIONS.filter((c) => c.name[0].toUpperCase() === activeLetter)
         : A_Z_CONDITIONS,
-    [activeLetter]
+    [activeLetter],
   );
 
   const hasActiveFilters =
-    !!searchQuery || selectedCategory !== "All" || (activeTab === "articles" && contentType !== "all");
+    !!searchQuery ||
+    selectedCategory !== "All" ||
+    (activeTab === "articles" && contentType !== "all");
 
   // Close article modal on ESC + lock background scroll while open
   useEffect(() => {
@@ -531,7 +736,7 @@ export default function HealthLibraryPage() {
 
   const toggleBookmark = (id) => {
     setBookmarkedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -543,9 +748,21 @@ export default function HealthLibraryPage() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (activeTab !== "articles" && activeTab !== "news") setActiveTab("articles");
+    if (activeTab !== "articles" && activeTab !== "news")
+      setActiveTab("articles");
     const el = document.getElementById("hl-results");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const categorySliderRef = useRef(null);
+
+  const scrollCategories = (direction) => {
+    if (!categorySliderRef.current) return;
+
+    categorySliderRef.current.scrollBy({
+      left: direction === "left" ? -250 : 250,
+      behavior: "smooth",
+    });
   };
 
   // Calculate BMI
@@ -560,19 +777,23 @@ export default function HealthLibraryPage() {
     if (score < 18.5) {
       category = "Underweight";
       color = "text-amber-600 bg-amber-50 border-amber-200";
-      tip = "Consider consulting our clinical nutritionist to build a healthy calorie-dense meal plan.";
+      tip =
+        "Consider consulting our clinical nutritionist to build a healthy calorie-dense meal plan.";
     } else if (score < 25) {
       category = "Optimal / Healthy Weight";
       color = "text-emerald-700 bg-emerald-50 border-emerald-200";
-      tip = "Excellent! Maintain your balanced diet and aim for 150 minutes of weekly moderate exercise.";
+      tip =
+        "Excellent! Maintain your balanced diet and aim for 150 minutes of weekly moderate exercise.";
     } else if (score < 30) {
       category = "Overweight";
       color = "text-amber-700 bg-amber-50 border-amber-200";
-      tip = "Incorporating daily 30-min aerobic activity & reducing processed carbs can help reach optimal weight.";
+      tip =
+        "Incorporating daily 30-min aerobic activity & reducing processed carbs can help reach optimal weight.";
     } else {
       category = "Obese";
       color = "text-rose-700 bg-rose-50 border-rose-200";
-      tip = "Schedule a comprehensive metabolic assessment with Apollo Preventive Health department.";
+      tip =
+        "Schedule a comprehensive metabolic assessment with Apollo Preventive Health department.";
     }
 
     setBmiResult({ score, category, color, tip });
@@ -582,7 +803,8 @@ export default function HealthLibraryPage() {
   const calculateWater = (e) => {
     e.preventDefault();
     let baseLiters = Number((waterData.weight * 0.033).toFixed(1));
-    if (waterData.activity === "high") baseLiters = Number((baseLiters + 0.7).toFixed(1));
+    if (waterData.activity === "high")
+      baseLiters = Number((baseLiters + 0.7).toFixed(1));
     const glasses = Math.round(baseLiters * 4);
     setWaterResult({ liters: baseLiters.toFixed(1), glasses });
   };
@@ -673,7 +895,11 @@ export default function HealthLibraryPage() {
                     : "bg-gradient-to-l from-[#C8952E] to-[#F6D98A] text-[#0B3446]"
                 }`}
               >
-                {isNews ? <Radio className="w-3 h-3" /> : <Award className="w-3 h-3" />}
+                {isNews ? (
+                  <Radio className="w-3 h-3" />
+                ) : (
+                  <Award className="w-3 h-3" />
+                )}
                 {isNews ? "Apollo News" : art.category}
               </span>
 
@@ -731,18 +957,24 @@ export default function HealthLibraryPage() {
                 <UserCheck className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] font-extrabold text-[#0B3446] truncate">{art.author}</div>
-                <div className="text-[10px] text-slate-500 truncate">{art.authorRole}</div>
+                <div className="text-[11px] font-extrabold text-[#0B3446] truncate">
+                  {art.author}
+                </div>
+                <div className="text-[10px] text-slate-500 truncate">
+                  {art.authorRole}
+                </div>
               </div>
             </div>
 
-            <span
+            <Link
+              href={`/health-library/${art.slug}`}
+              onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 px-3.5 py-2 rounded-full text-[11px] font-extrabold text-[#3A2B0A] shadow-md group-hover:shadow-lg transition-all shrink-0"
               style={goldStyle}
             >
               Read
               <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </span>
+            </Link>
           </div>
         </div>
       </article>
@@ -785,7 +1017,9 @@ export default function HealthLibraryPage() {
               className="absolute top-4 right-4 p-2.5 rounded-full bg-white/85 backdrop-blur-md text-slate-700 hover:text-[#C8952E] hover:bg-white hover:scale-110 transition-all shadow-md cursor-pointer"
               aria-label="Bookmark article"
             >
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-[#C8952E] text-[#C8952E]" : ""}`} />
+              <Bookmark
+                className={`w-4 h-4 ${isBookmarked ? "fill-[#C8952E] text-[#C8952E]" : ""}`}
+              />
             </button>
           </div>
 
@@ -809,14 +1043,18 @@ export default function HealthLibraryPage() {
                   {art.readTime}
                 </span>
                 <span className="text-slate-300">•</span>
-                <span className="text-[11px] font-semibold text-slate-500">{art.date}</span>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {art.date}
+                </span>
               </div>
 
               <h3 className="font-serif-apollo text-2xl sm:text-3xl font-extrabold text-[#0B3446] leading-tight group-hover:text-[#1D82A6] transition-colors mb-4">
                 {art.title}
               </h3>
 
-              <p className="text-sm text-slate-600 leading-relaxed line-clamp-4 mb-5">{art.excerpt}</p>
+              <p className="text-sm text-slate-600 leading-relaxed line-clamp-4 mb-5">
+                {art.excerpt}
+              </p>
 
               <div className="flex flex-wrap gap-1.5 mb-6">
                 {art.tags.slice(0, 3).map((t, tIdx) => (
@@ -835,18 +1073,24 @@ export default function HealthLibraryPage() {
                     <Stethoscope className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-extrabold text-[#0B3446]">{art.author}</div>
-                    <div className="text-[11px] text-slate-500">{art.authorRole}</div>
+                    <div className="text-xs font-extrabold text-[#0B3446]">
+                      {art.author}
+                    </div>
+                    <div className="text-[11px] text-slate-500">
+                      {art.authorRole}
+                    </div>
                   </div>
                 </div>
 
-                <span
+                <Link
+                  href={`/health-library/${art.slug}`}
+                  onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md group-hover:shadow-xl group-hover:-translate-y-0.5 transition-all duration-300"
                   style={goldStyle}
                 >
                   Read Full Story
                   <ArrowRight className="w-4 h-4" />
-                </span>
+                </Link>
               </div>
             </div>
           </div>
@@ -860,8 +1104,12 @@ export default function HealthLibraryPage() {
       {/* ───── Scoped animations ───── */}
       <style jsx>{`
         @keyframes hlMarquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
         .hl-marquee {
           display: flex;
@@ -872,34 +1120,58 @@ export default function HealthLibraryPage() {
           animation-play-state: paused;
         }
         @keyframes hlRise {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .hl-rise {
           animation: hlRise 0.55s ease-out backwards;
         }
         @keyframes hlFade {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         .hl-fade {
           animation: hlFade 0.3s ease-out;
         }
         @keyframes hlPop {
-          from { opacity: 0; transform: translateY(16px) scale(0.97); }
-          to { opacity: 1; transform: none; }
+          from {
+            opacity: 0;
+            transform: translateY(16px) scale(0.97);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
         }
         .hl-pop {
           animation: hlPop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         @keyframes hlShimmer {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
         .hl-shimmer {
           background-size: 200% 200%;
-          animation: hlShimmer 6s ease infinite, hlRise 0.55s ease-out backwards;
+          animation:
+            hlShimmer 6s ease infinite,
+            hlRise 0.55s ease-out backwards;
         }
         .hl-orb {
           position: absolute;
@@ -933,12 +1205,22 @@ export default function HealthLibraryPage() {
           animation: hlFloat1 18s ease-in-out infinite;
         }
         @keyframes hlFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes hlFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         .hl-noscroll {
           scrollbar-width: none;
@@ -958,8 +1240,10 @@ export default function HealthLibraryPage() {
           style={{
             backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 80% 55% at 50% 30%, black 15%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 55% at 50% 30%, black 15%, transparent 80%)",
+            maskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 30%, black 15%, transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 30%, black 15%, transparent 80%)",
           }}
         />
       </div>
@@ -975,9 +1259,15 @@ export default function HealthLibraryPage() {
             <div className="overflow-hidden w-full text-xs text-slate-100 font-medium [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
               <div className="hl-marquee">
                 {[0, 1].map((copy) => (
-                  <div key={copy} className="flex items-center shrink-0 whitespace-nowrap">
+                  <div
+                    key={copy}
+                    className="flex items-center shrink-0 whitespace-nowrap"
+                  >
                     {healthData.newsTicker.map((item, idx) => (
-                      <span key={`${copy}-${idx}`} className="flex items-center">
+                      <span
+                        key={`${copy}-${idx}`}
+                        className="flex items-center"
+                      >
                         <span>{item}</span>
                         <span className="mx-6 text-[#F6D98A]">◆</span>
                       </span>
@@ -1001,15 +1291,36 @@ export default function HealthLibraryPage() {
         />
 
         {/* ───── Navigation Tabs Bar ───── */}
-        <div id="hl-results" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 scroll-mt-32">
+        <div
+          id="hl-results"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 scroll-mt-32"
+        >
           <div className="relative p-[1.5px] rounded-3xl bg-gradient-to-r from-[#1D82A6]/40 via-[#C8952E]/50 to-[#1D82A6]/40 shadow-lg">
             <div className="rounded-[calc(1.5rem-1.5px)] bg-white/90 backdrop-blur-xl p-2 flex items-center justify-between gap-3 overflow-x-auto hl-noscroll">
               <div className="flex items-center gap-1.5 shrink-0">
                 {[
-                  { id: "articles", label: "Medical Blogs & News", icon: BookOpen, count: articles.length },
-                  { id: "news", label: "Apollo News & Events", icon: Newspaper, count: newsItems.length },
-                  { id: "calculators", label: "Health Calculators", icon: Calculator },
-                  { id: "az-directory", label: "A-Z Directory", icon: FileText },
+                  {
+                    id: "articles",
+                    label: "Medical Blogs & News",
+                    icon: BookOpen,
+                    count: articles.length,
+                  },
+                  {
+                    id: "news",
+                    label: "Apollo News & Events",
+                    icon: Newspaper,
+                    count: newsItems.length,
+                  },
+                  {
+                    id: "calculators",
+                    label: "Health Calculators",
+                    icon: Calculator,
+                  },
+                  {
+                    id: "az-directory",
+                    label: "A-Z Directory",
+                    icon: FileText,
+                  },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -1023,12 +1334,16 @@ export default function HealthLibraryPage() {
                           : "text-[#0E526B] hover:bg-[#EDF6FB]"
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? "text-[#F6D98A]" : "text-[#1D82A6]"}`} />
+                      <Icon
+                        className={`w-4 h-4 ${isActive ? "text-[#F6D98A]" : "text-[#1D82A6]"}`}
+                      />
                       <span>{tab.label}</span>
                       {tab.count !== undefined && (
                         <span
                           className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                            isActive ? "bg-[#F6D98A] text-[#0B3446]" : "bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/20"
+                            isActive
+                              ? "bg-[#F6D98A] text-[#0B3446]"
+                              : "bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/20"
                           }`}
                         >
                           {tab.count}
@@ -1039,14 +1354,14 @@ export default function HealthLibraryPage() {
                 })}
               </div>
 
-              <button
-                onClick={() => setIsAppointmentModalOpen(true)}
+              <Link
+                href="/patientcare/appointment"
                 className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer shrink-0"
                 style={goldStyle}
               >
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Book Doctor Consultation</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -1059,23 +1374,56 @@ export default function HealthLibraryPage() {
               <div className="rounded-[calc(1.5rem-1.5px)] bg-white p-4 sm:p-5 flex flex-col gap-4">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   {/* Category Pills */}
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1 hl-noscroll">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {/* Category Label */}
                     <span className="text-xs font-black uppercase tracking-wider text-[#0E526B] flex items-center gap-1.5 shrink-0 mr-1">
-                      <Filter className="w-3.5 h-3.5 text-[#C8952E]" /> Category
+                      <Filter className="w-3.5 h-3.5 text-[#C8952E]" />
+                      Category
                     </span>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                          selectedCategory === cat
-                            ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-[#FEF3C7] shadow-md ring-2 ring-[#F6D98A]/60"
-                            : "bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/15 hover:bg-white hover:border-[#1D82A6]/40 hover:-translate-y-0.5"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+
+                    {/* Left Arrow */}
+                    <button
+                      type="button"
+                      onClick={() => scrollCategories("left")}
+                      className="w-8 h-8 shrink-0 rounded-full bg-[#EDF6FB] border border-[#1D82A6]/20 text-[#0E526B] flex items-center justify-center hover:bg-[#0A5F7A] hover:text-white hover:border-[#0A5F7A] transition-all shadow-sm cursor-pointer"
+                      aria-label="Previous categories"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Category Slider */}
+                    <div
+                      ref={categorySliderRef}
+                      className="flex items-center gap-2 overflow-x-auto pb-1 hl-noscroll scroll-smooth min-w-0 flex-1"
+                      style={{
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                      }}
+                    >
+                      {categories.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                            selectedCategory === cat
+                              ? "bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-[#FEF3C7] shadow-md ring-2 ring-[#F6D98A]/60"
+                              : "bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/15 hover:bg-white hover:border-[#1D82A6]/40 hover:-translate-y-0.5"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Right Arrow */}
+                    <button
+                      type="button"
+                      onClick={() => scrollCategories("right")}
+                      className="w-8 h-8 shrink-0 rounded-full bg-[#EDF6FB] border border-[#1D82A6]/20 text-[#0E526B] flex items-center justify-center hover:bg-[#0A5F7A] hover:text-white hover:border-[#0A5F7A] transition-all shadow-sm cursor-pointer"
+                      aria-label="Next categories"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
 
                   {/* Type Selector Toggle (hidden on the News tab) */}
@@ -1105,8 +1453,12 @@ export default function HealthLibraryPage() {
                 <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold pt-3 border-t border-slate-100">
                   <span>
                     Showing{" "}
-                    <span className="text-[#0E526B] font-black">{filteredArticles.length}</span> of{" "}
-                    {activeTab === "news" ? newsItems.length : articles.length} results
+                    <span className="text-[#0E526B] font-black">
+                      {filteredArticles.length}
+                    </span>{" "}
+                    of{" "}
+                    {activeTab === "news" ? newsItems.length : articles.length}{" "}
+                    results
                   </span>
                   {hasActiveFilters && (
                     <button
@@ -1138,9 +1490,12 @@ export default function HealthLibraryPage() {
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#0A5F7A] to-[#17627D] text-[#F6D98A] flex items-center justify-center shadow-lg">
                       <BookOpen className="w-8 h-8" />
                     </div>
-                    <h3 className="text-lg font-extrabold text-[#0B3446]">No content matched your query</h3>
+                    <h3 className="text-lg font-extrabold text-[#0B3446]">
+                      No content matched your query
+                    </h3>
                     <p className="text-xs text-slate-500 mt-1 mb-5">
-                      Try searching for terms like "EBUS", "Insurance", "Winter Heart", or "Joint Pain".
+                      Try searching for terms like "EBUS", "Insurance", "Winter
+                      Heart", or "Joint Pain".
                     </p>
                     <button
                       onClick={resetFilters}
@@ -1167,16 +1522,19 @@ export default function HealthLibraryPage() {
                       <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg mb-3">
                         <Siren className="w-5 h-5 text-white" />
                       </div>
-                      <h4 className="font-extrabold text-base leading-snug">24/7 Emergency Care</h4>
+                      <h4 className="font-extrabold text-base leading-snug">
+                        24/7 Emergency Care
+                      </h4>
                       <p className="text-[11px] text-slate-100/90 mt-1 leading-relaxed">
-                        Critical care, trauma & ambulance service always on standby.
+                        Critical care, trauma & ambulance service always on
+                        standby.
                       </p>
                       <a
-                        href="tel:1066"
+                        href="tel:1800-123-6666"
                         className="mt-4 inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-red-500/25 hover:bg-red-600 border border-red-300/40 text-red-100 hover:text-white text-xs font-extrabold transition-all"
                       >
                         <Zap className="w-4 h-4" />
-                        Call 1066
+                        Call 1800-123-6666
                       </a>
                     </div>
                   </div>
@@ -1185,7 +1543,9 @@ export default function HealthLibraryPage() {
                   <div className="rounded-3xl bg-white border border-[#1D82A6]/15 shadow-lg p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#1D82A6] to-[#C8952E]" />
-                      <h4 className="text-sm font-extrabold text-[#0B3446]">Latest Apollo News</h4>
+                      <h4 className="text-sm font-extrabold text-[#0B3446]">
+                        Latest Apollo News
+                      </h4>
                     </div>
                     <div className="space-y-3">
                       {newsItems.slice(0, 3).map((n) => (
@@ -1194,7 +1554,9 @@ export default function HealthLibraryPage() {
                           onClick={() => setSelectedArticle(n)}
                           className="group w-full text-left p-3 rounded-2xl bg-[#EDF6FB]/70 border border-[#1D82A6]/10 hover:bg-white hover:border-[#1D82A6]/40 hover:shadow-md transition-all cursor-pointer"
                         >
-                          <div className="text-[10px] font-bold text-[#C8952E] mb-1">{n.date}</div>
+                          <div className="text-[10px] font-bold text-[#C8952E] mb-1">
+                            {n.date}
+                          </div>
                           <div className="text-xs font-bold text-[#0B3446] leading-snug line-clamp-2 group-hover:text-[#1D82A6] transition-colors">
                             {n.title}
                           </div>
@@ -1208,7 +1570,9 @@ export default function HealthLibraryPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#1D82A6] to-[#C8952E]" />
-                        <h4 className="text-sm font-extrabold text-[#0B3446]">Saved Articles</h4>
+                        <h4 className="text-sm font-extrabold text-[#0B3446]">
+                          Saved Articles
+                        </h4>
                       </div>
                       <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/20">
                         {savedArticles.length}
@@ -1216,7 +1580,8 @@ export default function HealthLibraryPage() {
                     </div>
                     {savedArticles.length === 0 ? (
                       <p className="text-[11px] text-slate-500 leading-relaxed">
-                        Tap the bookmark icon on any article to save it here for later.
+                        Tap the bookmark icon on any article to save it here for
+                        later.
                       </p>
                     ) : (
                       <div className="space-y-2">
@@ -1247,18 +1612,21 @@ export default function HealthLibraryPage() {
                   {/* Consult CTA */}
                   <div className="relative rounded-3xl overflow-hidden bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] p-5 text-white shadow-lg border border-[#F6D98A]/40">
                     <Sparkles className="absolute -right-2 -top-2 w-20 h-20 text-white/10" />
-                    <h4 className="relative font-extrabold text-base leading-snug">Need Expert Advice?</h4>
+                    <h4 className="relative font-extrabold text-base leading-snug">
+                      Need Expert Advice?
+                    </h4>
                     <p className="relative text-[11px] text-slate-100/90 mt-1 mb-4 leading-relaxed">
-                      Talk to an Apollo Jabalpur specialist about what you just read.
+                      Talk to an Apollo Jabalpur specialist about what you just
+                      read.
                     </p>
-                    <button
-                      onClick={() => setIsAppointmentModalOpen(true)}
+                    <Link
+                      href="/patientcare/appointment"
                       className="relative w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer"
                       style={goldStyle}
                     >
                       Consult Specialist
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </aside>
@@ -1278,13 +1646,17 @@ export default function HealthLibraryPage() {
                 Interactive Health &{" "}
                 <span
                   className="bg-clip-text text-transparent"
-                  style={{ backgroundImage: "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)" }}
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)",
+                  }}
                 >
                   Wellness Calculators
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-3">
-                Empower your preventive care routine with instant, medically referenced health assessment tools.
+                Empower your preventive care routine with instant, medically
+                referenced health assessment tools.
               </p>
             </div>
 
@@ -1299,8 +1671,12 @@ export default function HealthLibraryPage() {
                         <Activity className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="font-serif-apollo text-lg font-extrabold">Body Mass Index (BMI)</h3>
-                        <p className="text-[11px] text-slate-100/90">WHO Standard Weight Profiler</p>
+                        <h3 className="font-serif-apollo text-lg font-extrabold">
+                          Body Mass Index (BMI)
+                        </h3>
+                        <p className="text-[11px] text-slate-100/90">
+                          WHO Standard Weight Profiler
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1319,7 +1695,12 @@ export default function HealthLibraryPage() {
                           min="30"
                           max="160"
                           value={bmiData.weight}
-                          onChange={(e) => setBmiData({ ...bmiData, weight: Number(e.target.value) })}
+                          onChange={(e) =>
+                            setBmiData({
+                              ...bmiData,
+                              weight: Number(e.target.value),
+                            })
+                          }
                           className="w-full accent-[#1D82A6] cursor-pointer"
                         />
                       </div>
@@ -1336,7 +1717,12 @@ export default function HealthLibraryPage() {
                           min="120"
                           max="220"
                           value={bmiData.height}
-                          onChange={(e) => setBmiData({ ...bmiData, height: Number(e.target.value) })}
+                          onChange={(e) =>
+                            setBmiData({
+                              ...bmiData,
+                              height: Number(e.target.value),
+                            })
+                          }
                           className="w-full accent-[#1D82A6] cursor-pointer"
                         />
                       </div>
@@ -1351,19 +1737,35 @@ export default function HealthLibraryPage() {
                     </form>
 
                     {bmiResult && (
-                      <div className={`hl-pop mt-6 p-4 rounded-2xl border text-xs space-y-3 ${bmiResult.color}`}>
+                      <div
+                        className={`hl-pop mt-6 p-4 rounded-2xl border text-xs space-y-3 ${bmiResult.color}`}
+                      >
                         <div className="flex justify-between items-center font-bold">
                           <span>Your BMI Score</span>
-                          <span className="text-3xl font-serif-apollo font-black">{bmiResult.score.toFixed(1)}</span>
+                          <span className="text-3xl font-serif-apollo font-black">
+                            {bmiResult.score.toFixed(1)}
+                          </span>
                         </div>
 
                         {/* Gauge */}
                         <div className="relative pt-2">
                           <div className="flex h-2.5 rounded-full overflow-hidden">
-                            <div className="bg-amber-400" style={{ width: "14%" }} />
-                            <div className="bg-emerald-500" style={{ width: "26%" }} />
-                            <div className="bg-amber-500" style={{ width: "20%" }} />
-                            <div className="bg-rose-500" style={{ width: "40%" }} />
+                            <div
+                              className="bg-amber-400"
+                              style={{ width: "14%" }}
+                            />
+                            <div
+                              className="bg-emerald-500"
+                              style={{ width: "26%" }}
+                            />
+                            <div
+                              className="bg-amber-500"
+                              style={{ width: "20%" }}
+                            />
+                            <div
+                              className="bg-rose-500"
+                              style={{ width: "40%" }}
+                            />
                           </div>
                           <span
                             className="absolute top-0 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-[3px] border-[#0B3446] shadow-md transition-all duration-500"
@@ -1373,8 +1775,12 @@ export default function HealthLibraryPage() {
                           />
                         </div>
 
-                        <div className="font-black uppercase tracking-wider">{bmiResult.category}</div>
-                        <p className="text-[11px] leading-relaxed text-slate-700">{bmiResult.tip}</p>
+                        <div className="font-black uppercase tracking-wider">
+                          {bmiResult.category}
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-slate-700">
+                          {bmiResult.tip}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1394,14 +1800,21 @@ export default function HealthLibraryPage() {
                         <Droplets className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="font-serif-apollo text-lg font-extrabold">Daily Water Intake</h3>
-                        <p className="text-[11px] text-slate-100/90">Hydration Needs Calculator</p>
+                        <h3 className="font-serif-apollo text-lg font-extrabold">
+                          Daily Water Intake
+                        </h3>
+                        <p className="text-[11px] text-slate-100/90">
+                          Hydration Needs Calculator
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col justify-between">
-                    <form onSubmit={calculateWater} className="space-y-5 text-xs">
+                    <form
+                      onSubmit={calculateWater}
+                      className="space-y-5 text-xs"
+                    >
                       <div>
                         <div className="flex justify-between items-center font-bold text-slate-700 mb-2">
                           <span>Body Weight</span>
@@ -1414,21 +1827,39 @@ export default function HealthLibraryPage() {
                           min="35"
                           max="140"
                           value={waterData.weight}
-                          onChange={(e) => setWaterData({ ...waterData, weight: Number(e.target.value) })}
+                          onChange={(e) =>
+                            setWaterData({
+                              ...waterData,
+                              weight: Number(e.target.value),
+                            })
+                          }
                           className="w-full accent-cyan-600 cursor-pointer"
                         />
                       </div>
 
                       <div>
-                        <label className="block font-bold text-slate-700 mb-2">Daily Physical Activity Level</label>
+                        <label className="block font-bold text-slate-700 mb-2">
+                          Daily Physical Activity Level
+                        </label>
                         <select
                           value={waterData.activity}
-                          onChange={(e) => setWaterData({ ...waterData, activity: e.target.value })}
+                          onChange={(e) =>
+                            setWaterData({
+                              ...waterData,
+                              activity: e.target.value,
+                            })
+                          }
                           className="w-full px-3 py-3 rounded-xl border border-[#1D82A6]/25 bg-[#EDF6FB]/60 text-xs font-bold text-[#0B3446] focus:outline-none focus:ring-2 focus:ring-[#1D82A6]/40"
                         >
-                          <option value="sedentary">Sedentary (Indoor Office)</option>
-                          <option value="moderate">Moderate (30-45 mins exercise)</option>
-                          <option value="high">High (Heavy workout/Outdoor)</option>
+                          <option value="sedentary">
+                            Sedentary (Indoor Office)
+                          </option>
+                          <option value="moderate">
+                            Moderate (30-45 mins exercise)
+                          </option>
+                          <option value="high">
+                            High (Heavy workout/Outdoor)
+                          </option>
                         </select>
                       </div>
 
@@ -1446,17 +1877,27 @@ export default function HealthLibraryPage() {
                           <span>Recommended Target</span>
                           <span className="text-2xl font-serif-apollo font-black text-cyan-700">
                             {waterResult.liters} L
-                            <span className="text-[11px] font-bold text-cyan-800"> / day</span>
+                            <span className="text-[11px] font-bold text-cyan-800">
+                              {" "}
+                              / day
+                            </span>
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {Array.from({ length: Math.min(waterResult.glasses, 16) }).map((_, i) => (
-                            <Droplets key={i} className="w-4 h-4 text-cyan-500" />
+                          {Array.from({
+                            length: Math.min(waterResult.glasses, 16),
+                          }).map((_, i) => (
+                            <Droplets
+                              key={i}
+                              className="w-4 h-4 text-cyan-500"
+                            />
                           ))}
                         </div>
                         <div className="text-[11px] font-semibold text-cyan-800">
                           Equivalent to approximately{" "}
-                          <span className="font-black text-cyan-900">{waterResult.glasses} standard glasses</span>{" "}
+                          <span className="font-black text-cyan-900">
+                            {waterResult.glasses} standard glasses
+                          </span>{" "}
                           (250ml) per day.
                         </div>
                       </div>
@@ -1478,20 +1919,34 @@ export default function HealthLibraryPage() {
                         <HeartPulse className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="font-serif-apollo text-lg font-extrabold">Heart Risk Checklist</h3>
-                        <p className="text-[11px] text-slate-100/90">Quick Cardiac Health Assessment</p>
+                        <h3 className="font-serif-apollo text-lg font-extrabold">
+                          Heart Risk Checklist
+                        </h3>
+                        <p className="text-[11px] text-slate-100/90">
+                          Quick Cardiac Health Assessment
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col justify-between">
-                    <form onSubmit={evaluateHeartRisk} className="space-y-3 text-xs">
+                    <form
+                      onSubmit={evaluateHeartRisk}
+                      className="space-y-3 text-xs"
+                    >
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">Age Range</label>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                            Age Range
+                          </label>
                           <select
                             value={heartCheck.age}
-                            onChange={(e) => setHeartCheck({ ...heartCheck, age: e.target.value })}
+                            onChange={(e) =>
+                              setHeartCheck({
+                                ...heartCheck,
+                                age: e.target.value,
+                              })
+                            }
                             className="w-full px-2.5 py-2.5 rounded-xl border border-[#1D82A6]/25 text-xs font-bold text-[#0B3446] bg-[#EDF6FB]/60 focus:outline-none focus:ring-2 focus:ring-[#1D82A6]/40"
                           >
                             <option value="under30">Under 30</option>
@@ -1502,10 +1957,17 @@ export default function HealthLibraryPage() {
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">Smoking Habit</label>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                            Smoking Habit
+                          </label>
                           <select
                             value={heartCheck.smoking}
-                            onChange={(e) => setHeartCheck({ ...heartCheck, smoking: e.target.value })}
+                            onChange={(e) =>
+                              setHeartCheck({
+                                ...heartCheck,
+                                smoking: e.target.value,
+                              })
+                            }
                             className="w-full px-2.5 py-2.5 rounded-xl border border-[#1D82A6]/25 text-xs font-bold text-[#0B3446] bg-[#EDF6FB]/60 focus:outline-none focus:ring-2 focus:ring-[#1D82A6]/40"
                           >
                             <option value="no">Non-Smoker</option>
@@ -1516,22 +1978,38 @@ export default function HealthLibraryPage() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">Exercise Habit</label>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                            Exercise Habit
+                          </label>
                           <select
                             value={heartCheck.exercise}
-                            onChange={(e) => setHeartCheck({ ...heartCheck, exercise: e.target.value })}
+                            onChange={(e) =>
+                              setHeartCheck({
+                                ...heartCheck,
+                                exercise: e.target.value,
+                              })
+                            }
                             className="w-full px-2.5 py-2.5 rounded-xl border border-[#1D82A6]/25 text-xs font-bold text-[#0B3446] bg-[#EDF6FB]/60 focus:outline-none focus:ring-2 focus:ring-[#1D82A6]/40"
                           >
                             <option value="regular">Regular Workout</option>
-                            <option value="sedentary">Little / No Workout</option>
+                            <option value="sedentary">
+                              Little / No Workout
+                            </option>
                           </select>
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">Blood Pressure</label>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                            Blood Pressure
+                          </label>
                           <select
                             value={heartCheck.bp}
-                            onChange={(e) => setHeartCheck({ ...heartCheck, bp: e.target.value })}
+                            onChange={(e) =>
+                              setHeartCheck({
+                                ...heartCheck,
+                                bp: e.target.value,
+                              })
+                            }
                             className="w-full px-2.5 py-2.5 rounded-xl border border-[#1D82A6]/25 text-xs font-bold text-[#0B3446] bg-[#EDF6FB]/60 focus:outline-none focus:ring-2 focus:ring-[#1D82A6]/40"
                           >
                             <option value="normal">Normal (&lt;120/80)</option>
@@ -1549,10 +2027,14 @@ export default function HealthLibraryPage() {
                     </form>
 
                     {heartRisk && (
-                      <div className={`hl-pop mt-6 p-4 rounded-2xl border text-xs space-y-3 ${heartRisk.badgeColor}`}>
+                      <div
+                        className={`hl-pop mt-6 p-4 rounded-2xl border text-xs space-y-3 ${heartRisk.badgeColor}`}
+                      >
                         <div className="flex justify-between items-center font-bold">
                           <span>Summary Rating</span>
-                          <span className="font-serif-apollo text-sm font-black uppercase">{heartRisk.level}</span>
+                          <span className="font-serif-apollo text-sm font-black uppercase">
+                            {heartRisk.level}
+                          </span>
                         </div>
                         <div className="flex gap-1.5">
                           {[1, 2, 3].map((seg) => (
@@ -1563,14 +2045,16 @@ export default function HealthLibraryPage() {
                                   ? seg === 1
                                     ? "bg-emerald-500"
                                     : seg === 2
-                                    ? "bg-amber-500"
-                                    : "bg-rose-500"
+                                      ? "bg-amber-500"
+                                      : "bg-rose-500"
                                   : "bg-slate-200"
                               }`}
                             />
                           ))}
                         </div>
-                        <p className="text-[11px] leading-relaxed">{heartRisk.desc}</p>
+                        <p className="text-[11px] leading-relaxed">
+                          {heartRisk.desc}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1580,7 +2064,9 @@ export default function HealthLibraryPage() {
 
             <p className="text-center text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed flex items-start justify-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" />
-              These tools are for general awareness only and are not a medical diagnosis. Please consult an Apollo specialist for a personalised assessment.
+              These tools are for general awareness only and are not a medical
+              diagnosis. Please consult an Apollo specialist for a personalised
+              assessment.
             </p>
           </section>
         )}
@@ -1597,13 +2083,17 @@ export default function HealthLibraryPage() {
                 A-Z Medical{" "}
                 <span
                   className="bg-clip-text text-transparent"
-                  style={{ backgroundImage: "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)" }}
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, #1D82A6 0%, #0E526B 50%, #C8952E 100%)",
+                  }}
                 >
                   Conditions Directory
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-3">
-                Browse common health conditions, symptoms, and corresponding Apollo Jabalpur specialized departments.
+                Browse common health conditions, symptoms, and corresponding
+                Apollo Jabalpur specialized departments.
               </p>
             </div>
 
@@ -1632,8 +2122,8 @@ export default function HealthLibraryPage() {
                         isActive
                           ? "text-[#3A2B0A] shadow-md scale-110"
                           : enabled
-                          ? "bg-[#EDF6FB] text-[#0E526B] hover:bg-white hover:-translate-y-0.5 border border-[#1D82A6]/25 cursor-pointer"
-                          : "bg-slate-50 text-slate-300 cursor-not-allowed"
+                            ? "bg-[#EDF6FB] text-[#0E526B] hover:bg-white hover:-translate-y-0.5 border border-[#1D82A6]/25 cursor-pointer"
+                            : "bg-slate-50 text-slate-300 cursor-not-allowed"
                       }`}
                       style={isActive ? goldStyle : undefined}
                     >
@@ -1668,15 +2158,17 @@ export default function HealthLibraryPage() {
                     <h4 className="relative font-serif-apollo text-base font-extrabold text-[#0B3446] mb-2 group-hover:text-[#1D82A6] transition-colors leading-snug">
                       {cond.name}
                     </h4>
-                    <p className="relative text-xs text-slate-600 leading-relaxed mb-5 flex-1">{cond.desc}</p>
-                    <button
-                      onClick={() => setIsAppointmentModalOpen(true)}
+                    <p className="relative text-xs text-slate-600 leading-relaxed mb-5 flex-1">
+                      {cond.desc}
+                    </p>
+                    <Link
+                      href="/patientcare/appointment"
                       className="relative self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer"
                       style={goldStyle}
                     >
                       Consult Department Specialist
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -1684,7 +2176,9 @@ export default function HealthLibraryPage() {
 
             {visibleConditions.length === 0 && (
               <div className="text-center py-12 bg-white rounded-3xl border border-[#1D82A6]/20 shadow-md">
-                <p className="text-sm font-bold text-[#0B3446]">No conditions listed under this letter yet.</p>
+                <p className="text-sm font-bold text-[#0B3446]">
+                  No conditions listed under this letter yet.
+                </p>
               </div>
             )}
           </section>
@@ -1707,23 +2201,34 @@ export default function HealthLibraryPage() {
                   Subscribe to{" "}
                   <span
                     className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 60%, #C8952E 100%)" }}
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 60%, #C8952E 100%)",
+                    }}
                   >
                     Apollo Monthly Health Digest
                   </span>
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-100/90 leading-relaxed">
-                  Get official Apollo JBP Hospitals health updates, EBUS technology news, and medical advice delivered straight to your inbox once a month.
+                  Get official Apollo JBP Hospitals health updates, EBUS
+                  technology news, and medical advice delivered straight to your
+                  inbox once a month.
                 </p>
               </div>
 
-              <form onSubmit={handleSubscribe} className="relative z-10 w-full lg:w-auto flex-1 max-w-md">
+              <form
+                onSubmit={handleSubscribe}
+                className="relative z-10 w-full lg:w-auto flex-1 max-w-md"
+              >
                 {subscribedSuccess ? (
                   <div className="hl-pop p-5 rounded-2xl bg-emerald-500/20 border border-emerald-300/60 backdrop-blur-md text-emerald-100 text-xs font-bold flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-400/30 flex items-center justify-center shrink-0">
                       <Check className="w-5 h-5 text-emerald-200" />
                     </div>
-                    <span>Thank you for subscribing! Check your email for health updates.</span>
+                    <span>
+                      Thank you for subscribing! Check your email for health
+                      updates.
+                    </span>
                   </div>
                 ) : (
                   <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-full p-1.5 shadow-[0_15px_35px_rgba(0,0,0,0.25)] border border-white/50 focus-within:ring-4 focus-within:ring-[#F6D98A]/40 transition-all">
@@ -1749,12 +2254,6 @@ export default function HealthLibraryPage() {
           </div>
         </section>
       </div>
-
-      {/* Appointment Modal Trigger */}
-      <AppointmentModal
-        isOpen={isAppointmentModalOpen}
-        onClose={() => setIsAppointmentModalOpen(false)}
-      />
 
       {/* ───── ARTICLE READER MODAL (DETAILED BLOG & NEWS VIEWER) ───── */}
       {selectedArticle && (
@@ -1799,7 +2298,9 @@ export default function HealthLibraryPage() {
                         : "bg-gradient-to-l from-[#C8952E] to-[#F6D98A] text-[#0B3446]"
                     }`}
                   >
-                    {selectedArticle.type === "news" ? "Apollo News" : selectedArticle.category}
+                    {selectedArticle.type === "news"
+                      ? "Apollo News"
+                      : selectedArticle.category}
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white/90 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25">
                     <Clock className="w-3 h-3 text-[#F6D98A]" />
@@ -1820,9 +2321,12 @@ export default function HealthLibraryPage() {
                     <Stethoscope className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="font-extrabold text-[#0B3446]">Reviewed by {selectedArticle.author}</div>
+                    <div className="font-extrabold text-[#0B3446]">
+                      Reviewed by {selectedArticle.author}
+                    </div>
                     <div className="text-[11px] text-slate-500">
-                      {selectedArticle.authorRole} • Published {selectedArticle.date}
+                      {selectedArticle.authorRole} • Published{" "}
+                      {selectedArticle.date}
                     </div>
                   </div>
                 </div>
@@ -1888,7 +2392,9 @@ export default function HealthLibraryPage() {
 
               {/* Tags footer */}
               <div className="pt-5 pb-6 flex flex-wrap items-center gap-2 border-t border-slate-100">
-                <span className="text-xs font-extrabold text-[#0E526B]">Related Tags:</span>
+                <span className="text-xs font-extrabold text-[#0E526B]">
+                  Related Tags:
+                </span>
                 {selectedArticle.tags.map((t, idx) => (
                   <span
                     key={idx}
@@ -1900,17 +2406,14 @@ export default function HealthLibraryPage() {
               </div>
 
               <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <button
-                  onClick={() => {
-                    setSelectedArticle(null);
-                    setIsAppointmentModalOpen(true);
-                  }}
+                <Link
+                  href="/patientcare/appointment"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-[#3A2B0A] font-extrabold text-xs shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer"
                   style={goldStyle}
                 >
                   Book Appointment for this Specialty
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
                 <button
                   onClick={() => setSelectedArticle(null)}
                   className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/25 font-extrabold text-xs hover:bg-white hover:shadow-md transition-all cursor-pointer"

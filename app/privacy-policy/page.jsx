@@ -339,7 +339,7 @@ export default function PrivacyPolicyPage() {
                 </div>
 
                 <a
-                  href="mailto:connect@apollojbphospitals.com"
+                  href="mailto:Connect@apollojbphospitals.com"
                   className="px-4 py-2 rounded-lg bg-[#F59E0B] text-slate-950 text-xs font-bold hover:bg-[#edcd76] transition-colors flex items-center gap-1.5 shrink-0"
                 >
                   <span>Send Direct Email</span>

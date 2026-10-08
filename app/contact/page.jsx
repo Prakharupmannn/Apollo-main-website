@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -23,7 +24,6 @@ import {
   HeartPulse,
   Zap,
 } from "lucide-react";
-import AppointmentModal from "../../components/components/AppointmentModal";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -198,7 +198,7 @@ const cardThemes = {
 };
 
 export default function ContactPage() {
-  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -335,7 +335,7 @@ export default function ContactPage() {
     {
       type: "email",
       title: "Email & Helpdesk",
-      number: "jabalpur_info@apollohospitals.com",
+      number: "Connect@apollojbphospitals.com",
       desc: "General inquiries, feedback, and medical records assistance",
       icon: Mail,
       highlight: false,
@@ -552,16 +552,17 @@ export default function ContactPage() {
                   <span>Call Emergency: 1800-123-6666</span>
                 </motion.a>
 
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setIsAppointmentModalOpen(true)}
-                  className="flex items-center gap-3 px-7 py-4 rounded-full text-[#3A2B0A] font-extrabold text-sm shadow-[0_10px_25px_rgba(200,149,46,0.3)] hover:shadow-[0_15px_35px_rgba(200,149,46,0.45)] transition-all duration-300 cursor-pointer"
-                  style={goldStyle}
-                >
-                  <Calendar className="w-5 h-5 text-[#3A2B0A]" />
-                  <span>Book Appointment Online</span>
-                </motion.button>
+                <Link href="/patientcare/appointment">
+                  <motion.div
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-3 px-7 py-4 rounded-full text-[#3A2B0A] font-extrabold text-sm shadow-[0_10px_25px_rgba(200,149,46,0.3)] hover:shadow-[0_15px_35px_rgba(200,149,46,0.45)] transition-all duration-300 cursor-pointer"
+                    style={goldStyle}
+                  >
+                    <Calendar className="w-5 h-5 text-[#3A2B0A]" />
+                    <span>Book Appointment Online</span>
+                  </motion.div>
+                </Link>
               </motion.div>
 
               {/* Trust Badges Bar */}
@@ -1385,12 +1386,7 @@ export default function ContactPage() {
           </div>
         </section>
       </div>
-
-      {/* Appointment Modal Component */}
-      <AppointmentModal
-        isOpen={isAppointmentModalOpen}
-        onClose={() => setIsAppointmentModalOpen(false)}
-      />
+      
     </main>
   );
 }

@@ -28,7 +28,6 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import AppointmentModal from "../../../../components/components/AppointmentModal";
 import {
   getCaseBySlug,
   caseStudiesData,
@@ -78,14 +77,22 @@ function CaseDetailGallery({ images, title }) {
                 key={i}
                 onClick={() => setIndex(i)}
                 className={`relative w-12 h-12 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                  i === index ? "border-[#1D82A6] scale-105 shadow-md" : "border-transparent opacity-60 hover:opacity-100"
+                  i === index
+                    ? "border-[#1D82A6] scale-105 shadow-md"
+                    : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt="thumb"
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>
-          <span className="text-[11px] font-semibold text-slate-500">Click thumbnail to view</span>
+          <span className="text-[11px] font-semibold text-slate-500">
+            Click thumbnail to view
+          </span>
         </div>
       )}
     </div>
@@ -95,7 +102,6 @@ function CaseDetailGallery({ images, title }) {
 export default function CaseStudyDetailPage({ params }) {
   const { slug } = use(params);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const caseData = getCaseBySlug(slug);
 
   if (!caseData) notFound();
@@ -104,7 +110,9 @@ export default function CaseStudyDetailPage({ params }) {
   const relatedCases = caseStudiesData
     .filter((c) => c.slug !== caseData.slug && c.dept === caseData.dept)
     .slice(0, 2);
-  const fallbackRelated = caseStudiesData.filter((c) => c.slug !== caseData.slug).slice(0, 2);
+  const fallbackRelated = caseStudiesData
+    .filter((c) => c.slug !== caseData.slug)
+    .slice(0, 2);
   const related = relatedCases.length ? relatedCases : fallbackRelated;
 
   const patientMeta = caseData.patientInfo || {};
@@ -136,22 +144,41 @@ export default function CaseStudyDetailPage({ params }) {
           animation: cdFloat2 20s ease-in-out infinite;
         }
         @keyframes cdFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes cdFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         @keyframes cdShimmerSweep {
-          0% { transform: translateX(-120%) skewX(-12deg); }
-          100% { transform: translateX(220%) skewX(-12deg); }
+          0% {
+            transform: translateX(-120%) skewX(-12deg);
+          }
+          100% {
+            transform: translateX(220%) skewX(-12deg);
+          }
         }
         .cd-shimmer::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+          background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.35),
+            transparent
+          );
           transform: translateX(-120%) skewX(-12deg);
         }
         .cd-shimmer:hover::after {
@@ -168,8 +195,10 @@ export default function CaseStudyDetailPage({ params }) {
           style={{
             backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
+            maskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
           }}
         />
       </div>
@@ -191,7 +220,9 @@ export default function CaseStudyDetailPage({ params }) {
           variants={fadeUp}
           className="relative p-[1.5px] rounded-[2.2rem] bg-gradient-to-br from-[#F6D98A]/80 via-[#1D82A6]/40 to-[#C8952E]/80 shadow-[0_30px_70px_rgba(10,95,122,0.25)] mb-10 overflow-hidden"
         >
-          <div className={`relative rounded-[calc(2.2rem-1.5px)] overflow-hidden bg-gradient-to-br ${caseData.accent} p-8 sm:p-12 text-white`}>
+          <div
+            className={`relative rounded-[calc(2.2rem-1.5px)] overflow-hidden bg-gradient-to-br ${caseData.accent} p-8 sm:p-12 text-white`}
+          >
             <Icon className="absolute -right-12 -bottom-12 w-80 h-80 opacity-[0.07] pointer-events-none" />
 
             {/* Verified badge top right */}
@@ -398,21 +429,23 @@ export default function CaseStudyDetailPage({ params }) {
               </div>
 
               <div className="space-y-4">
-                {(caseData.procedure || caseData.details || []).map((step, i) => (
-                  <div
-                    key={i}
-                    className="group flex items-start gap-4 p-4 rounded-2xl bg-[#F8FBFD] border border-slate-200/70 hover:border-[#1D82A6]/40 hover:shadow-md transition-all duration-300"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform">
-                      {i + 1}
+                {(caseData.procedure || caseData.details || []).map(
+                  (step, i) => (
+                    <div
+                      key={i}
+                      className="group flex items-start gap-4 p-4 rounded-2xl bg-[#F8FBFD] border border-slate-200/70 hover:border-[#1D82A6]/40 hover:shadow-md transition-all duration-300"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                        {i + 1}
+                      </div>
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <p className="text-xs sm:text-sm text-[#0B3446] font-medium leading-relaxed">
+                          {step}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1 pt-0.5">
-                      <p className="text-xs sm:text-sm text-[#0B3446] font-medium leading-relaxed">
-                        {step}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </motion.section>
 
@@ -432,7 +465,9 @@ export default function CaseStudyDetailPage({ params }) {
                   <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
                     Clinical Outcomes & Results
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">Documented therapeutic achievements</p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Documented therapeutic achievements
+                  </p>
                 </div>
               </div>
 
@@ -462,7 +497,8 @@ export default function CaseStudyDetailPage({ params }) {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                    {caseData.outcome || "Full clinical recovery achieved without surgical or systemic complications."}
+                    {caseData.outcome ||
+                      "Full clinical recovery achieved without surgical or systemic complications."}
                   </p>
                 </div>
               )}
@@ -504,7 +540,9 @@ export default function CaseStudyDetailPage({ params }) {
               {/* Doctor & Patient Profile Card */}
               <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${caseData.accent} text-white text-base font-black flex items-center justify-center shrink-0 shadow-md ring-4 ring-slate-50`}>
+                  <div
+                    className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${caseData.accent} text-white text-base font-black flex items-center justify-center shrink-0 shadow-md ring-4 ring-slate-50`}
+                  >
                     {caseData.doctor
                       .replace(/^Dr\.?\s*/i, "")
                       .split(" ")
@@ -530,7 +568,9 @@ export default function CaseStudyDetailPage({ params }) {
 
                 <div className="space-y-3 text-xs">
                   <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500 font-semibold">Patient Name</span>
+                    <span className="text-slate-500 font-semibold">
+                      Patient Name
+                    </span>
                     <span className="font-extrabold text-[#0B3446]">
                       {caseData.patient || "Confidential"}
                     </span>
@@ -538,7 +578,9 @@ export default function CaseStudyDetailPage({ params }) {
 
                   {patientMeta.age && (
                     <div className="flex justify-between py-1.5 border-b border-slate-100">
-                      <span className="text-slate-500 font-semibold">Age & Gender</span>
+                      <span className="text-slate-500 font-semibold">
+                        Age & Gender
+                      </span>
                       <span className="font-extrabold text-[#0B3446]">
                         {patientMeta.gender}, {patientMeta.age}
                       </span>
@@ -547,7 +589,9 @@ export default function CaseStudyDetailPage({ params }) {
 
                   {patientMeta.city && (
                     <div className="flex justify-between py-1.5 border-b border-slate-100">
-                      <span className="text-slate-500 font-semibold">Location / City</span>
+                      <span className="text-slate-500 font-semibold">
+                        Location / City
+                      </span>
                       <span className="font-extrabold text-[#0B3446]">
                         {patientMeta.city}
                       </span>
@@ -555,26 +599,31 @@ export default function CaseStudyDetailPage({ params }) {
                   )}
 
                   <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500 font-semibold">Department</span>
+                    <span className="text-slate-500 font-semibold">
+                      Department
+                    </span>
                     <span className="font-extrabold text-[#0E526B]">
                       {caseData.deptLabel}
                     </span>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setIsModalOpen(true)}
+                <Link
+                  href="/patientcare/appointment"
                   className="cd-shimmer relative overflow-hidden w-full py-3.5 rounded-2xl text-xs font-black text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                   style={goldGradient}
                 >
                   <UserCheck className="w-4 h-4" />
                   <span>Consult Lead Specialist</span>
-                </button>
+                </Link>
               </div>
 
               {/* Case Images Gallery if available */}
               {caseData.images && caseData.images.length > 0 && (
-                <CaseDetailGallery images={caseData.images} title={caseData.title} />
+                <CaseDetailGallery
+                  images={caseData.images}
+                  title={caseData.title}
+                />
               )}
 
               {/* Emergency Call Box */}
@@ -585,7 +634,9 @@ export default function CaseStudyDetailPage({ params }) {
                   </div>
                   <div>
                     <h4 className="text-sm font-black">24/7 Apollo Helpline</h4>
-                    <p className="text-[10px] text-slate-300">Second opinion & emergency booking</p>
+                    <p className="text-[10px] text-slate-300">
+                      Second opinion & emergency booking
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-1.5 pt-2">
@@ -637,7 +688,9 @@ export default function CaseStudyDetailPage({ params }) {
                     href={`/patientcare/case-studies/${r.slug}`}
                     className="group flex items-center gap-4 bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#1D82A6]/30 transition-all duration-300"
                   >
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.accent} text-white flex items-center justify-center shrink-0 shadow-md`}>
+                    <div
+                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.accent} text-white flex items-center justify-center shrink-0 shadow-md`}
+                    >
                       <RIcon className="w-7 h-7" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -672,24 +725,24 @@ export default function CaseStudyDetailPage({ params }) {
                     Apollo JBP Hospitals • Jabalpur Clinical Breakthroughs
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    For medical second opinion & case referral: 1800-123-6666 / 7566 123666.
+                    For medical second opinion & case referral: 1800-123-6666 /
+                    7566 123666.
                   </p>
                 </div>
               </div>
 
-              <button
-                onClick={() => setIsModalOpen(true)}
+              <Link
+                href="/patientcare/appointment"
                 className="cd-shimmer relative overflow-hidden px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer shrink-0"
                 style={goldGradient}
               >
                 Request Case Consultation
-              </button>
+              </Link>
             </div>
           </div>
         </section>
       </div>
 
-      <AppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </main>
   );
 }

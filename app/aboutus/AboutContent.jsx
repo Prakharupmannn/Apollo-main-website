@@ -141,7 +141,6 @@ const innovations = [
     title: "Advanced Cancer Care",
     text: "LINAC radiotherapy with SRS & SBRT capabilities, supported by advanced PET-CT diagnostics for comprehensive cancer care.",
     icon: Radiation,
-    href: "/service/onco-sciences/",
   },
   {
     title: "Region's Only PET-CT Facility",
@@ -194,7 +193,7 @@ const stagger = {
 
 export default function AboutPage() {
   const handleOpenAppointmentModal = () => {
-    window.location.href = "/contact";
+    window.location.href = "/patientcare/appointment";
   };
 
   const handleFindDoctor = () => {
@@ -659,7 +658,9 @@ function AboutHero({ onOpenAppointmentModal, onFindDoctor }) {
               >
                 {/* Appointment */}
                 <button
-                  onClick={onOpenAppointmentModal}
+                  onClick={() =>
+                    onOpenAppointmentModal && onOpenAppointmentModal()
+                  }
                   className="group flex items-center gap-2.5 rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] px-5 py-2.5 text-xs font-bold text-[#3A2B0A] shadow-[0_10px_25px_rgba(200,149,46,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(200,149,46,0.32)]"
                 >
                   Book an Appointment
@@ -1453,17 +1454,7 @@ function ChairmanSection() {
                 }}
                 className="mt-8 flex flex-wrap items-center gap-5"
               >
-                <a
-                  href="#philosophy"
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#0E526B] px-5 py-2.5 text-[10px] font-bold text-white shadow-[0_10px_25px_rgba(14,82,107,0.18)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#06202B]"
-                >
-                  {/* Button shimmer */}
-                  <span className="absolute inset-y-0 -left-[80%] w-[45%] skew-x-[-20deg] bg-white/20 transition-all duration-700 group-hover:left-[130%]" />
-
-                  <span className="relative">Read Chairman's Vision</span>
-
-                  <ArrowRight className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                </a>
+                {/*  */}
 
                 <div className="flex items-center gap-2 text-[10px] font-medium text-slate-500">
                   <span className="relative flex h-4 w-4 items-center justify-center">
@@ -2506,7 +2497,7 @@ function Innovation() {
 
                       {/* arrow */}
 
-                      <ArrowUpRight className="hidden h-[17px] w-[17px] shrink-0 text-white/20 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#E5C46B] sm:block" />
+                      {/* <ArrowUpRight className="hidden h-[17px] w-[17px] shrink-0 text-white/20 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#E5C46B] sm:block" /> */}
                     </div>
                   </motion.div>
                 );
@@ -2787,7 +2778,7 @@ function AboutCTA({ onOpenAppointmentModal }) {
 
         <div className="mt-9 flex flex-wrap justify-center gap-4">
           <button
-            onClick={onOpenAppointmentModal}
+            onClick={() => onOpenAppointmentModal && onOpenAppointmentModal()}
             className="group flex items-center gap-3 rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] px-7 py-3.5 text-sm font-bold text-[#3A2B0A] shadow-[0_12px_30px_rgba(200,149,46,0.25)] transition-all hover:-translate-y-1"
           >
             Book an Appointment

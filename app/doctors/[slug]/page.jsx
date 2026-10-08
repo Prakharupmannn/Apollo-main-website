@@ -16,11 +16,25 @@ import {
   Sparkles,
   Stethoscope,
   UserRound,
+  BookOpen ,
+  ChevronDown ,
+BriefcaseBusiness,
+HeartPulse,
+Activity,
+ScanSearch,
+Target,
+Syringe,
+Focus,
+BadgeCheck,
+HeartHandshake,
+Users,
+Microscope,
+MessageCircle,
 } from "lucide-react";
 
 import { rawDoctors } from "@/data/doctorsPage";
 import { hospital } from "@/data/siteData";
-import MobileBookingBar from "../../../components/MobileBookingBar";
+import MobileBookingBar from "@/components/MobileBookingBar";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -395,8 +409,8 @@ function Facts({ doctor, education, highlights }) {
   ];
 
   return (
-    <section className="relative z-20 -mt-14 px-6 lg:px-10">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 lg:grid-cols-4">
+    <section className="relative z-20 -mt-14 px-4 sm:px-6 lg:px-10">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
         {facts.map((f, i) => {
           const Icon = f.icon;
           return (
@@ -406,7 +420,7 @@ function Facts({ doctor, education, highlights }) {
               style={{ animationDelay: `${300 + i * 80}ms` }}
             >
               <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#E1B54A] to-[#0E526B]" />
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3">
                 <span
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
                     i === 0
@@ -416,11 +430,14 @@ function Facts({ doctor, education, highlights }) {
                 >
                   <Icon className="h-5 w-5" />
                 </span>
-                <div className="min-w-0">
-                  <p className="truncate font-serif text-[16px] text-[#06202B]">
+                <div className="min-w-0 flex-1">
+                  <p
+                    title={String(f.value)}
+                    className="line-clamp-1 break-words font-serif text-[15px] leading-snug text-[#06202B] sm:text-[16px]"
+                  >
                     {f.value}
                   </p>
-                  <p className="truncate text-[10px] uppercase tracking-wider text-[#71858E]">
+                  <p className="mt-0.5 text-[10px] uppercase leading-tight tracking-wider text-[#71858E]">
                     {f.label}
                   </p>
                 </div>
@@ -433,43 +450,568 @@ function Facts({ doctor, education, highlights }) {
   );
 }
 
-/* ---------------- CONTENT CARDS ---------------- */
+function Block({ icon: Icon, title, children }) {
+  return (
+    <section className="mt-7">
+      <div className="flex items-center gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FFF4D9] to-[#FCE9B8] ring-1 ring-[#C8952E]/25">
+          <Icon className="h-4 w-4 text-[#B07C1A]" />
+        </span>
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#0E526B]">
+          {title}
+        </h3>
+        <span className="h-px flex-1 bg-gradient-to-r from-[#DCEAF0] to-transparent" />
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
 
-function About({ about, highlights }) {
+/* ------------------------------------------------------------------ */
+/* Pure helpers (module level -> not re-created on every render)       */
+/* ------------------------------------------------------------------ */
+
+const aboutGetText = (item) => {
+  if (!item) return "";
+  if (typeof item === "string") return item;
+  if (typeof item === "number") return String(item);
+  if (typeof item === "object") {
+    return (
+      item.description ||
+      item.text ||
+      item.name ||
+      item.title ||
+      item.label ||
+      item.value ||
+      ""
+    );
+  }
+  return "";
+};
+
+// string[] with empty values removed -> `hasMore` and section counts are always accurate
+const aboutClean = (items) =>
+  Array.isArray(items) ? items.map(aboutGetText).filter(Boolean) : [];
+
+const aboutNormalizeExperience = (item) => {
+  if (!item) return null;
+  if (typeof item !== "object") {
+    const description = aboutGetText(item);
+    return description ? { description } : null;
+  }
+  const entry = {
+    title: item.role || item.title || item.position || "",
+    organization:
+      item.organization || item.organisation || item.hospital || item.company || "",
+    period: item.period || item.duration || item.year || item.years || "",
+    description: item.description || item.details || "",
+  };
+  return entry.title || entry.organization || entry.period || entry.description
+    ? entry
+    : null;
+};
+
+/* ------------------------------------------------------------------ */
+/* Small presentational pieces                                         */
+/* ------------------------------------------------------------------ */
+
+function AboutGroup({ icon: Icon, title, count = 0, children }) {
+  return (
+    <section className="mt-7 first:mt-0">
+      <header className="mb-3.5 flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#EDF7FA] to-[#FFF6DF] text-[#0E526B] ring-1 ring-inset ring-[#E3EEF2]">
+          <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+        </span>
+
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0E526B]">
+          {title}
+        </h3>
+
+        {count > 1 && (
+          <span className="ml-auto rounded-full bg-[#F1F6F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#71858E]">
+            {count}
+          </span>
+        )}
+      </header>
+
+      {children}
+    </section>
+  );
+}
+
+// Long lists stay short by default — the rest opens with a native <details>
+function AboutMoreWrap({ count, children }) {
+  return (
+    <details className="group/more mt-3">
+      <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-[#E3EEF2] bg-white px-3.5 py-1.5 text-[11px] font-bold text-[#0E526B] transition-colors hover:border-[#C8952E]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E526B]/30 [&::-webkit-details-marker]:hidden">
+        <span className="group-open/more:hidden">Show {count} more</span>
+        <span className="hidden group-open/more:inline">Show less</span>
+        <ChevronDown
+          className="h-3.5 w-3.5 transition-transform duration-300 group-open/more:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
+
+      <div className="mt-3">{children}</div>
+    </details>
+  );
+}
+
+function AboutTagItems({ items }) {
+  return (
+    <ul className="grid gap-2 sm:grid-cols-2">
+      {items.map((text, i) => (
+        <li
+          key={i}
+          className="flex items-start gap-2.5 rounded-xl border border-[#E3EEF2] bg-[#F8FBFD] px-3.5 py-2.5 transition-colors hover:border-[#C8952E]/40 hover:bg-white"
+        >
+          <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#C8952E]/15">
+            <Check className="h-2.5 w-2.5 text-[#B8821F]" strokeWidth={3.5} aria-hidden="true" />
+          </span>
+          <span className="min-w-0 break-words text-[13px] leading-5 text-[#3F5A66]">
+            {text}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function AboutTagList({ items, limit = 8 }) {
+  const first = items.slice(0, limit);
+  const rest = items.slice(limit);
+
+  return (
+    <>
+      <AboutTagItems items={first} />
+      {rest.length > 0 && (
+        <AboutMoreWrap count={rest.length}>
+          <AboutTagItems items={rest} />
+        </AboutMoreWrap>
+      )}
+    </>
+  );
+}
+
+function AboutPublicationItems({ items, start = 0 }) {
+  return (
+    <ol className="space-y-2.5">
+      {items.map((text, i) => (
+        <li
+          key={i}
+          className="flex gap-3 rounded-xl border border-[#E3EEF2] bg-white p-3.5 sm:p-4"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#EDF7FA] to-[#FFF6DF] font-serif text-sm text-[#0E526B]">
+            {start + i + 1}
+          </span>
+          <p className="min-w-0 break-words text-[13px] leading-6 text-[#3F5A66]">
+            {text}
+          </p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* About                                                               */
+/* ------------------------------------------------------------------ */
+
+function About({
+  about = [],
+  highlights = [],
+
+  experienceDetails = [],
+  training = [],
+  research = [],
+  researchDetails = [],
+  publications = [],
+
+  tagline = "",
+  expertiseCategories = [],
+  conditions = [],
+  clinicalProcedures = [],
+  diagnosticServices = [],
+  clinicalInterests = [],
+  whyChoose = [],
+  professionalApproach = "",
+  professionalMemberships = [],
+  certifications = [],
+  specializedInterventions = [],
+  areasOfSpecialInterest = [],
+
+  faqs = [],
+}) {
+  const paragraphs = aboutClean(Array.isArray(about) ? about : about ? [about] : []);
+
+  // Clean everything once, up-front
+  const expertise = aboutClean(expertiseCategories);
+  const experience = (Array.isArray(experienceDetails) ? experienceDetails : [])
+    .map(aboutNormalizeExperience)
+    .filter(Boolean);
+  const conditionsL = aboutClean(conditions);
+  const proceduresL = aboutClean(clinicalProcedures);
+  const diagnosticL = aboutClean(diagnosticServices);
+  const interestsL = aboutClean(clinicalInterests);
+  const interventionsL = aboutClean(specializedInterventions);
+  const specialAreasL = aboutClean(areasOfSpecialInterest);
+  const whyL = aboutClean(whyChoose);
+  const trainingL = aboutClean(training);
+  const certsL = aboutClean(certifications);
+  const membershipsL = aboutClean(professionalMemberships);
+  const researchL = aboutClean(research);
+  const researchDetailsL = aboutClean(researchDetails);
+  const publicationsL = aboutClean(publications);
+  const faqL = (Array.isArray(faqs) ? faqs : []).filter((f) => f?.question);
+  const stats = Array.isArray(highlights) ? highlights : [];
+
+  const hasMore =
+    Boolean(tagline) ||
+    Boolean(professionalApproach) ||
+    [
+      experience,
+      conditionsL,
+      proceduresL,
+      diagnosticL,
+      interestsL,
+      interventionsL,
+      specialAreasL,
+      whyL,
+      trainingL,
+      certsL,
+      membershipsL,
+      researchL,
+      researchDetailsL,
+      publicationsL,
+      faqL,
+    ].some((list) => list.length > 0);
+
+  // Small teaser under "View full profile"
+  const teaser = [
+    experience.length && "Experience",
+    (conditionsL.length || proceduresL.length) && "Treatments",
+    trainingL.length && "Training",
+    (researchL.length || publicationsL.length) && "Research",
+    faqL.length && "FAQs",
+  ]
+    .filter(Boolean)
+    .slice(0, 4)
+    .join(" · ");
+
+  const statsGrid =
+    stats.length >= 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3";
+
   return (
     <Card>
-      <Quote className="pointer-events-none absolute right-6 top-6 h-16 w-16 text-[#C8952E]/15" />
+      {/* opacity + transform only -> no layout work when the profile opens */}
+      <style>{`
+        @keyframes about-in { from { opacity: 0; transform: translate3d(0, 8px, 0) } to { opacity: 1; transform: none } }
+        .about-in { animation: about-in .35s cubic-bezier(.22,1,.36,1) both; }
+        @media (prefers-reduced-motion: reduce) { .about-in { animation: none } }
+      `}</style>
+
+      <Quote
+        className="pointer-events-none absolute right-4 top-4 h-10 w-10 text-[#C8952E]/15 sm:right-6 sm:top-6 sm:h-16 sm:w-16"
+        aria-hidden="true"
+      />
+
       <SectionTitle eyebrow="About" title="Getting to know" accent="the specialist" />
 
-      <div className="relative space-y-4">
-        {about.map((p, i) => (
-          <p key={i} className="text-[15px] leading-8 text-[#3F5A66]">
-            {p}
-          </p>
-        ))}
-      </div>
+      {/* ---------- Main About ---------- */}
+      {paragraphs.length > 0 && (
+        <div className="space-y-4">
+          {paragraphs.map((p, i) => (
+            <p
+              key={i}
+              className={
+                i === 0
+                  ? "break-words text-[15px] leading-7 text-[#274A59] first-letter:float-left first-letter:mr-2.5 first-letter:pt-1 first-letter:font-serif first-letter:text-[48px] first-letter:leading-[0.82] first-letter:text-[#C8952E] sm:text-base sm:leading-8"
+                  : "break-words text-[14.5px] leading-7 text-[#3F5A66] sm:text-[15px] sm:leading-8"
+              }
+            >
+              {p}
+            </p>
+          ))}
+        </div>
+      )}
 
-      {highlights.length > 0 && (
-        <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-dashed border-[#DCEAF0] pt-6">
-          {highlights.map((h) => (
+      {/* ---------- Expertise chips ---------- */}
+      {expertise.length > 0 && (
+        <ul className="mt-6 flex flex-wrap gap-2" aria-label="Areas of expertise">
+          {expertise.map((text, i) => (
+            <li
+              key={i}
+              className="rounded-full border border-[#C8952E]/25 bg-gradient-to-r from-[#FFF9EC] to-white px-3.5 py-1.5 text-[12px] font-semibold text-[#7A5A12]"
+            >
+              {text}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* ---------- Highlights (above the fold, never pushed away) ---------- */}
+      {stats.length > 0 && (
+        <div className={`mt-7 grid gap-2.5 sm:gap-3 ${statsGrid}`}>
+          {stats.map((h) => (
             <div
               key={h.label}
-              className="group rounded-2xl bg-gradient-to-br from-[#F4FAFC] to-[#FFF9EC] p-4"
+              className="group relative min-w-0 overflow-hidden rounded-2xl bg-gradient-to-br from-[#F4FAFC] via-white to-[#FFF6DF] p-3.5 ring-1 ring-inset ring-[#E3EEF2] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-16px_rgba(14,82,107,.4)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-4"
             >
-              <p className="font-serif text-[28px] leading-none text-[#0E526B]">
+              <p className="bg-gradient-to-br from-[#0E526B] to-[#1D82A6] bg-clip-text font-serif text-[26px] leading-none text-transparent sm:text-[32px]">
                 {h.value}
               </p>
-              <p className="mt-2 text-[10px] font-semibold uppercase leading-4 tracking-wider text-[#71858E]">
+
+              <p className="mt-2.5 text-[9px] font-semibold uppercase leading-4 tracking-wider text-[#71858E] sm:text-[10px]">
                 {h.label}
               </p>
-              <span className="mt-3 block h-1 w-8 bg-[#C8952E] transition-all duration-500 group-hover:w-full" />
+
+              <span className="mt-3 block h-[3px] w-8 rounded-full bg-gradient-to-r from-[#F2C766] to-[#C8952E] transition-all duration-500 group-hover:w-full" />
             </div>
           ))}
         </div>
       )}
+
+      {/* ---------- Full profile ---------- */}
+      {hasMore && (
+        <details className="group/profile mt-7 rounded-2xl border border-[#E3EEF2] bg-gradient-to-b from-[#F8FBFD] to-white transition-shadow duration-300 open:shadow-[0_24px_50px_-30px_rgba(14,82,107,.35)]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E526B]/30 sm:px-5 [&::-webkit-details-marker]:hidden">
+            <span className="min-w-0">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0E526B]">
+                View full profile
+              </span>
+              {teaser && (
+                <span className="mt-1 block truncate text-[12px] text-[#71858E]">
+                  {teaser}
+                </span>
+              )}
+            </span>
+
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EDF7FA] text-[#0E526B] transition-colors duration-300 group-open/profile:bg-[#C8952E] group-open/profile:text-white">
+              <ChevronDown
+                className="h-4 w-4 transition-transform duration-300 group-open/profile:rotate-180"
+                aria-hidden="true"
+              />
+            </span>
+          </summary>
+
+          <div className="about-in border-t border-[#E3EEF2] px-4 pb-6 pt-6 sm:px-5">
+            {/* Tagline */}
+            {tagline && (
+              <AboutGroup icon={Sparkles} title="Professional Overview">
+                <p className="rounded-2xl border-l-4 border-[#C8952E] bg-gradient-to-r from-[#FFF9EC] to-transparent px-4 py-3.5 font-serif text-[16px] italic leading-7 text-[#274A59]">
+                  {tagline}
+                </p>
+              </AboutGroup>
+            )}
+
+            {/* Experience timeline */}
+            {experience.length > 0 && (
+              <AboutGroup icon={BriefcaseBusiness} title="Professional Experience" count={experience.length}>
+                <ol className="relative space-y-3 pl-5 before:absolute before:bottom-3 before:left-[5px] before:top-3 before:w-px before:bg-gradient-to-b before:from-[#C8952E]/60 before:to-[#DCEAF0]">
+                  {experience.map((item, i) => (
+                    <li key={i} className="relative">
+                      <span className="absolute -left-5 top-5 h-[10px] w-[10px] rounded-full bg-[#C8952E] ring-4 ring-white" />
+
+                      <div className="rounded-xl border border-[#E3EEF2] bg-white p-4">
+                        {(item.title || item.organization || item.period) && (
+                          <div className="mb-2">
+                            {item.title && (
+                              <p className="text-[14px] font-semibold text-[#0E526B]">{item.title}</p>
+                            )}
+                            {item.organization && (
+                              <p className="mt-0.5 text-[13px] text-[#3F5A66]">{item.organization}</p>
+                            )}
+                            {item.period && (
+                              <p className="mt-1.5 inline-block rounded-full bg-[#FFF6DF] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#9A7A32]">
+                                {item.period}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        {item.description && (
+                          <p className="break-words text-[13px] leading-6 text-[#3F5A66]">{item.description}</p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </AboutGroup>
+            )}
+
+            {conditionsL.length > 0 && (
+              <AboutGroup icon={HeartPulse} title="Conditions Treated" count={conditionsL.length}>
+                <AboutTagList items={conditionsL} />
+              </AboutGroup>
+            )}
+
+            {proceduresL.length > 0 && (
+              <AboutGroup icon={Activity} title="Clinical Procedures" count={proceduresL.length}>
+                <AboutTagList items={proceduresL} />
+              </AboutGroup>
+            )}
+
+            {diagnosticL.length > 0 && (
+              <AboutGroup icon={ScanSearch} title="Diagnostic Services" count={diagnosticL.length}>
+                <AboutTagList items={diagnosticL} />
+              </AboutGroup>
+            )}
+
+            {interestsL.length > 0 && (
+              <AboutGroup icon={Target} title="Clinical Interests" count={interestsL.length}>
+                <AboutTagList items={interestsL} />
+              </AboutGroup>
+            )}
+
+            {interventionsL.length > 0 && (
+              <AboutGroup icon={Syringe} title="Specialized Interventions" count={interventionsL.length}>
+                <AboutTagList items={interventionsL} />
+              </AboutGroup>
+            )}
+
+            {specialAreasL.length > 0 && (
+              <AboutGroup icon={Focus} title="Areas of Special Interest" count={specialAreasL.length}>
+                <AboutTagList items={specialAreasL} />
+              </AboutGroup>
+            )}
+
+            {/* Why choose */}
+            {whyL.length > 0 && (
+              <AboutGroup icon={BadgeCheck} title="Why Choose This Specialist">
+                <ul className="space-y-2.5">
+                  {whyL.map((text, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-3 rounded-xl bg-gradient-to-r from-[#F4FAFC] to-[#FFF9EC] px-4 py-3 ring-1 ring-inset ring-[#E3EEF2]"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#F2C766] to-[#C8952E] text-white">
+                        <Check className="h-3 w-3" strokeWidth={3.5} aria-hidden="true" />
+                      </span>
+                      <p className="text-[13px] leading-6 text-[#3F5A66]">{text}</p>
+                    </li>
+                  ))}
+                </ul>
+              </AboutGroup>
+            )}
+
+            {/* Approach */}
+            {professionalApproach && (
+              <AboutGroup icon={HeartHandshake} title="Professional Approach">
+                <p className="break-words rounded-2xl border border-[#E3EEF2] bg-[#F8FBFD] px-4 py-3.5 text-[13px] leading-6 text-[#3F5A66]">
+                  {professionalApproach}
+                </p>
+              </AboutGroup>
+            )}
+
+            {/* Training timeline */}
+            {trainingL.length > 0 && (
+              <AboutGroup icon={GraduationCap} title="Specialized Training" count={trainingL.length}>
+                <ol className="relative space-y-2.5 pl-5 before:absolute before:bottom-3 before:left-[5px] before:top-3 before:w-px before:bg-gradient-to-b before:from-[#C8952E]/60 before:to-[#DCEAF0]">
+                  {trainingL.map((text, i) => (
+                    <li key={i} className="relative">
+                      <span className="absolute -left-5 top-4 h-[10px] w-[10px] rotate-45 bg-[#C8952E] ring-4 ring-white" />
+                      <p className="break-words rounded-xl border border-[#E3EEF2] bg-[#F8FBFD] px-3.5 py-2.5 text-[13px] leading-5 text-[#3F5A66]">
+                        {text}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </AboutGroup>
+            )}
+
+            {certsL.length > 0 && (
+              <AboutGroup icon={BadgeCheck} title="Certifications" count={certsL.length}>
+                <AboutTagList items={certsL} />
+              </AboutGroup>
+            )}
+
+            {membershipsL.length > 0 && (
+              <AboutGroup icon={Users} title="Professional Memberships" count={membershipsL.length}>
+                <AboutTagList items={membershipsL} />
+              </AboutGroup>
+            )}
+
+            {researchL.length > 0 && (
+              <AboutGroup icon={Sparkles} title="Research & Academic Work" count={researchL.length}>
+                <ul className="space-y-2">
+                  {researchL.map((text, i) => (
+                    <li
+                      key={i}
+                      className="break-words rounded-xl bg-gradient-to-r from-[#F4FAFC] to-[#FFF9EC] px-4 py-3 text-[13px] leading-6 text-[#3F5A66] ring-1 ring-inset ring-[#E3EEF2]"
+                    >
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </AboutGroup>
+            )}
+
+            {researchDetailsL.length > 0 && (
+              <AboutGroup icon={Microscope} title="Research Details" count={researchDetailsL.length}>
+                <AboutTagList items={researchDetailsL} />
+              </AboutGroup>
+            )}
+
+            {publicationsL.length > 0 && (
+              <AboutGroup icon={BookOpen} title="Research & Publications" count={publicationsL.length}>
+                <AboutPublicationItems items={publicationsL.slice(0, 4)} />
+                {publicationsL.length > 4 && (
+                  <AboutMoreWrap count={publicationsL.length - 4}>
+                    <AboutPublicationItems items={publicationsL.slice(4)} start={4} />
+                  </AboutMoreWrap>
+                )}
+              </AboutGroup>
+            )}
+
+            {/* FAQs — named group so each chevron reacts only to ITS own <details> */}
+            {faqL.length > 0 && (
+              <AboutGroup icon={MessageCircle} title="Frequently Asked Questions" count={faqL.length}>
+                <div className="space-y-2.5">
+                  {faqL.map((faq, i) => (
+                    <details
+                      key={i}
+                      className="group/faq rounded-xl border border-[#E3EEF2] bg-white transition-colors open:border-[#C8952E]/30 open:bg-[#F8FBFD]"
+                    >
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E526B]/30 [&::-webkit-details-marker]:hidden">
+                      {/* dono questions ek column mein */}
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-semibold leading-5 text-[#0E526B]">
+                          {faq.question}
+                        </span>
+
+                        {faq.questionHindi && (
+                          <span className="mt-1 block text-[12.5px] font-medium leading-5 text-[#0E526B]/70">
+                            {faq.questionHindi}
+                          </span>
+                        )}
+                      </span>
+
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#EDF7FA] transition-colors duration-300 group-open/faq:bg-[#C8952E] group-open/faq:text-white">
+                        <ChevronDown
+                          className="h-4 w-4 transition-transform duration-300 group-open/faq:rotate-180"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </summary>
+
+                      {faq.answer && (
+                        <div className="border-t border-[#E3EEF2] px-4 pb-4 pt-3">
+                          <p className="text-[13px] leading-6 text-[#3F5A66]">{faq.answer}</p>
+                          <p className="text-[13px] leading-6 text-[#3F5A66]">{faq.answerHindi}</p>
+                          
+                        </div>
+                      )}
+                    </details>
+                  ))}
+                </div>
+              </AboutGroup>
+            )}
+          </div>
+        </details>
+      )}
     </Card>
   );
 }
+
 
 function Expertise({ items }) {
   return (
@@ -873,19 +1415,6 @@ export default async function DoctorProfilePage({ params }) {
     ? doctor.highlights.slice(0, 3)
     : [];
 
-  // const sameSpeciality = rawDoctors.filter(
-  //   (d) =>
-  //     d.slug !== doctor.slug &&
-  //     (d.specialitySlug
-  //       ? d.specialitySlug === doctor.specialitySlug
-  //       : d.speciality === doctor.speciality)
-  // );
-  // const related = (
-  //   sameSpeciality.length
-  //     ? sameSpeciality
-  //     : rawDoctors.filter((d) => d.slug !== doctor.slug)
-  // ).slice(0, 3);
-
   const specialtyKeywords = {
   oncology: ["onco", "cancer"],
   cardiology: ["cardi", "heart"],
@@ -953,7 +1482,47 @@ const related = rawDoctors
       <section className="px-6 py-10 lg:px-10">
         <div className="mx-auto grid max-w-7xl items-start gap-6 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
-            <About about={about} highlights={highlights} />
+            {/* <About about={about} highlights={highlights} />
+             */}
+             {/* <About
+  about={about}
+  highlights={highlights}
+  training={doctor.training}
+  research={doctor.research}
+  publications={doctor.publications}
+/> */}
+
+
+<About
+  about={about}
+  highlights={highlights}
+
+  experience={doctor.experience}
+  experienceDetails={doctor.experienceDetails}
+
+  training={doctor.training}
+  certifications={doctor.certifications}
+
+  research={doctor.research}
+  researchDetails={doctor.researchDetails}
+  publications={doctor.publications}
+
+  tagline={doctor.tagline}
+  expertiseCategories={doctor.expertiseCategories}
+  conditions={doctor.conditions}
+  clinicalProcedures={doctor.clinicalProcedures}
+  diagnosticServices={doctor.diagnosticServices}
+  clinicalInterests={doctor.clinicalInterests}
+  specializedInterventions={doctor.specializedInterventions}
+  areasOfSpecialInterest={doctor.areasOfSpecialInterest}
+
+  whyChoose={doctor.whyChoose}
+  professionalApproach={doctor.professionalApproach}
+  professionalMemberships={doctor.professionalMemberships}
+
+  faqs={doctor.faqs}
+/>
+
 
             {(expertise.length > 0 || education.length > 0) && (
               <div className={`grid gap-6 ${twoCols ? "md:grid-cols-2" : ""}`}>

@@ -42,7 +42,7 @@ export default function MobileBookingBar({ phone, bookHref }) {
         )}
 
         <Link
-          href={bookHref}
+          href="/patientcare/appointment"
           className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0E526B] to-[#137A9A] text-sm font-bold text-white shadow-lg"
         >
           Book Appointment

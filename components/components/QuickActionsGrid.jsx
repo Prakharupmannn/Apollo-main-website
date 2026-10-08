@@ -19,7 +19,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
       title: "Book Appointment",
       desc: "Schedule your visit today with top specialists",
       icon: Calendar,
-      href: "/contact",
+      href: "/patientcare/appointment",
       badge: "Fast Track",
     },
     {

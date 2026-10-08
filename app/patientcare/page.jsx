@@ -25,7 +25,6 @@ import {
   ClipboardList,
   Award,
 } from "lucide-react";
-import AppointmentModal from "../../components/components/AppointmentModal";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -42,8 +41,6 @@ const goldGradient = {
 };
 
 export default function PatientCarePage() {
-  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
-
   const patientServices = [
     {
       title: "Our Specialities",
@@ -154,12 +151,22 @@ export default function PatientCarePage() {
           animation: pcFloat1 19s ease-in-out infinite;
         }
         @keyframes pcFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes pcFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
 
         /* Refreshed hero: soft rounded panel instead of the busy polygon clip-path */
@@ -172,30 +179,56 @@ export default function PatientCarePage() {
           position: relative;
           padding: 1.5px;
           border-radius: 2.25rem;
-          background: linear-gradient(135deg, #7a5215 0%, #f6d98a 30%, #c8952e 55%, #f6d98a 80%, #7a5215 100%);
-          box-shadow: 0 30px 70px rgba(10,95,122,0.35), 0 0 0 1px rgba(246,217,138,0.15);
+          background: linear-gradient(
+            135deg,
+            #7a5215 0%,
+            #f6d98a 30%,
+            #c8952e 55%,
+            #f6d98a 80%,
+            #7a5215 100%
+          );
+          box-shadow:
+            0 30px 70px rgba(10, 95, 122, 0.35),
+            0 0 0 1px rgba(246, 217, 138, 0.15);
         }
-        .pc-gold-inner { position: relative; z-index: 1; }
+        .pc-gold-inner {
+          position: relative;
+          z-index: 1;
+        }
 
         /* Gentle glow pulse behind the hero side-panel icon */
         .pc-icon-glow {
           animation: pcIconGlow 3.5s ease-in-out infinite;
         }
         @keyframes pcIconGlow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(246,217,138,0.35); }
-          50% { box-shadow: 0 0 0 14px rgba(246,217,138,0); }
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(246, 217, 138, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 14px rgba(246, 217, 138, 0);
+          }
         }
 
         /* Shimmer sweep for CTA buttons */
         @keyframes pcShimmerSweep {
-          0% { transform: translateX(-120%) skewX(-12deg); }
-          100% { transform: translateX(220%) skewX(-12deg); }
+          0% {
+            transform: translateX(-120%) skewX(-12deg);
+          }
+          100% {
+            transform: translateX(220%) skewX(-12deg);
+          }
         }
         .pc-shimmer::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+          background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.35),
+            transparent
+          );
           transform: translateX(-120%) skewX(-12deg);
         }
         .pc-shimmer:hover::after {
@@ -213,8 +246,10 @@ export default function PatientCarePage() {
           style={{
             backgroundImage: "radial-gradient(#1D82A6 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
+            maskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 80% 55% at 50% 25%, black 15%, transparent 80%)",
           }}
         />
       </div>
@@ -244,7 +279,9 @@ export default function PatientCarePage() {
                     className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-[#FEF3C7] text-xs font-bold shadow-inner"
                   >
                     <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
-                    <span>Patient-Centred Healthcare • Apollo Hospitals Jabalpur</span>
+                    <span>
+                      Patient-Centred Healthcare • Apollo Hospitals Jabalpur
+                    </span>
                   </motion.div>
 
                   <motion.h1
@@ -257,7 +294,8 @@ export default function PatientCarePage() {
                     <span
                       className="bg-clip-text text-transparent block sm:inline"
                       style={{
-                        backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #C8952E 100%)",
+                        backgroundImage:
+                          "linear-gradient(90deg, #F6D98A 0%, #FFFFFF 50%, #C8952E 100%)",
                       }}
                     >
                       Patient Care Portal
@@ -270,7 +308,10 @@ export default function PatientCarePage() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="text-slate-100/90 text-sm sm:text-base leading-relaxed max-w-xl"
                   >
-                    Dedicated to making your hospital experience seamless, transparent, and compassionate. Access appointment bookings, ambulance services, clinical case studies, and health camps easily.
+                    Dedicated to making your hospital experience seamless,
+                    transparent, and compassionate. Access appointment bookings,
+                    ambulance services, clinical case studies, and health camps
+                    easily.
                   </motion.p>
 
                   <motion.div
@@ -279,16 +320,17 @@ export default function PatientCarePage() {
                     transition={{ duration: 0.6, delay: 0.3 }}
                     className="flex flex-wrap items-center gap-4 pt-2"
                   >
-                    <motion.button
-                      whileHover={{ scale: 1.04, y: -2 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setIsAppointmentModalOpen(true)}
-                      className="pc-shimmer relative overflow-hidden px-8 py-4 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_10px_30px_rgba(200,149,46,0.45)] hover:shadow-xl transition-all cursor-pointer flex items-center gap-2"
-                      style={goldGradient}
-                    >
-                      <CalendarPlus className="w-4 h-4" />
-                      <span>Book Appointment</span>
-                    </motion.button>
+                    <Link href="/patientcare/appointment">
+                      <motion.div
+                        whileHover={{ scale: 1.04, y: -2 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="pc-shimmer relative overflow-hidden px-8 py-4 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_10px_30px_rgba(200,149,46,0.45)] hover:shadow-xl transition-all cursor-pointer flex items-center gap-2"
+                        style={goldGradient}
+                      >
+                        <CalendarPlus className="w-4 h-4" />
+                        <span>Book Appointment</span>
+                      </motion.div>
+                    </Link>
 
                     <motion.a
                       whileHover={{ scale: 1.04, y: -2 }}
@@ -336,7 +378,12 @@ export default function PatientCarePage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.92, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.25, type: "spring", stiffness: 120 }}
+                    transition={{
+                      duration: 0.7,
+                      delay: 0.25,
+                      type: "spring",
+                      stiffness: 120,
+                    }}
                     className="relative w-full max-w-sm rounded-[1.75rem] bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.25)] px-7 py-8 sm:px-8 sm:py-9"
                   >
                     <div className="flex flex-col items-center text-center">
@@ -358,7 +405,10 @@ export default function PatientCarePage() {
                       {heroStats.map((stat, i) => {
                         const SIcon = stat.icon;
                         return (
-                          <div key={i} className="flex flex-col items-center text-center gap-1">
+                          <div
+                            key={i}
+                            className="flex flex-col items-center text-center gap-1"
+                          >
                             <SIcon className="w-4 h-4 text-[#F6D98A]" />
                             <span className="text-sm sm:text-base font-black text-white leading-none  animate-bounce">
                               {stat.value}
@@ -385,7 +435,10 @@ export default function PatientCarePage() {
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16"
         >
-          <motion.div variants={fadeUp} className="text-center max-w-2xl mx-auto mb-10">
+          <motion.div
+            variants={fadeUp}
+            className="text-center max-w-2xl mx-auto mb-10"
+          >
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-[#0E526B] text-xs font-extrabold border border-[#1D82A6]/30 shadow-sm mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
               Explore Patient Care Services
@@ -414,7 +467,9 @@ export default function PatientCarePage() {
                   <div className="relative h-full rounded-[calc(1.75rem-1.5px)] bg-white p-6 flex flex-col justify-between z-10">
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${service.color} text-white flex items-center justify-center shadow-md group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300`}>
+                        <div
+                          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${service.color} text-white flex items-center justify-center shadow-md group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300`}
+                        >
                           <Icon className="w-6 h-6" />
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/20">
@@ -484,8 +539,12 @@ export default function PatientCarePage() {
                         <AIcon className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-extrabold text-[#0B3446] mb-1">{item.title}</h4>
-                        <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
+                        <h4 className="text-sm font-extrabold text-[#0B3446] mb-1">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          {item.desc}
+                        </p>
                       </div>
                     </motion.div>
                   );
@@ -511,32 +570,30 @@ export default function PatientCarePage() {
                 </div>
                 <div>
                   <h4 className="text-base font-extrabold text-[#0B3446]">
-                    Apollo JBP Hospitals • Global Square, Patan Rd, Karmeta, Jabalpur
+                    Apollo JBP Hospitals • Global Square, Patan Rd, Karmeta,
+                    Jabalpur
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    24/7 Patient Helpdesk: 1800-123-6666 / 7566 123666 • WhatsApp: +91 9575308686
+                    24/7 Patient Helpdesk: 1800-123-6666 / 7566 123666 •
+                    WhatsApp: +91 9575308686
                   </p>
                 </div>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setIsAppointmentModalOpen(true)}
-                className="pc-shimmer relative overflow-hidden px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
-                style={goldGradient}
-              >
-                Book Appointment Online
-              </motion.button>
+              <Link href="/patientcare/appointment">
+                <motion.div
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="pc-shimmer relative overflow-hidden px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
+                  style={goldGradient}
+                >
+                  Book Appointment Online
+                </motion.div>
+              </Link>
             </div>
           </div>
         </motion.section>
       </div>
-
-      <AppointmentModal
-        isOpen={isAppointmentModalOpen}
-        onClose={() => setIsAppointmentModalOpen(false)}
-      />
     </main>
   );
 }

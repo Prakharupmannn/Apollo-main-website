@@ -795,10 +795,10 @@ export default function JobDetailPage() {
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-[#C8952E]" />
                   <a
-                    href="mailto:jabalpur_careers@apollohospitals.com"
+                    href="mailto:Connect@apollojbphospitals.com"
                     className="hover:underline"
                   >
-                    jabalpur_careers@apollohospitals.com
+                    Connect@apollojbphospitals.com
                   </a>
                 </div>
                 <div className="flex items-center gap-2">

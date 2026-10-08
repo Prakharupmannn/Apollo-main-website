@@ -1,6 +1,8 @@
 "use client";
 
+
 import { useState } from "react";
+import Link from "next/link";
 import {
   ShieldAlert,
   Heart,
@@ -21,153 +23,153 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const centres = [
-  {
-    id: 1,
-    title: "Gastroenterology",
-    subtitle: "Digestive Health Excellence",
-    desc: "Looking for the best gastroenterologist in Jabalpur near me? Visit Apollo JBP Hospitals, the trusted gastro hospital in Jabalpur, for expert digestive and gastrointestinal care.",
-    icon: Activity,
-    badge: "Advanced GI Care",
-    stat: "24/7",
-    statLabel: "Specialist Support",
-    accentColor: "from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]",
-    slug: "gastro-hospital-in-jabalpur",
-    services: [
-      "Endoscopy & Colonoscopy",
-      "Liver & Pancreas Care",
-      "ERCP Procedures",
-      "Acid Reflux & GERD",
-      "IBD & IBS Management",
-      "Fatty Liver & Hepatitis Care",
-    ],
-  },
+    {
+      id: 1,
+      title: "Gastroenterology",
+      subtitle: "Digestive Health Excellence",
+      desc: "Looking for the best gastroenterologist in Jabalpur near me? Visit Apollo JBP Hospitals, the trusted gastro hospital in Jabalpur, for expert digestive and gastrointestinal care.",
+      icon: Activity,
+      badge: "Advanced GI Care",
+      stat: "24/7",
+      statLabel: "Specialist Support",
+      accentColor: "from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]",
+      slug: "gastro-hospital-in-jabalpur",
+      services: [
+        "Endoscopy & Colonoscopy",
+        "Liver & Pancreas Care",
+        "ERCP Procedures",
+        "Acid Reflux & GERD",
+        "IBD & IBS Management",
+        "Fatty Liver & Hepatitis Care",
+      ],
+    },
 
-  {
-    id: 2,
-    title: "Critical Care",
-    subtitle: "Advanced Intensive Care",
-    desc: "Apollo JBP Hospital offers top critical care in Jabalpur with a state-of-the-art CCU, expert intensivists, and 24/7 emergency care.",
-    icon: ShieldAlert,
-    badge: "24/7 Critical Care",
-    stat: "24/7",
-    statLabel: "Emergency Care",
-    accentColor: "from-[#0E526B] via-[#1D82A6] to-[#0B3446]",
-    slug: "critical-care-hospital-in-jabalpur",
-    services: [
-      "Advanced CCU & ICU",
-      "Ventilator & Life Support",
-      "Sepsis & Shock Management",
-      "24/7 Intensivist Cover",
-      "Trauma Stabilisation",
-      "Post-Operative Critical Care",
-    ],
-  },
+    {
+      id: 2,
+      title: "Critical Care",
+      subtitle: "Advanced Intensive Care",
+      desc: "Apollo JBP Hospital offers top critical care in Jabalpur with a state-of-the-art CCU, expert intensivists, and 24/7 emergency care.",
+      icon: ShieldAlert,
+      badge: "24/7 Critical Care",
+      stat: "24/7",
+      statLabel: "Emergency Care",
+      accentColor: "from-[#0E526B] via-[#1D82A6] to-[#0B3446]",
+      slug: "critical-care-hospital-in-jabalpur",
+      services: [
+        "Advanced CCU & ICU",
+        "Ventilator & Life Support",
+        "Sepsis & Shock Management",
+        "24/7 Intensivist Cover",
+        "Trauma Stabilisation",
+        "Post-Operative Critical Care",
+      ],
+    },
 
-  {
-    id: 3,
-    title: "Orthopaedic",
-    subtitle: "Joint & Musculoskeletal",
-    desc: "Looking for an Orthopaedic Surgeon in Jabalpur near me? Visit Apollo JBP Hospitals to consult trusted Joint Pain Doctors in Jabalpur for advanced orthopaedic care.",
-    icon: Activity,
-    badge: "Robotic Joint Hub",
-    stat: "99.1%",
-    statLabel: "Patient Mobility Success",
-    accentColor: "from-[#1D82A6] via-[#0A5F7A] to-[#0E526B]",
-    slug: "orthopaedic-hospital-in-jabalpur",
-    services: [
-      "Knee & Hip Replacement",
-      "Robotic-Assisted Surgery",
-      "Arthroscopy & Sports Injury",
-      "Fracture & Trauma Care",
-      "Spine & Back Pain Care",
-      "Physiotherapy & Rehab",
-    ],
-  },
+    {
+      id: 3,
+      title: "Orthopaedic",
+      subtitle: "Joint & Musculoskeletal",
+      desc: "Looking for an Orthopaedic Surgeon in Jabalpur near me? Visit Apollo JBP Hospitals to consult trusted Joint Pain Doctors in Jabalpur for advanced orthopaedic care.",
+      icon: Activity,
+      badge: "Robotic Joint Hub",
+      stat: "99.1%",
+      statLabel: "Patient Mobility Success",
+      accentColor: "from-[#1D82A6] via-[#0A5F7A] to-[#0E526B]",
+      slug: "orthopaedic-hospital-in-jabalpur",
+      services: [
+        "Knee & Hip Replacement",
+        "Robotic-Assisted Surgery",
+        "Arthroscopy & Sports Injury",
+        "Fracture & Trauma Care",
+        "Spine & Back Pain Care",
+        "Physiotherapy & Rehab",
+      ],
+    },
 
-  {
-    id: 4,
-    title: "Nephrology",
-    subtitle: "Kidney & Renal Sciences",
-    desc: "At Apollo JBP Hospitals, a trusted Kidney Specialist Hospital in Jabalpur, our expert team provides advanced diagnosis and treatment for kidney and renal conditions.",
-    icon: Activity,
-    badge: "Kidney Care Centre",
-    stat: "24/7",
-    statLabel: "Renal Support",
-    accentColor: "from-[#0A5F7A] via-[#207493] to-[#154052]",
-    slug: "kidney-specialist-hospital-in-jabalpur",
-    services: [
-      "Dialysis Services",
-      "Kidney Stone Management",
-      "Chronic Kidney Disease Care",
-      "Kidney Transplant Support",
-      "Acute Kidney Injury Care",
-      "Diabetic & Hypertensive Kidney Care",
-    ],
-  },
+    {
+      id: 4,
+      title: "Nephrology",
+      subtitle: "Kidney & Renal Sciences",
+      desc: "At Apollo JBP Hospitals, a trusted Kidney Specialist Hospital in Jabalpur, our expert team provides advanced diagnosis and treatment for kidney and renal conditions.",
+      icon: Activity,
+      badge: "Kidney Care Centre",
+      stat: "24/7",
+      statLabel: "Renal Support",
+      accentColor: "from-[#0A5F7A] via-[#207493] to-[#154052]",
+      slug: "kidney-specialist-hospital-in-jabalpur",
+      services: [
+        "Dialysis Services",
+        "Kidney Stone Management",
+        "Chronic Kidney Disease Care",
+        "Kidney Transplant Support",
+        "Acute Kidney Injury Care",
+        "Diabetic & Hypertensive Kidney Care",
+      ],
+    },
 
-  {
-    id: 5,
-    title: "Cardiology",
-    subtitle: "Heart & Vascular Institute",
-    desc: "At Apollo Hospitals, our expert Heart Specialists in Jabalpur provide advanced diagnostics and cutting-edge treatments for comprehensive cardiac care.",
-    icon: Heart,
-    badge: "24/7 STEMI Care",
-    stat: "15K+",
-    statLabel: "Procedures Done",
-    accentColor: "from-[#0E526B] via-[#1D82A6] to-[#0B3446]",
-    slug: "heart-hospital-in-jabalpur",
-    services: [
-      "Angiography & Angioplasty",
-      "Primary PCI for Heart Attack",
-      "Pacemaker & Device Implants",
-      "Echocardiography & TMT",
-      "Heart Failure Clinic",
-      "Preventive Cardiac Checkups",
-    ],
-  },
+    {
+      id: 5,
+      title: "Cardiology",
+      subtitle: "Heart & Vascular Institute",
+      desc: "At Apollo Hospitals, our expert Heart Specialists in Jabalpur provide advanced diagnostics and cutting-edge treatments for comprehensive cardiac care.",
+      icon: Heart,
+      badge: "24/7 STEMI Care",
+      stat: "15K+",
+      statLabel: "Procedures Done",
+      accentColor: "from-[#0E526B] via-[#1D82A6] to-[#0B3446]",
+      slug: "heart-hospital-in-jabalpur",
+      services: [
+        "Angiography & Angioplasty",
+        "Primary PCI for Heart Attack",
+        "Pacemaker & Device Implants",
+        "Echocardiography & TMT",
+        "Heart Failure Clinic",
+        "Preventive Cardiac Checkups",
+      ],
+    },
 
-  {
-    id: 6,
-    title: "Neurology",
-    subtitle: "Brain & Spine Excellence",
-    desc: "Expert neurological care in Mahakoshal, Madhya Pradesh, with specialized diagnosis and treatment for brain, spine, nerve, and neurological conditions.",
-    icon: Brain,
-    badge: "Aneurysm Unit",
-    stat: "<30m",
-    statLabel: "Stroke Door-to-Needle",
-    accentColor: "from-[#1D82A6] via-[#0E526B] to-[#C8952E]",
-    slug: "neurology-hospital-in-jabalpur",
-    services: [
-      "Stroke Management",
-      "Epilepsy & Seizure Care",
-      "Brain Aneurysm Care",
-      "Spine & Nerve Disorders",
-      "EEG, EMG & NCV Studies",
-      "Headache & Movement Disorders",
-    ],
-  },
+    {
+      id: 6,
+      title: "Neurology",
+      subtitle: "Brain & Spine Excellence",
+      desc: "Expert neurological care in Mahakoshal, Madhya Pradesh, with specialized diagnosis and treatment for brain, spine, nerve, and neurological conditions.",
+      icon: Brain,
+      badge: "Aneurysm Unit",
+      stat: "<30m",
+      statLabel: "Stroke Door-to-Needle",
+      accentColor: "from-[#1D82A6] via-[#0E526B] to-[#C8952E]",
+      slug: "neurology-hospital-in-jabalpur",
+      services: [
+        "Stroke Management",
+        "Epilepsy & Seizure Care",
+        "Brain Aneurysm Care",
+        "Spine & Nerve Disorders",
+        "EEG, EMG & NCV Studies",
+        "Headache & Movement Disorders",
+      ],
+    },
 
-  {
-    id: 7,
-    title: "Cancer Care",
-    subtitle: "Comprehensive & Advanced Oncology",
-    desc: "Looking for the best cancer hospital in Jabalpur? Apollo offers expert cancer specialists in Jabalpur with advanced and affordable oncology care.",
-    icon: ShieldAlert,
-    badge: "CyberKnife Hub",
-    stat: "98.4%",
-    statLabel: "Precision Rate",
-    accentColor: "from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]",
-    slug: "cancer-hospital-in-jabalpur",
-    services: [
-      "CyberKnife Radiosurgery",
-      "Chemotherapy & Immunotherapy",
-      "Surgical Oncology",
-      "Radiation Therapy",
-      "Cancer Screening & Diagnosis",
-      "Palliative & Supportive Care",
-    ],
-  },
-];
+    {
+      id: 7,
+      title: "Cancer Care",
+      subtitle: "Comprehensive & Advanced Oncology",
+      desc: "Looking for the best cancer hospital in Jabalpur? Apollo offers expert cancer specialists in Jabalpur with advanced and affordable oncology care.",
+      icon: ShieldAlert,
+      badge: "CyberKnife Hub",
+      stat: "98.4%",
+      statLabel: "Precision Rate",
+      accentColor: "from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]",
+      slug: "cancer-hospital-in-jabalpur",
+      services: [
+        "CyberKnife Radiosurgery",
+        "Chemotherapy & Immunotherapy",
+        "Surgical Oncology",
+        "Radiation Therapy",
+        "Cancer Screening & Diagnosis",
+        "Palliative & Supportive Care",
+      ],
+    },
+  ];
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % centres.length);
@@ -236,8 +238,8 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
             </span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-3 max-w-xl mx-auto font-normal leading-relaxed">
-            Combining cutting-edge medical robotics, global clinical experts, and 
-            uncompromising patient-centered compassionate care.
+            Combining cutting-edge medical robotics, global clinical experts,
+            and uncompromising patient-centered compassionate care.
           </p>
         </div>
 
@@ -285,7 +287,9 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
                     </span>
                     <ChevronRight
                       className={`w-5 h-5 transition-transform ${
-                        isSelected ? "text-[#1D82A6] translate-x-1" : "text-slate-400"
+                        isSelected
+                          ? "text-[#1D82A6] translate-x-1"
+                          : "text-slate-400"
                       }`}
                     />
                   </div>
@@ -391,7 +395,8 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
 
                     <button
                       onClick={() =>
-                        onOpenAppointmentModal && onOpenAppointmentModal(item.title)
+                        onOpenAppointmentModal &&
+                        onOpenAppointmentModal(item.title)
                       }
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-7 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
                       style={{
@@ -455,21 +460,21 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
                   JCI & NABH Accredited Tertiary Facilities
                 </h4>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  Over 50+ super-specialty departments supported by 2,000+ ICU beds nationwide.
+                  Over 50+ super-specialty departments supported by 2,000+ ICU
+                  beds nationwide.
                 </p>
               </div>
             </div>
 
-            <button
-              onClick={() => onOpenAppointmentModal && onOpenAppointmentModal()}
+            <Link
+              href="/patientcare/appointment"
               className="px-6 py-3 rounded-full text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer shrink-0"
               style={{
-                background:
-                  "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
               }}
             >
               Book Priority Consultation
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -521,16 +526,31 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
           animation: coeFloat3 18s ease-in-out infinite;
         }
         @keyframes coeFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes coeFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         @keyframes coeFloat3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -35px) scale(1.05); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(30px, -35px) scale(1.05);
+          }
         }
         .coe-sparkle {
           position: absolute;
@@ -542,8 +562,15 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
           animation: coeTwinkle 3.5s ease-in-out infinite;
         }
         @keyframes coeTwinkle {
-          0%, 100% { opacity: 0; transform: scale(0.6); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%,
+          100% {
+            opacity: 0;
+            transform: scale(0.6);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
       `}</style>
     </section>

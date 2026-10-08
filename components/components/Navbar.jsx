@@ -126,7 +126,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
     if (onOpenAppointmentModal) {
       onOpenAppointmentModal();
     } else {
-      router.push("/contact");
+      router.push("/patientcare/appointment");
     }
   };
 
@@ -185,7 +185,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         {
           name: "Our Specialities",
           href: "/ourspecialities",
-          desc: "18+ Clinical Specialty Departments",
+          desc: "37+ Clinical Specialty Departments",
         },
         {
           name: "Make Appointment",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
@@ -314,28 +314,204 @@ const defaultTheme = {
 /* ───────────── All 22 job openings ───────────── */
 const LOC = "Apollo Hospitals Jabalpur";
 const jobsList = [
-  { id: "dietician", title: "Dietician", category: "nutrition-rehab", dept: "Dietetics & Nutrition", type: "Full Time", location: LOC, icon: Salad },
-  { id: "optometrist", title: "Optometrist", category: "nutrition-rehab", dept: "Ophthalmology", type: "Full Time", location: LOC, icon: Eye },
-  { id: "physiotherapist", title: "Physiotherapist", category: "nutrition-rehab", dept: "Physiotherapy & Rehabilitation", type: "Full Time", location: LOC, icon: Activity },
-  { id: "perfusionist", title: "Perfusionist", category: "cardiac-perfusion", dept: "Cardiology & Cardiothoracic Surgery", type: "Full Time", location: LOC, icon: HeartPulse },
-  { id: "cath-lab-tech", title: "Cath Lab Technician", category: "cardiac-perfusion", dept: "Cardiology & Cath Labs", type: "Full Time", location: LOC, icon: HeartPulse },
-  { id: "cssd-tech", title: "CSSD Technician", category: "sterile-ot", dept: "Sterilization & Infection Control", type: "Full Time", location: LOC, icon: Syringe },
-  { id: "cssd-incharge", title: "CSSD Incharge", category: "sterile-ot", dept: "Sterilization & Infection Control", type: "Full Time", location: LOC, icon: Syringe },
-  { id: "ot-tech", title: "OT Technician", category: "sterile-ot", dept: "Surgery & Operation Theatre (OT)", type: "Full Time", location: LOC, icon: Syringe },
-  { id: "radiology-tech", title: "Radiology Technician", category: "diagnostics-lab", dept: "Radiology", type: "Full Time", location: LOC, icon: ScanEye },
-  { id: "phlebotomist", title: "Phlebotomist", category: "diagnostics-lab", dept: "Pathology", type: "Full Time", location: LOC, icon: Droplet },
-  { id: "lab-blood-bank-tech", title: "Lab & Blood Bank Technician", category: "diagnostics-lab", dept: "Pathology & Blood Bank", type: "Full Time", location: LOC, icon: FlaskConical },
-  { id: "pharmacist", title: "Pharmacist", category: "diagnostics-lab", dept: "Clinical, Pharmacy", type: "Full Time", location: LOC, icon: Pill },
-  { id: "staff-nurse", title: "Staff Nurse – Ward, ICU, Oncology, ER", category: "nursing-clinical", dept: "Clinical, Nursing", type: "Full Time", location: LOC, icon: Stethoscope },
-  { id: "infection-control-nurse", title: "Infection Control Nurse", category: "nursing-clinical", dept: "Clinical, Nursing", type: "Full Time", location: LOC, icon: ShieldCheck },
-  { id: "assistant-nursing-superintendent", title: "Assistant Nursing Superintendent", category: "nursing-clinical", dept: "Clinical", type: "Full Time", location: LOC, icon: Stethoscope },
-  { id: "medical-officer-mbbs", title: "Medical Officer (MBBS) Job in Jabalpur", category: "nursing-clinical", dept: "Clinical", type: "Full Time", location: LOC, icon: Stethoscope },
-  { id: "senior-manager", title: "Senior Manager", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: Briefcase },
-  { id: "manager", title: "Manager", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: Briefcase },
-  { id: "deputy-manager", title: "Deputy Manager", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: Briefcase },
-  { id: "assistant-manager", title: "Assistant Manager", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: Briefcase },
-  { id: "executive", title: "Executive", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: TrendingUp },
-  { id: "trainee", title: "Trainee", category: "corporate-sales", dept: "Marketing & Sales", type: "Full Time", location: LOC, icon: GraduationCap },
+  {
+    id: "dietician",
+    title: "Dietician",
+    category: "nutrition-rehab",
+    dept: "Dietetics & Nutrition",
+    type: "Full Time",
+    location: LOC,
+    icon: Salad,
+  },
+  {
+    id: "optometrist",
+    title: "Optometrist",
+    category: "nutrition-rehab",
+    dept: "Ophthalmology",
+    type: "Full Time",
+    location: LOC,
+    icon: Eye,
+  },
+  {
+    id: "physiotherapist",
+    title: "Physiotherapist",
+    category: "nutrition-rehab",
+    dept: "Physiotherapy & Rehabilitation",
+    type: "Full Time",
+    location: LOC,
+    icon: Activity,
+  },
+  {
+    id: "perfusionist",
+    title: "Perfusionist",
+    category: "cardiac-perfusion",
+    dept: "Cardiology & Cardiothoracic Surgery",
+    type: "Full Time",
+    location: LOC,
+    icon: HeartPulse,
+  },
+  {
+    id: "cath-lab-tech",
+    title: "Cath Lab Technician",
+    category: "cardiac-perfusion",
+    dept: "Cardiology & Cath Labs",
+    type: "Full Time",
+    location: LOC,
+    icon: HeartPulse,
+  },
+  {
+    id: "cssd-tech",
+    title: "CSSD Technician",
+    category: "sterile-ot",
+    dept: "Sterilization & Infection Control",
+    type: "Full Time",
+    location: LOC,
+    icon: Syringe,
+  },
+  {
+    id: "cssd-incharge",
+    title: "CSSD Incharge",
+    category: "sterile-ot",
+    dept: "Sterilization & Infection Control",
+    type: "Full Time",
+    location: LOC,
+    icon: Syringe,
+  },
+  {
+    id: "ot-tech",
+    title: "OT Technician",
+    category: "sterile-ot",
+    dept: "Surgery & Operation Theatre (OT)",
+    type: "Full Time",
+    location: LOC,
+    icon: Syringe,
+  },
+  {
+    id: "radiology-tech",
+    title: "Radiology Technician",
+    category: "diagnostics-lab",
+    dept: "Radiology",
+    type: "Full Time",
+    location: LOC,
+    icon: ScanEye,
+  },
+  {
+    id: "phlebotomist",
+    title: "Phlebotomist",
+    category: "diagnostics-lab",
+    dept: "Pathology",
+    type: "Full Time",
+    location: LOC,
+    icon: Droplet,
+  },
+  {
+    id: "lab-blood-bank-tech",
+    title: "Lab & Blood Bank Technician",
+    category: "diagnostics-lab",
+    dept: "Pathology & Blood Bank",
+    type: "Full Time",
+    location: LOC,
+    icon: FlaskConical,
+  },
+  {
+    id: "pharmacist",
+    title: "Pharmacist",
+    category: "diagnostics-lab",
+    dept: "Clinical, Pharmacy",
+    type: "Full Time",
+    location: LOC,
+    icon: Pill,
+  },
+  {
+    id: "staff-nurse",
+    title: "Staff Nurse – Ward, ICU, Oncology, ER",
+    category: "nursing-clinical",
+    dept: "Clinical, Nursing",
+    type: "Full Time",
+    location: LOC,
+    icon: Stethoscope,
+  },
+  {
+    id: "infection-control-nurse",
+    title: "Infection Control Nurse",
+    category: "nursing-clinical",
+    dept: "Clinical, Nursing",
+    type: "Full Time",
+    location: LOC,
+    icon: ShieldCheck,
+  },
+  {
+    id: "assistant-nursing-superintendent",
+    title: "Assistant Nursing Superintendent",
+    category: "nursing-clinical",
+    dept: "Clinical",
+    type: "Full Time",
+    location: LOC,
+    icon: Stethoscope,
+  },
+  {
+    id: "medical-officer-mbbs",
+    title: "Medical Officer (MBBS) Job in Jabalpur",
+    category: "nursing-clinical",
+    dept: "Clinical",
+    type: "Full Time",
+    location: LOC,
+    icon: Stethoscope,
+  },
+  {
+    id: "senior-manager",
+    title: "Senior Manager",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: Briefcase,
+  },
+  {
+    id: "manager",
+    title: "Manager",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: Briefcase,
+  },
+  {
+    id: "deputy-manager",
+    title: "Deputy Manager",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: Briefcase,
+  },
+  {
+    id: "assistant-manager",
+    title: "Assistant Manager",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: Briefcase,
+  },
+  {
+    id: "executive",
+    title: "Executive",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: TrendingUp,
+  },
+  {
+    id: "trainee",
+    title: "Trainee",
+    category: "corporate-sales",
+    dept: "Marketing & Sales",
+    type: "Full Time",
+    location: LOC,
+    icon: GraduationCap,
+  },
 ];
 
 /* ───────────── Circular orbit category selector ───────────── */
@@ -450,6 +626,7 @@ export default function CareersPage() {
 
   const [activeCategory, setActiveCategory] = useState(categories[0].key);
   const [searchQuery, setSearchQuery] = useState("");
+  const jobsScrollRef = useRef(null);
 
   // needed so createPortal only runs in the browser
   useEffect(() => {
@@ -501,13 +678,22 @@ export default function CareersPage() {
   const groupStats = [
     { value: "50+", label: "Hospitals across India & abroad", icon: Building2 },
     { value: "8,500+", label: "Managed hospital beds", icon: BedDouble },
-    { value: "20,000+", label: "Doctors, nurses & clinical staff", icon: Users },
+    {
+      value: "20,000+",
+      label: "Doctors, nurses & clinical staff",
+      icon: Users,
+    },
     { value: "1983", label: "Pioneering Indian healthcare since", icon: Award },
   ];
 
   const handleAppSubmit = async (e) => {
     e.preventDefault();
-    if (!appForm.dataConsent || !appForm.isCaptchaVerified || !appForm.resumeFile) return;
+    if (
+      !appForm.dataConsent ||
+      !appForm.isCaptchaVerified ||
+      !appForm.resumeFile
+    )
+      return;
 
     setSubmitting(true);
     try {
@@ -524,7 +710,9 @@ export default function CareersPage() {
       // if (!res.ok) throw new Error("Failed");
       setAppSubmitted(true);
     } catch (err) {
-      alert("Could not submit your application. Please try again or email your CV.");
+      alert(
+        "Could not submit your application. Please try again or email your CV.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -539,6 +727,26 @@ export default function CareersPage() {
     const idx = categories.findIndex((c) => c.key === activeCategory);
     const next = (idx + 1) % categories.length;
     setActiveCategory(categories[next].key);
+  };
+
+  const handleJobsWheel = (e) => {
+    const container = jobsScrollRef.current;
+
+    if (!container) return;
+
+    // Only control scrolling when the container
+    // actually has vertical overflow.
+    const hasVerticalScroll = container.scrollHeight > container.clientHeight;
+
+    if (!hasVerticalScroll) return;
+
+    // Move the scroll container instead of allowing
+    // the child card to consume the wheel movement.
+    container.scrollTop += e.deltaY;
+
+    // Prevent the page from scrolling while cursor
+    // is inside the job cards area.
+    e.preventDefault();
   };
 
   return (
@@ -578,12 +786,22 @@ export default function CareersPage() {
           animation: carFloat1 19s ease-in-out infinite;
         }
         @keyframes carFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes carFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         .marquee-track {
           animation: statsMarquee 20s linear infinite;
@@ -592,31 +810,61 @@ export default function CareersPage() {
           animation-play-state: paused;
         }
         @keyframes statsMarquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-33.333%); }
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-33.333%);
+          }
         }
-                  @keyframes carFloatCard {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+        @keyframes carFloatCard {
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
         }
-        .car-float-card { animation: carFloatCard 4.5s ease-in-out infinite; }
+        .car-float-card {
+          animation: carFloatCard 4.5s ease-in-out infinite;
+        }
         @keyframes carPulseRing {
-          0% { transform: scale(0.9); opacity: 0.7; }
-          100% { transform: scale(1.6); opacity: 0; }
+          0% {
+            transform: scale(0.9);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1.6);
+            opacity: 0;
+          }
         }
-        .car-pulse-ring { animation: carPulseRing 2s ease-out infinite; }
+        .car-pulse-ring {
+          animation: carPulseRing 2s ease-out infinite;
+        }
         @keyframes carShimmerSweep {
-          0% { transform: translateX(-120%) skewX(-12deg); }
-          100% { transform: translateX(220%) skewX(-12deg); }
+          0% {
+            transform: translateX(-120%) skewX(-12deg);
+          }
+          100% {
+            transform: translateX(220%) skewX(-12deg);
+          }
         }
         .car-shimmer::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+          background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent
+          );
           transform: translateX(-120%) skewX(-12deg);
         }
-        .car-shimmer:hover::after { animation: carShimmerSweep 1s ease forwards; }
+        .car-shimmer:hover::after {
+          animation: carShimmerSweep 1s ease forwards;
+        }
       `}</style>
 
       {/* Dotted texture */}
@@ -638,8 +886,7 @@ export default function CareersPage() {
       </div>
 
       <div className="relative z-10">
-        
-                {/* ───── Hero Header Section ───── */}
+        {/* ───── Hero Header Section ───── */}
         <motion.section
           initial="hidden"
           animate="show"
@@ -688,12 +935,12 @@ export default function CareersPage() {
                 <motion.a
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  href="mailto:jabalpur_careers@apollohospitals.com"
+                  href="mailto:Connect@apollojbphospitals.com"
                   className="car-shimmer relative overflow-hidden px-6 py-3.5 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_10px_30px_rgba(200,149,46,0.35)] hover:shadow-xl transition-all cursor-pointer inline-flex items-center gap-2.5"
                   style={goldGradient}
                 >
                   <Mail className="w-4 h-4" />
-                  <span>Email CV: jabalpur_careers@apollohospitals.com</span>
+                  <span>Email CV: Connect@apollojbphospitals.com</span>
                 </motion.a>
               </div>
 
@@ -831,24 +1078,29 @@ export default function CareersPage() {
               <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
               <div className="marquee-track flex items-center gap-12 w-max">
-                {[...groupStats, ...groupStats, ...groupStats].map((s, sIdx) => {
-                  const SIcon = s.icon;
-                  return (
-                    <div key={sIdx} className="flex items-center gap-3 shrink-0">
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-md shrink-0">
-                        <SIcon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-xl sm:text-2xl font-black text-[#0B3446] leading-none">
-                          {s.value}
+                {[...groupStats, ...groupStats, ...groupStats].map(
+                  (s, sIdx) => {
+                    const SIcon = s.icon;
+                    return (
+                      <div
+                        key={sIdx}
+                        className="flex items-center gap-3 shrink-0"
+                      >
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-md shrink-0">
+                          <SIcon className="w-5 h-5" />
                         </div>
-                        <div className="text-[11px] text-slate-500 font-semibold mt-1 leading-snug">
-                          {s.label}
+                        <div>
+                          <div className="text-xl sm:text-2xl font-black text-[#0B3446] leading-none">
+                            {s.value}
+                          </div>
+                          <div className="text-[11px] text-slate-500 font-semibold mt-1 leading-snug">
+                            {s.label}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </div>
             </div>
           </div>
@@ -862,7 +1114,10 @@ export default function CareersPage() {
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16"
         >
-          <motion.div variants={fadeUp} className="text-center max-w-2xl mx-auto mb-8">
+          <motion.div
+            variants={fadeUp}
+            className="text-center max-w-2xl mx-auto mb-8"
+          >
             <h2 className="font-serif-apollo text-2xl sm:text-3xl font-black text-[#0B3446]">
               Why Professionals Choose{" "}
               <span
@@ -917,7 +1172,9 @@ export default function CareersPage() {
                   <h3 className="font-serif-apollo text-base font-extrabold text-[#0B3446]">
                     {b.title}
                   </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{b.desc}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {b.desc}
+                  </p>
                 </motion.div>
               );
             })}
@@ -932,7 +1189,10 @@ export default function CareersPage() {
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mb-16"
         >
-          <motion.div variants={fadeUp} className="text-center max-w-2xl mx-auto">
+          <motion.div
+            variants={fadeUp}
+            className="text-center max-w-2xl mx-auto"
+          >
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-[#0E526B] text-xs font-extrabold border border-[#1D82A6]/30 shadow-sm mb-3">
               <Stethoscope className="w-3.5 h-3.5 text-[#C8952E]" />
               Careers at Apollo JBP
@@ -950,7 +1210,8 @@ export default function CareersPage() {
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-2">
-              Tap a department in the wheel to browse matching roles on the right.
+              Tap a department in the wheel to browse matching roles on the
+              right.
             </p>
           </motion.div>
 
@@ -981,7 +1242,10 @@ export default function CareersPage() {
           {/* Two-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* LEFT: orbit selector */}
-            <motion.div variants={fadeUp} className="lg:col-span-5 lg:sticky lg:top-28">
+            <motion.div
+              variants={fadeUp}
+              className="lg:col-span-5 lg:sticky lg:top-28"
+            >
               <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#1D82A6]/30 via-white to-[#C8952E]/40 shadow-lg">
                 <div className="bg-white rounded-[calc(2rem-1.5px)] py-4 px-2 sm:px-4">
                   <CareerOrbitSelector
@@ -1014,9 +1278,15 @@ export default function CareersPage() {
                               ? "text-[#3A2B0A] border-transparent shadow-md"
                               : "bg-white text-slate-500 border-slate-200 hover:border-[#1D82A6]/40 hover:text-[#0E526B]"
                           }`}
-                          style={activeCategory === cat.key ? goldGradient : undefined}
+                          style={
+                            activeCategory === cat.key
+                              ? goldGradient
+                              : undefined
+                          }
                         >
-                          <span className="opacity-70">{String(i + 1).padStart(2, "0")}</span>
+                          <span className="opacity-70">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
                           {cat.label}
                         </button>
                       ))}
@@ -1037,7 +1307,14 @@ export default function CareersPage() {
 
             {/* RIGHT: filtered job cards */}
             <motion.div variants={fadeUp} className="lg:col-span-7">
-              <div className="lg:max-h-[640px] lg:overflow-y-auto lg:pr-1 space-y-4 lg:space-y-5">
+              <div
+                ref={jobsScrollRef}
+                onWheel={handleJobsWheel}
+                className="lg:max-h-[640px] lg:overflow-y-auto lg:pr-1 space-y-4 lg:space-y-5"
+                style={{
+                  overscrollBehavior: "contain",
+                }}
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeCategory + searchQuery}
@@ -1157,7 +1434,8 @@ export default function CareersPage() {
                     Apollo JBP Hospitals • Human Resources Department
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Email CV: jabalpur_careers@apollohospitals.com • Phone: 1800-123-6666.
+                    Email CV: Connect@apollojbphospitals.com • Phone:
+                    1800-123-6666.
                   </p>
                 </div>
               </div>
@@ -1165,7 +1443,8 @@ export default function CareersPage() {
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold shrink-0">
                 <ShieldAlert className="w-4 h-4 shrink-0" />
                 <span>
-                  We never ask for money, bank details, or payments during recruitment.
+                  We never ask for money, bank details, or payments during
+                  recruitment.
                 </span>
               </div>
             </div>
@@ -1173,7 +1452,10 @@ export default function CareersPage() {
         </motion.section>
       </div>
 
-      <AppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AppointmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       {/* ───── Job Application Modal (rendered in a portal on <body>) ───── */}
       {mounted &&
@@ -1207,7 +1489,10 @@ export default function CareersPage() {
                   </button>
 
                   {!appSubmitted ? (
-                    <form onSubmit={handleAppSubmit} className="space-y-4 text-xs">
+                    <form
+                      onSubmit={handleAppSubmit}
+                      className="space-y-4 text-xs"
+                    >
                       <div className="flex items-start justify-between gap-3 pr-8">
                         <div>
                           <span className="text-[10px] font-black uppercase text-[#C8952E]">
@@ -1223,7 +1508,9 @@ export default function CareersPage() {
                         <div
                           className="w-11 h-11 rounded-xl flex items-center justify-center shadow-md shrink-0 text-white"
                           style={{
-                            background: (jobThemes[selectedJob.id] || defaultTheme).iconBg,
+                            background: (
+                              jobThemes[selectedJob.id] || defaultTheme
+                            ).iconBg,
                           }}
                         >
                           {(() => {
@@ -1241,7 +1528,9 @@ export default function CareersPage() {
                           type="text"
                           required
                           value={appForm.name}
-                          onChange={(e) => setAppForm({ ...appForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setAppForm({ ...appForm, name: e.target.value })
+                          }
                           placeholder="e.g. Ramesh Sharma"
                           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
                         />
@@ -1256,7 +1545,9 @@ export default function CareersPage() {
                             type="email"
                             required
                             value={appForm.email}
-                            onChange={(e) => setAppForm({ ...appForm, email: e.target.value })}
+                            onChange={(e) =>
+                              setAppForm({ ...appForm, email: e.target.value })
+                            }
                             placeholder="ramesh@example.com"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
                           />
@@ -1269,7 +1560,9 @@ export default function CareersPage() {
                             type="tel"
                             required
                             value={appForm.phone}
-                            onChange={(e) => setAppForm({ ...appForm, phone: e.target.value })}
+                            onChange={(e) =>
+                              setAppForm({ ...appForm, phone: e.target.value })
+                            }
                             placeholder="+91 98765 43210"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none"
                           />
@@ -1282,10 +1575,14 @@ export default function CareersPage() {
                         </label>
                         <select
                           value={appForm.exp}
-                          onChange={(e) => setAppForm({ ...appForm, exp: e.target.value })}
+                          onChange={(e) =>
+                            setAppForm({ ...appForm, exp: e.target.value })
+                          }
                           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none font-semibold"
                         >
-                          <option value="Fresher / <1 Year">Fresher / &lt;1 Year</option>
+                          <option value="Fresher / <1 Year">
+                            Fresher / &lt;1 Year
+                          </option>
                           <option value="1-3 Years">1-3 Years</option>
                           <option value="3-5 Years">3-5 Years</option>
                           <option value="5+ Years">5+ Years</option>
@@ -1308,15 +1605,20 @@ export default function CareersPage() {
                         >
                           <Upload
                             className={`w-6 h-6 mx-auto mb-1 transition-colors ${
-                              appForm.resumeName ? "text-emerald-600" : "text-[#1D82A6]"
+                              appForm.resumeName
+                                ? "text-emerald-600"
+                                : "text-[#1D82A6]"
                             }`}
                           />
                           <span
                             className={`text-xs font-semibold block ${
-                              appForm.resumeName ? "text-emerald-800" : "text-slate-600"
+                              appForm.resumeName
+                                ? "text-emerald-800"
+                                : "text-slate-600"
                             }`}
                           >
-                            {appForm.resumeName || "Click to attach PDF / DOC Resume"}
+                            {appForm.resumeName ||
+                              "Click to attach PDF / DOC Resume"}
                           </span>
                           <span className="text-[10px] text-slate-400 mt-1 block">
                             Supported formats: PDF, DOC, DOCX (max 5 MB)
@@ -1332,7 +1634,9 @@ export default function CareersPage() {
                               const file = e.target.files?.[0];
                               if (!file) return;
                               if (file.size > 5 * 1024 * 1024) {
-                                alert("File is too large. Please upload a file under 5 MB.");
+                                alert(
+                                  "File is too large. Please upload a file under 5 MB.",
+                                );
                                 e.target.value = "";
                                 return;
                               }
@@ -1345,14 +1649,16 @@ export default function CareersPage() {
                           />
                         </label>
 
-                        
-
                         {appForm.resumeName && (
                           <div className="flex justify-end mt-1">
                             <button
                               type="button"
                               onClick={() =>
-                                setAppForm({ ...appForm, resumeName: "", resumeFile: null })
+                                setAppForm({
+                                  ...appForm,
+                                  resumeName: "",
+                                  resumeFile: null,
+                                })
                               }
                               className="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer"
                             >
@@ -1370,13 +1676,16 @@ export default function CareersPage() {
                             required
                             checked={appForm.dataConsent}
                             onChange={(e) =>
-                              setAppForm({ ...appForm, dataConsent: e.target.checked })
+                              setAppForm({
+                                ...appForm,
+                                dataConsent: e.target.checked,
+                              })
                             }
                             className="mt-0.5 rounded border-slate-300 accent-[#1D82A6] w-4 h-4 shrink-0"
                           />
                           <span>
-                            By using this form you agree with the storage and handling of your
-                            data by this website.{" "}
+                            By using this form you agree with the storage and
+                            handling of your data by this website.{" "}
                             <span className="text-rose-500 font-bold">*</span>
                           </span>
                         </label>
@@ -1435,7 +1744,9 @@ export default function CareersPage() {
                           className="px-6 py-2.5 rounded-xl text-[#3A2B0A] font-extrabold shadow-md cursor-pointer hover:brightness-105 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                           style={goldGradient}
                         >
-                          {submitting ? "Submitting..." : "Submit Job Application"}
+                          {submitting
+                            ? "Submitting..."
+                            : "Submit Job Application"}
                         </button>
                       </div>
                     </form>
@@ -1448,10 +1759,11 @@ export default function CareersPage() {
                         Application Submitted Successfully!
                       </h3>
                       <p className="text-xs text-slate-600">
-                        Thank you, <span className="font-bold">{appForm.name}</span>. Apollo HR
-                        recruitment team will review your CV for{" "}
-                        <span className="font-bold">{selectedJob.title}</span> and contact you
-                        shortly.
+                        Thank you,{" "}
+                        <span className="font-bold">{appForm.name}</span>.
+                        Apollo HR recruitment team will review your CV for{" "}
+                        <span className="font-bold">{selectedJob.title}</span>{" "}
+                        and contact you shortly.
                       </p>
                       <button
                         type="button"
@@ -1466,7 +1778,7 @@ export default function CareersPage() {
               </motion.div>
             )}
           </AnimatePresence>,
-          document.body
+          document.body,
         )}
     </main>
   );

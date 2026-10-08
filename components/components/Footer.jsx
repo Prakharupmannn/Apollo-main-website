@@ -103,7 +103,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </a>
 
               <Link
-                href="/contact"
+                href="/patientcare/appointment"
                 className="flex items-center gap-2 px-6 py-3 rounded-full text-slate-950 font-bold text-xs bg-gradient-to-b from-[#edcd76] to-[#C8952E] shadow-[0_3px_10px_rgba(197,146,46,0.35)] hover:shadow-[0_5px_16px_rgba(197,146,46,0.5)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
@@ -171,7 +171,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#F59E0B] shrink-0" />
-                <span>jabalpur_info@apollohospitals.com</span>
+                <span>Connect@apollojbphospitals.com</span>
               </div>
             </div>
 
@@ -259,7 +259,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                 { label: "Health Library", href: "/health-library" },
                 { label: "Contact & Location Map", href: "/contact" },
                 { label: "Emergency Care (24/7)", href: "/emergency" },
-                { label: "Book Appointment", href: "/contact" },
+                { label: "Book Appointment", href: "/patientcare/appointment" },
                 { label: "MP Service Reach", href: "/contact" },
               ].map((link, idx) => (
                 <li key={idx}>
