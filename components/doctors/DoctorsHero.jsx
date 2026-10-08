@@ -145,7 +145,7 @@ export default function DoctorsHero({ total = 49 }) {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/contact"
+              href="/patientcare/appointment"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[#F6D98A] to-[#C8952E] px-7 py-4 text-sm font-bold text-[#3A2B0A] shadow-[0_16px_30px_-14px_rgba(200,149,46,0.9)] transition-transform duration-300 hover:-translate-y-0.5"
             >
               <CalendarDays className="h-4 w-4" />

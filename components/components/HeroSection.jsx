@@ -374,7 +374,7 @@ export default function HeroSection({ onSearchSubmit }) {
               <div className="relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(15,52,72,0.30)] border-[6px] border-white bg-white">
                 <div className="relative h-[440px] sm:h-[500px] w-full overflow-hidden">
                   <Image
-                    src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&auto=format&fit=crop&q=80"
+                    src="/images/operation1.jpg"
                     alt="Apollo doctor caring for a patient"
                     priority
                     fill

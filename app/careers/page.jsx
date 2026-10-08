@@ -974,7 +974,7 @@ export default function CareersPage() {
                 className="relative rounded-[2rem] overflow-hidden shadow-[0_30px_70px_rgba(10,95,122,0.25)] border-4 border-white"
               >
                 <Image
-                  src="/images/careers/career.png"
+                  src="/images/careers/careers.png"
                   alt="Apollo Hospitals Jabalpur careers"
                   width={800}
                   height={460}

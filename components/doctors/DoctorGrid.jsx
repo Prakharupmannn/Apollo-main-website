@@ -153,7 +153,7 @@ const DoctorCard = memo(function DoctorCard({ doctor }) {
           </Link>
 
           <Link
-            href={`/contact?doctor=${doctor.slug}`}
+            href={`/patientcare/appointment?doctor=${doctor.slug}`}
             className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#0E526B] to-[#137A9A] text-[11px] font-bold text-white shadow-[0_8px_18px_rgba(14,82,107,.25)] transition hover:brightness-110"
           >
             Book Now

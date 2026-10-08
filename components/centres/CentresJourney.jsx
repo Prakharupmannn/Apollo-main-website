@@ -1,73 +1,141 @@
-
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import {
-  AnimatePresence,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
+  useSpring,
+  useTransform,
 } from "framer-motion";
-import { useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { centresOfExcellence } from "@/data/centresOfExcellence";
 
 const TOTAL = centresOfExcellence.length;
+const STEP = 30; // degrees between centres on the ring
+const RADIUS = 215;
+const EASE = [0.22, 1, 0.36, 1];
 
-const clamp = (value, min, max) =>
-  Math.min(Math.max(value, min), max);
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const pad = (n) => String(n).padStart(2, "0");
 
-export default function CentresJourney() {
-  return (
-    <>
-      <CentresJourneyDesktop />
-      <CentresJourneyMobile />
-    </>
-  );
+// Ring positions never change -> compute once, not on every render
+const RING_POSITIONS = centresOfExcellence.map((_, index) => {
+  const radians = ((-90 + index * STEP) * Math.PI) / 180;
+  return {
+    left: `${((250 + Math.cos(radians) * RADIUS) / 500) * 100}%`,
+    top: `${((250 + Math.sin(radians) * RADIUS) / 500) * 100}%`,
+  };
+});
+
+/* Mount only the layout that matches the screen (both render once on the
+   server / first paint so there is no hydration mismatch or layout jump). */
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return isDesktop;
 }
 
+export default function CentresJourney() {
+  const isDesktop = useIsDesktop();
+
+  if (isDesktop === null) {
+    return (
+      <>
+        <CentresJourneyDesktop />
+        <CentresJourneyMobile />
+      </>
+    );
+  }
+
+  return isDesktop ? <CentresJourneyDesktop /> : <CentresJourneyMobile />;
+}
+
+/* ================================================== */
+/* DESKTOP — sticky scroll-scrub experience (lg and up) */
+/* ================================================== */
 
 function CentresJourneyDesktop() {
   const sectionRef = useRef(null);
-
-  const [activeIndex, setActiveIndex] = useState(2);
+  const activeRef = useRef(0);
+  const reduceMotion = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const index = clamp(Math.floor(latest * TOTAL), 0, TOTAL - 1);
-    setActiveIndex(index);
+  // Spring-smoothed progress drives the ring rotation (no React re-render)
+  const spring = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 28,
+    mass: 0.35,
+    restDelta: 0.0005,
   });
+  const progress = reduceMotion ? scrollYProgress : spring;
 
-  const activeCentre = centresOfExcellence[activeIndex];
+  // Active centre sits in the middle of its scroll "bin"
+  const ringRotate = useTransform(
+    progress,
+    (v) => -clamp(v * TOTAL - 0.5, 0, TOTAL - 1) * STEP
+  );
+  const counterRotate = useTransform(ringRotate, (v) => -v);
 
-  const goToCentre = (index) => {
+  const syncIndex = useCallback((latest) => {
+    const index = clamp(Math.floor(latest * TOTAL), 0, TOTAL - 1);
+    if (index !== activeRef.current) {
+      activeRef.current = index;
+      setActiveIndex(index);
+    }
+  }, []);
+
+  useMotionValueEvent(scrollYProgress, "change", syncIndex);
+
+  // Correct card on first paint / page refresh in the middle of the section
+  useEffect(() => {
+    syncIndex(scrollYProgress.get());
+  }, [scrollYProgress, syncIndex]);
+
+  const goToCentre = useCallback((index) => {
     const section = sectionRef.current;
     if (!section) return;
 
     const sectionTop = section.getBoundingClientRect().top + window.scrollY;
-    const sectionScrollableHeight = section.offsetHeight - window.innerHeight;
-    const progress = index / (TOTAL - 1);
-    const target = sectionTop + sectionScrollableHeight * progress;
+    const scrollable = section.offsetHeight - window.innerHeight;
+    // aim at the centre of the centre's bin so it never lands on a boundary
+    const progressTarget = (index + 0.5) / TOTAL;
 
-    window.scrollTo({ top: target, behavior: "smooth" });
-  };
+    window.scrollTo({
+      top: sectionTop + scrollable * progressTarget,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }, [reduceMotion]);
+
+  const activeCentre = centresOfExcellence[activeIndex];
 
   return (
     <section
       ref={sectionRef}
-      className="relative hidden h-[700vh] bg-[#EDF6FB] lg:block"
+      className="relative hidden bg-[#EDF6FB] lg:block"
+      style={{ height: `${TOTAL * 75 + 25}vh` }}
+      aria-label="Centres of Excellence"
     >
-      {/* Sticky viewport */}
-      <div className="sticky top-0 h-screen overflow-hidden">
-
-        {/* Background decoration */}
+      <div className="sticky top-0 h-[100svh] overflow-hidden">
+        {/* Background decoration (static, cheap) */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 top-1/4 h-[500px] w-[500px] rounded-full bg-[#1D82A6]/[0.08] blur-3xl" />
-          <div className="absolute right-[-180px] bottom-[-150px] h-[500px] w-[500px] rounded-full bg-[#C8952E]/[0.06] blur-3xl" />
+          <div className="absolute -left-40 top-1/4 h-[420px] w-[420px] rounded-full bg-[#1D82A6]/[0.08] blur-3xl" />
+          <div className="absolute bottom-[-150px] right-[-180px] h-[420px] w-[420px] rounded-full bg-[#C8952E]/[0.06] blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.18]"
             style={{
@@ -79,7 +147,6 @@ function CentresJourneyDesktop() {
         </div>
 
         <div className="relative mx-auto flex h-full max-w-[1360px] flex-col px-6 py-6 lg:px-8 xl:px-12">
-
           {/* HEADER */}
           <div className="grid shrink-0 grid-cols-1 gap-4 lg:grid-cols-[1.05fr_.95fr] lg:items-end">
             <div>
@@ -91,283 +158,244 @@ function CentresJourneyDesktop() {
               </div>
 
               <p className="max-w-xl font-serif text-[clamp(20px,2.2vw,28px)] italic leading-[1.15] text-[#06202B]">
-                Advanced care. Specialist expertise.
-                A healthier tomorrow.
+                Advanced care. Specialist expertise. A healthier tomorrow.
               </p>
             </div>
 
             <div className="max-w-xl border-l border-[#1D82A6]/20 pl-5 lg:mb-1">
               <p className="text-[13px] leading-6 text-slate-500 lg:text-sm">
-                At Apollo Hospitals, Jabalpur, our Centres
-                of Excellence bring together specialist
-                expertise, advanced technology and a
-                patient-first approach across complex
-                and critical care.
+                At Apollo Hospitals, Jabalpur, our Centres of Excellence bring
+                together specialist expertise, advanced technology and a
+                patient-first approach across complex and critical care.
               </p>
             </div>
           </div>
 
           {/* MAIN EXPERIENCE */}
           <div className="relative mt-5 min-h-0 flex-1">
-            <div className="grid h-full grid-cols-1 items-center gap-6 lg:grid-cols-[40%_60%]">
+            <div className="grid h-full grid-cols-[40%_60%] items-center gap-6">
+              {/* ROTATING RING */}
+              <div className="relative h-full">
+                <div
+                  className="absolute left-1/2 top-1/2 -translate-x-[58%] -translate-y-1/2"
+                  style={{ height: "min(100%, 420px)", aspectRatio: "1 / 1" }}
+                >
+                  <div className="absolute inset-[-8%] rounded-full border border-[#1D82A6]/10" />
 
-              {/* 180° ROTATING RING */}
-             {/* 180° ROTATING RING */}
-<div className="relative hidden h-full min-h-[390px] lg:block">
-  <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] origin-center -translate-x-[58%] -translate-y-1/2 scale-[0.78]">
+                  <motion.div
+                    className="absolute inset-0 will-change-transform"
+                    style={{ rotate: ringRotate }}
+                  >
+                    <svg
+                      viewBox="0 0 500 500"
+                      className="absolute inset-0 h-full w-full overflow-visible"
+                      aria-hidden="true"
+                    >
+                      <path d="M250 35 A215 215 0 0 1 250 465" fill="none" stroke="#c8e0e8" strokeWidth="1.5" />
+                      <path
+                        d="M250 35 A215 215 0 0 1 250 465"
+                        fill="none"
+                        stroke="#C8952E"
+                        strokeWidth="3"
+                        strokeDasharray="115 1000"
+                        strokeLinecap="round"
+                        opacity="0.8"
+                      />
+                      <circle cx="250" cy="250" r="145" fill="none" stroke="#d5e6ec" strokeWidth="1" strokeDasharray="2 7" />
+                    </svg>
 
-    {/* Outer glow */}
-    <div className="absolute inset-[-40px] rounded-full border border-[#1D82A6]/10" />
+                    {centresOfExcellence.map((centre, index) => (
+                      <RingItem
+                        key={centre.slug}
+                        centre={centre}
+                        index={index}
+                        isActive={index === activeIndex}
+                        counterRotate={counterRotate}
+                        onSelect={goToCentre}
+                      />
+                    ))}
+                  </motion.div>
 
-    {/* Decorative orbit */}
-    <motion.div
-      className="absolute inset-0"
-      animate={{ rotate: -activeIndex * 30 }}
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <svg viewBox="0 0 500 500" className="absolute inset-0 h-full w-full overflow-visible">
-        <path d="M250 35 A215 215 0 0 1 250 465" fill="none" stroke="#c8e0e8" strokeWidth="1.5" />
-        <path
-          d="M250 35 A215 215 0 0 1 250 465"
-          fill="none"
-          stroke="#C8952E"
-          strokeWidth="3"
-          strokeDasharray="115 1000"
-          strokeLinecap="round"
-          className="opacity-80"
-        />
-        <circle cx="250" cy="250" r="145" fill="none" stroke="#d5e6ec" strokeWidth="1" strokeDasharray="2 7" />
-      </svg>
+                  {/* Centre message */}
+                  <div className="absolute left-1/2 top-1/2 z-10 h-[43%] w-[43%] -translate-x-1/2 -translate-y-1/2">
+                    <div className="absolute inset-[-14%] rounded-full bg-[#1D82A6]/[0.10] blur-2xl" />
+                    <div
+                      className="absolute inset-[-2%] animate-spin rounded-full [animation-duration:12s] motion-reduce:animate-none"
+                      style={{
+                        background:
+                          "conic-gradient(from 0deg, transparent 0%, #1D82A6 15%, transparent 35%, transparent 65%, #1D82A6 85%, transparent 100%)",
+                      }}
+                    >
+                      <div className="absolute inset-[3px] rounded-full bg-[#f6fbfd]" />
+                    </div>
 
-      {centresOfExcellence.map((centre, index) => {
-        const angle = -90 + index * 30;
-        const radians = (angle * Math.PI) / 180;
-        const radius = 215;
-        const x = (250 + Math.cos(radians) * radius).toFixed(2);
-        const y = (250 + Math.sin(radians) * radius).toFixed(2);
-        const isActive = index === activeIndex;
-
-        return (
-          <motion.button
-            key={centre.slug}
-            type="button"
-            onClick={() => goToCentre(index)}
-            className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${x}px`, top: `${y}px` }}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            <motion.div
-              animate={{ rotate: activeIndex * 30 }}
-              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              className="flex items-center gap-3"
-            >
-              <div className={`text-right transition-all duration-500 ${isActive ? "opacity-100" : "opacity-65"}`}>
-                <div className={`text-[11px] font-medium ${isActive ? "text-[#C8952E]" : "text-slate-400"}`}>
-                  {centre.id}
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-white/90 text-center shadow-[0_20px_60px_rgba(6,32,43,.10)]">
+                      <div>
+                        <div className="mb-2 flex items-center justify-center gap-1.5">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1D82A6]/60 motion-reduce:animate-none" />
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#1D82A6]" />
+                          </span>
+                          <span className="text-[8px] font-semibold uppercase tracking-[0.26em] text-[#0E526B]/70">
+                            Complete Care
+                          </span>
+                        </div>
+                        <div className="font-serif text-[clamp(14px,1.5vw,19px)] italic leading-tight text-[#06202B]">
+                          For a Healthier
+                          <br />
+                          Tomorrow
+                        </div>
+                        <div className="mx-auto mt-3 h-px w-7 bg-[#C8952E]" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className={`mt-0.5 max-w-[90px] text-[11px] font-semibold leading-tight ${isActive ? "text-[#06202B]" : "text-slate-500"}`}>
-                  {centre.title}
+
+                {/* Scroll indicator */}
+                <div className="absolute bottom-3 left-0 flex items-center gap-2.5 text-[#0E526B]/70">
+                  <div className="flex h-9 w-6 items-start justify-center rounded-full border border-[#1D82A6]/30 p-1.5">
+                    <span className="h-2 w-1 animate-bounce rounded-full bg-[#C8952E] motion-reduce:animate-none" />
+                  </div>
+                  <span className="text-[9px] uppercase tracking-[0.2em]">
+                    Scroll to explore
+                  </span>
                 </div>
               </div>
-
-              <div
-                className={`relative flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full border transition-all duration-500 ${
-                  isActive
-                    ? "border-[#C8952E] bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-[0_0_0_7px_rgba(200,149,46,.12),0_15px_35px_rgba(200,149,46,.28)]"
-                    : "border-[#1D82A6]/20 bg-white/90 shadow-[0_8px_25px_rgba(6,32,43,.08)]"
-                }`}
-              >
-                {isActive && (
-                  <motion.span layoutId="active-ring" className="absolute inset-[-7px] rounded-full border border-[#C8952E]/30" />
-                )}
-                <CentreIcon slug={centre.slug} active={isActive} />
-              </div>
-            </motion.div>
-          </motion.button>
-        );
-      })}
-    </motion.div>
-
-    {/* Center message */}
-    <div className="absolute left-1/2 top-1/2 z-10 h-[180px] w-[180px] -translate-x-1/2 -translate-y-1/2">
-      <div className="absolute inset-[-25px] rounded-full bg-[#1D82A6]/[0.12] blur-2xl" />
-      <motion.div
-        className="absolute inset-[-3px] rounded-full"
-        style={{
-          background:
-            "conic-gradient(from 0deg, transparent 0%, #1D82A6 15%, transparent 35%, transparent 65%, #1D82A6 85%, transparent 100%)",
-        }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-      >
-        <div className="absolute inset-[3px] rounded-full bg-[#f6fbfd]" />
-      </motion.div>
-
-      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-white/75 text-center shadow-[0_20px_70px_rgba(6,32,43,.10)] backdrop-blur-sm">
-        <div>
-          <div className="mb-3 flex items-center justify-center gap-1.5">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1D82A6]/60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#1D82A6]" />
-            </span>
-            <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#0E526B]/70">
-              Complete Care
-            </span>
-          </div>
-          <div className="font-serif text-[20px] italic leading-tight text-[#06202B]">
-            For a Healthier
-            <br />
-            Tomorrow
-          </div>
-          <div className="mx-auto mt-4 h-px w-7 bg-[#C8952E]" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* Scroll indicator */}
-  <div className="absolute bottom-4 left-0 flex items-center gap-2.5 text-[#0E526B]/70">
-    <div className="flex h-9 w-6 items-start justify-center rounded-full border border-[#1D82A6]/30 p-1.5">
-      <motion.div
-        animate={{ y: [0, 9, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-        className="h-2 w-1 rounded-full bg-[#C8952E]"
-      />
-    </div>
-    <span className="text-[9px] uppercase tracking-[0.2em]">Scroll to explore</span>
-  </div>
-</div>
 
               {/* CONTENT PANEL */}
-             {/* CONTENT PANEL */}
-<div className="relative flex h-full items-center">
-  <AnimatePresence mode="wait">
-    <motion.div
-      key={activeCentre.slug}
-      initial={{ opacity: 0, y: 22 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -18 }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="group/card relative min-h-[420px] w-full overflow-hidden rounded-[28px] border border-[#1D82A6]/10 shadow-[0_25px_70px_rgba(6,32,43,.14)]"
-    >
-      {/* Full-bleed image — sits behind everything */}
-      <motion.div
-        initial={{ scale: 1.08 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute inset-0"
-      >
-        <Image
-          src={activeCentre.image}
-          alt={activeCentre.title}
-          fill
-          sizes="(max-width: 1024px) 100vw, 60vw"
-          className="object-cover transition-transform duration-[1600ms] ease-out group-hover/card:scale-110"
-          priority={activeIndex === 0}
-        />
-      </motion.div>
+              <div className="relative flex h-full items-center">
+                <div
+                  className="relative w-full overflow-hidden rounded-[28px] border border-[#1D82A6]/10 shadow-[0_25px_60px_rgba(6,32,43,.14)]"
+                  style={{ height: "min(100%, 520px)", minHeight: 340 }}
+                >
+                  {/* All images stacked once -> cross-fade, never a blank/stale frame */}
+                  <div className="absolute inset-0 bg-[#dcecf3]">
+                    {centresOfExcellence.map((centre, index) => (
+                      <Image
+                        key={centre.slug}
+                        src={centre.image}
+                        alt={index === activeIndex ? centre.title : ""}
+                        aria-hidden={index !== activeIndex}
+                        fill
+                        sizes="(min-width: 1024px) 60vw, 100vw"
+                        quality={75}
+                        priority={index === 0}
+                        className={`object-cover transition-opacity duration-700 ease-out ${
+                          index === activeIndex ? "opacity-100" : "opacity-0"
+                        }`}
+                      />
+                    ))}
+                  </div>
 
-      {/* The key blend — solid/opaque on the left where text sits, fully clear on the right where the image shows */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white from-[8%] via-white/92 via-[38%] to-transparent to-[68%]" />
+                  {/* Solid on the left (text), clear on the right (image) */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-white from-[8%] via-white/92 via-[38%] to-transparent to-[68%]" />
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#06202B]/15 to-transparent" />
 
-      {/* Faint bottom gradient for the CTA row's readability over the image tail */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#06202B]/15 to-transparent" />
+                  <span className="pointer-events-none absolute left-6 top-6 z-10 h-5 w-5 border-l border-t border-[#C8952E]/30" />
+                  <span className="pointer-events-none absolute bottom-6 right-6 z-10 h-5 w-5 border-b border-r border-white/50" />
 
-      {/* Corner brackets — echoes the site's premium framing */}
-      <span className="pointer-events-none absolute left-6 top-6 z-10 h-5 w-5 border-l border-t border-[#C8952E]/30" />
-      <span className="pointer-events-none absolute bottom-6 right-6 z-10 h-5 w-5 border-b border-r border-white/50" />
+                  {/* Text — remounts per centre so it always matches the active one */}
+                  <div className="relative z-10 flex h-full flex-col justify-center p-6 lg:p-9">
+                    <motion.div
+                      key={activeCentre.slug}
+                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, ease: EASE }}
+                      className="max-w-[56%]"
+                    >
+                      <div className="mb-3 flex items-center gap-3">
+                        <span className="font-serif text-2xl italic text-[#C8952E]">
+                          {activeCentre.id}
+                        </span>
+                        <span className="text-[13px] text-slate-400">/ {pad(TOTAL)}</span>
+                        <span className="h-px w-8 bg-[#1D82A6]/20" />
+                      </div>
 
-      {/* Text content — sits in the solid/opaque zone */}
-      <div className="relative z-10 flex h-full flex-col justify-center p-6 sm:p-7 lg:p-9">
-        <div className="max-w-[52%] sm:max-w-[56%]">
+                      <div className="mb-2 flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.25em] text-[#0E526B]">
+                        <span className="h-1 w-1 rounded-full bg-[#C8952E]" />
+                        {activeCentre.eyebrow}
+                      </div>
 
-          <div className="mb-4 flex items-center gap-3">
-            <span className="font-serif text-2xl italic text-[#C8952E]">{activeCentre.id}</span>
-            <span className="text-[13px] text-slate-400">/ 07</span>
-            <span className="h-px w-8 bg-[#1D82A6]/20" />
-          </div>
+                      <h3 className="font-serif text-[clamp(26px,3vw,44px)] leading-[0.95] tracking-[-0.03em] text-[#06202B]">
+                        {activeCentre.title}
+                      </h3>
 
-          <div className="mb-2 flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.25em] text-[#0E526B]">
-            <span className="h-1 w-1 rounded-full bg-[#C8952E]" />
-            {activeCentre.eyebrow}
-          </div>
+                      <h4 className="mt-3 font-serif text-[clamp(15px,1.4vw,18px)] italic leading-tight text-[#1D82A6]">
+                        {activeCentre.subtitle}
+                      </h4>
 
-          <h3 className="font-serif text-[clamp(28px,3.2vw,46px)] leading-[0.95] tracking-[-0.03em] text-[#06202B]">
-            {activeCentre.title}
-          </h3>
+                      <p className="mt-3 line-clamp-4 text-[13px] leading-6 text-slate-500 [@media(max-height:720px)]:hidden">
+                        {activeCentre.description}
+                      </p>
 
-          <h4 className="mt-4 font-serif text-lg italic leading-tight text-[#1D82A6]">
-            {activeCentre.subtitle}
-          </h4>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {activeCentre.capabilities.map((capability) => (
+                          <span
+                            key={capability}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#1D82A6]/15 bg-[#EDF6FB]/70 px-3 py-1.5 text-[10px] font-semibold text-[#0B3446]"
+                          >
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8952E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            {capability}
+                          </span>
+                        ))}
+                      </div>
 
-          <p className="mt-3 text-[13px] leading-6 text-slate-500">
-            {activeCentre.description}
-          </p>
+                      <div className="mt-5 flex flex-wrap items-center gap-3.5">
+                        <Link
+                          href={`/centres-of-excellence/${activeCentre.slug}`}
+                          className="group inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-[11px] font-extrabold text-[#3A2B0A] shadow-[0_10px_25px_rgba(200,149,46,.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(200,149,46,.38)]"
+                          style={{ background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" }}
+                        >
+                          Explore {activeCentre.title}
+                          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                        </Link>
 
-          {/* Capabilities */}
-          <div className="mt-5 flex flex-wrap gap-2">
-            {activeCentre.capabilities.map((capability) => (
-              <span
-                key={capability}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#1D82A6]/15 bg-[#EDF6FB]/70 px-3 py-1.5 text-[10px] font-semibold text-[#0B3446] transition-colors duration-300 hover:border-[#C8952E]/40 hover:bg-white"
-              >
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8952E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                {capability}
-              </span>
-            ))}
-          </div>
+                        <div className="flex items-center gap-2.5 text-[11px] text-slate-500">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/20 bg-white/90">
+                            <span className="ml-0.5 text-[#0E526B]">▶</span>
+                          </span>
+                          Watch overview
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
 
-          {/* CTA */}
-          <div className="mt-6 flex flex-wrap items-center gap-3.5">
-            <Link
-              href={`/centres-of-excellence/${activeCentre.slug}`}
-              className="group inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-[11px] font-extrabold text-[#3A2B0A] shadow-[0_10px_25px_rgba(200,149,46,.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(200,149,46,.38)]"
-              style={{ background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" }}
-            >
-              Explore {activeCentre.title}
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
-
-            <div className="flex items-center gap-2.5 text-[11px] text-slate-500">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#1D82A6]/20 bg-white/90 transition-colors duration-300 hover:border-[#C8952E]/40">
-                <span className="ml-0.5 text-[#0E526B]">▶</span>
-              </span>
-              Watch overview
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Location badge — floats on the clear image side */}
-      <div className="absolute bottom-6 right-6 z-10 rounded-xl border border-white/50 bg-white/85 px-3.5 py-2.5 shadow-lg backdrop-blur-md transition-transform duration-500 group-hover/card:-translate-y-1">
-        <div className="text-[8px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">Apollo Hospitals</div>
-        <div className="mt-1 text-[11px] font-semibold text-[#06202B]">Jabalpur</div>
-      </div>
-    </motion.div>
-  </AnimatePresence>
-</div>
-              
+                  <div className="absolute bottom-6 right-6 z-10 rounded-xl border border-white/50 bg-white/90 px-3.5 py-2.5 shadow-lg">
+                    <div className="text-[8px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">
+                      Apollo Hospitals
+                    </div>
+                    <div className="mt-1 text-[11px] font-semibold text-[#06202B]">Jabalpur</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* BOTTOM PROGRESS */}
-          <div className="hidden shrink-0 items-center gap-7 pt-3 lg:flex">
+          <div className="flex shrink-0 items-center gap-7 pt-3">
             <div className="w-[130px] text-[8px] uppercase tracking-[0.2em] text-[#0E526B]/70">
-              <span className="text-[#C8952E]">{String(activeIndex + 1).padStart(2, "0")}</span> / 07 Centres
+              <span className="text-[#C8952E]">{pad(activeIndex + 1)}</span> / {pad(TOTAL)} Centres
             </div>
 
             <div className="flex flex-1 items-center">
               {centresOfExcellence.map((centre, index) => {
                 const active = index === activeIndex;
                 return (
-                  <button key={centre.slug} type="button" onClick={() => goToCentre(index)} className="group flex flex-1 items-center">
-                    <span className={`h-[2px] flex-1 transition-all duration-500 ${index <= activeIndex ? "bg-[#C8952E]" : "bg-[#1D82A6]/15"}`} />
+                  <button
+                    key={centre.slug}
+                    type="button"
+                    onClick={() => goToCentre(index)}
+                    aria-label={`Go to ${centre.title}`}
+                    className="group flex flex-1 items-center"
+                  >
+                    <span className={`h-[2px] flex-1 transition-colors duration-500 ${index <= activeIndex ? "bg-[#C8952E]" : "bg-[#1D82A6]/15"}`} />
                     <span
-                      className={`mx-2 flex h-5 min-w-5 items-center justify-center rounded-full border text-[8px] transition-all duration-300 ${
-                        active ? "border-[#C8952E] bg-[#C8952E] text-white shadow-[0_0_0_3px_rgba(200,149,46,.12)]" : "border-[#1D82A6]/20 bg-white text-slate-400"
+                      className={`mx-2 flex h-5 min-w-5 items-center justify-center rounded-full border text-[8px] transition-colors duration-300 ${
+                        active
+                          ? "border-[#C8952E] bg-[#C8952E] text-white shadow-[0_0_0_3px_rgba(200,149,46,.12)]"
+                          : "border-[#1D82A6]/20 bg-white text-slate-400"
                       }`}
                     >
                       {centre.id}
@@ -394,44 +422,106 @@ function CentresJourneyDesktop() {
   );
 }
 
+/* One ring node. Memoised so only the 2 nodes whose state changes re-render.
+   Outer div handles positioning (Tailwind translate), inner motion element
+   handles scale/rotate — so framer-motion never fights Tailwind's transform. */
+const RingItem = memo(function RingItem({
+  centre,
+  index,
+  isActive,
+  counterRotate,
+  onSelect,
+}) {
+  const pos = RING_POSITIONS[index];
+
+  return (
+    <div
+      className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
+      style={{ left: pos.left, top: pos.top }}
+    >
+      {/* counter-rotation pivots on the icon centre, so icons stay upright and on the path */}
+      <motion.div style={{ rotate: counterRotate }} className="will-change-transform">
+        <motion.button
+          type="button"
+          onClick={() => onSelect(index)}
+          aria-label={`Go to ${centre.title}`}
+          aria-current={isActive ? "true" : undefined}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.96 }}
+          className="relative block"
+        >
+          {/* label sits to the left of the icon, out of the pivot calculation */}
+          <span
+            className={`pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 text-right transition-opacity duration-500 ${
+              isActive ? "opacity-100" : "opacity-65"
+            }`}
+          >
+            <span className={`block text-[11px] font-medium ${isActive ? "text-[#C8952E]" : "text-slate-400"}`}>
+              {centre.id}
+            </span>
+            <span className={`mt-0.5 block w-[90px] text-[11px] font-semibold leading-tight ${isActive ? "text-[#06202B]" : "text-slate-500"}`}>
+              {centre.title}
+            </span>
+          </span>
+
+          <span
+            className={`relative flex h-[clamp(46px,7.4vh,62px)] w-[clamp(46px,7.4vh,62px)] items-center justify-center rounded-full border transition-[background,border-color,box-shadow] duration-500 ${
+              isActive
+                ? "border-[#C8952E] bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-[0_0_0_7px_rgba(200,149,46,.12),0_15px_35px_rgba(200,149,46,.28)]"
+                : "border-[#1D82A6]/20 bg-white/90 shadow-[0_8px_25px_rgba(6,32,43,.08)]"
+            }`}
+          >
+            <CentreIcon slug={centre.slug} active={isActive} />
+          </span>
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+});
+
 /* ================================================== */
 /* MOBILE / TABLET — normal-flow swipe carousel (below lg) */
 /* ================================================== */
 
 function CentresJourneyMobile() {
   const trackRef = useRef(null);
+  const rafRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const scrollToIndex = (index) => {
+  const scrollToIndex = useCallback((index) => {
     const track = trackRef.current;
-    if (!track) return;
-    const card = track.children[index];
-    if (!card) return;
-    track.scrollTo({ left: card.offsetLeft - 20, behavior: "smooth" });
-    setActiveIndex(index);
-  };
-
-  const handleScroll = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const scrollLeft = track.scrollLeft;
-    let closest = 0;
-    let closestDist = Infinity;
-    Array.from(track.children).forEach((child, i) => {
-      const dist = Math.abs(child.offsetLeft - 20 - scrollLeft);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closest = i;
-      }
+    const card = track?.children[index];
+    if (!track || !card) return;
+    track.scrollTo({
+      left: card.offsetLeft - track.children[0].offsetLeft,
+      behavior: "smooth",
     });
-    setActiveIndex(closest);
-  };
+  }, []);
+
+  // rAF-throttled: no layout reads on every scroll event
+  const handleScroll = useCallback(() => {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      const track = trackRef.current;
+      if (!track || track.children.length < 2) return;
+
+      const step = track.children[1].offsetLeft - track.children[0].offsetLeft;
+      const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+      const index = atEnd
+        ? TOTAL - 1
+        : clamp(Math.round(track.scrollLeft / step), 0, TOTAL - 1);
+
+      setActiveIndex((prev) => (prev === index ? prev : index));
+    });
+  }, []);
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   return (
-    <section className="relative overflow-hidden bg-[#EDF6FB] px-5 py-16 lg:hidden">
-
-      <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[#1D82A6]/[0.08] blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-[#C8952E]/[0.06] blur-3xl" />
+    <section className="relative overflow-hidden bg-[#EDF6FB] px-5 py-14 sm:py-16 lg:hidden">
+      <div className="pointer-events-none absolute -left-24 top-10 h-56 w-56 rounded-full bg-[#1D82A6]/[0.08] blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-56 w-56 rounded-full bg-[#C8952E]/[0.06] blur-3xl" />
 
       <div className="relative mb-8">
         <div className="mb-3 flex items-center gap-3">
@@ -441,9 +531,8 @@ function CentresJourneyMobile() {
           </span>
         </div>
 
-        <p className="max-w-sm font-serif text-2xl italic leading-tight text-[#06202B]">
-          Advanced care. Specialist expertise.
-          A healthier tomorrow.
+        <p className="max-w-sm font-serif text-2xl italic leading-tight text-[#06202B] sm:max-w-md sm:text-3xl">
+          Advanced care. Specialist expertise. A healthier tomorrow.
         </p>
       </div>
 
@@ -451,19 +540,21 @@ function CentresJourneyMobile() {
       <div
         ref={trackRef}
         onScroll={handleScroll}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {centresOfExcellence.map((centre) => (
-          <div
+        {centresOfExcellence.map((centre, index) => (
+          <article
             key={centre.slug}
-            className="w-[86%] shrink-0 snap-center overflow-hidden rounded-[26px] border border-[#1D82A6]/15 bg-white shadow-[0_20px_50px_rgba(6,32,43,.10)] sm:w-[70%]"
+            className="w-[86%] shrink-0 snap-start overflow-hidden rounded-[26px] border border-[#1D82A6]/15 bg-white shadow-[0_16px_40px_rgba(6,32,43,.10)] sm:w-[60%] md:w-[48%]"
           >
-            <div className="relative h-52 w-full">
+            <div className="relative h-48 w-full sm:h-52">
               <Image
                 src={centre.image}
                 alt={centre.title}
                 fill
-                sizes="90vw"
+                sizes="(min-width: 768px) 48vw, (min-width: 640px) 60vw, 86vw"
+                quality={70}
+                priority={index === 0}
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#06202B]/70 via-[#06202B]/10 to-transparent" />
@@ -477,16 +568,22 @@ function CentresJourneyMobile() {
               </span>
             </div>
 
-            <div className="p-6">
+            <div className="p-5 sm:p-6">
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#C8952E]">
-                {centre.id} <span className="text-slate-400">/ 07</span>
+                {centre.id} <span className="text-slate-400">/ {pad(TOTAL)}</span>
               </div>
 
-              <h3 className="font-serif text-2xl leading-tight text-[#06202B]">{centre.title}</h3>
+              <h3 className="font-serif text-2xl leading-tight text-[#06202B]">
+                {centre.title}
+              </h3>
 
-              <h4 className="mt-2 font-serif text-base italic text-[#1D82A6]">{centre.subtitle}</h4>
+              <h4 className="mt-2 font-serif text-base italic text-[#1D82A6]">
+                {centre.subtitle}
+              </h4>
 
-              <p className="mt-3 text-sm leading-6 text-slate-500">{centre.description}</p>
+              <p className="mt-3 line-clamp-4 text-sm leading-6 text-slate-500">
+                {centre.description}
+              </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {centre.capabilities.slice(0, 3).map((capability) => (
@@ -505,18 +602,18 @@ function CentresJourneyMobile() {
                 style={{ background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" }}
               >
                 Explore {centre.title}
-                <span>→</span>
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
       {/* Dots */}
-      <div className="mt-6 flex items-center justify-center gap-2">
-        {centresOfExcellence.map((_, index) => (
+      <div className="mt-5 flex items-center justify-center gap-2">
+        {centresOfExcellence.map((centre, index) => (
           <button
-            key={index}
+            key={centre.slug}
             type="button"
             onClick={() => scrollToIndex(index)}
             aria-label={`Go to centre ${index + 1}`}
@@ -534,7 +631,7 @@ function CentresJourneyMobile() {
 /* Centre icons */
 /* ------------------------------------------------ */
 
-export function CentreIcon({ slug, active }) {
+export const CentreIcon = memo(function CentreIcon({ slug, active }) {
   const stroke = active ? "#3A2B0A" : "#0E526B";
   const common = {
     width: 25,
@@ -545,6 +642,7 @@ export function CentreIcon({ slug, active }) {
     strokeWidth: 1.7,
     strokeLinecap: "round",
     strokeLinejoin: "round",
+    "aria-hidden": true,
   };
 
   if (slug === "cardiac") {
@@ -608,4 +706,4 @@ export function CentreIcon({ slug, active }) {
       <path d="M4 4h6v7H4zM14 4h6v7h-6zM4 13h6v7H4zM14 13h6v7h-6z" />
     </svg>
   );
-}
+});

@@ -156,7 +156,7 @@ function GhostBtn({ href, children, className = "" }) {
 /* ---------------- HERO ---------------- */
 
 function Hero({ doctor, tone, education, languages, highlights }) {
-  const bookHref = `/contact?doctor=${encodeURIComponent(doctor.slug)}`;
+  const bookHref = `/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`;
   const firstDegree = education[0]?.degree;
   const badge = highlights[0];
 
@@ -1098,7 +1098,7 @@ function HowToBook() {
 
 function Sidebar({ doctor }) {
   const opdDays = toList(doctor.opd?.days);
-  const bookHref = `/contact?doctor=${encodeURIComponent(doctor.slug)}`;
+  const bookHref = `/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`;
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
@@ -1365,7 +1365,7 @@ function BottomCta({ doctor }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <PrimaryBtn href={`/contact?doctor=${encodeURIComponent(doctor.slug)}`}>
+            <PrimaryBtn href={`/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`}>
               Book Appointment
             </PrimaryBtn>
             <GhostBtn href="/doctors">All Doctors</GhostBtn>
@@ -1464,7 +1464,7 @@ const related = rawDoctors
   })
   .slice(0, 3);
 
-  const bookHref = `/contact?doctor=${encodeURIComponent(doctor.slug)}`;
+  const bookHref = `/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`;
   const twoCols = expertise.length > 0 && education.length > 0;
 
   return (
