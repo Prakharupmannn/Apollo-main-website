@@ -7352,6 +7352,17 @@ export const rawDoctors = [
     },
   ],
 
+  podcasts: [
+    {
+      id: "shivangini-gupta-podcast-1",
+      title: "Dr. Shivangini Gupta – Pediatric Nephrologist in Jabalpur", // apni video ke hisaab se title likho
+      youtube: "https://youtu.be/kje75u8KL9o?si=ikyB2OQ9kVbHNJyX",
+    },
+    // dusra video ho to yahan aur add kar do 
+    
+  ],
+
+
   opd: {
     days: [],
     timing: "",

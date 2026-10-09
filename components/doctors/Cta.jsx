@@ -78,7 +78,7 @@ export default function Cta({ hospital }) {
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
 
             <Link
-              href="/contact"
+              href="/patientcare/appointment"
               className="group inline-flex h-12 items-center justify-center gap-3 rounded-full bg-[#C8952E] px-7 text-xs font-extrabold text-[#3A2B0A] shadow-[0_12px_25px_rgba(200,149,46,.20)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#D5A63B] hover:shadow-[0_18px_35px_rgba(200,149,46,.28)]"
             >
               <CalendarDays className="h-4 w-4" />

@@ -182,7 +182,7 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
   return (
     <section
       id="centres-of-excellence"
-      className="relative py-20 lg:py-28 overflow-hidden bg-[#EDF6FB]"
+      className="relative py-20 lg:py-16 overflow-hidden bg-[#EDF6FB]"
     >
       {/* ───── Dynamic Background Pattern & Floating Particles ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

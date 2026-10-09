@@ -114,7 +114,7 @@ export default async function SpecialityDetailPage({ params }) {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Top bar */}
         <div className="hero-in flex items-center justify-between flex-wrap gap-3">
           <Link

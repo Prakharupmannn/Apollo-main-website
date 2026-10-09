@@ -633,6 +633,102 @@ export default function CareersPage() {
     setMounted(true);
   }, []);
 
+  // Smooth hand-off between the job-cards box and the page scroll
+  // Smooth hand-off between the job-cards box and the page scroll
+  useEffect(() => {
+    const el = jobsScrollRef.current;
+    if (!el) return;
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    let target = null; // null | "cards" | "page" | "outside"
+    let lastWheel = 0;
+    let raf = 0;
+    let running = false;
+    let pageY = 0;
+    let goalY = 0;
+
+    const maxY = () =>
+      document.documentElement.scrollHeight - window.innerHeight;
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+    // eased page scroll, one update per frame
+    const tick = () => {
+      // someone else moved the page (scrollbar / keyboard) -> stop fighting it
+      if (Math.abs(window.scrollY - pageY) > 3) {
+        running = false;
+        return;
+      }
+      const diff = goalY - pageY;
+      if (Math.abs(diff) < 0.5) {
+        pageY = goalY;
+        window.scrollTo({ top: pageY, left: 0, behavior: "instant" });
+        running = false;
+        return;
+      }
+      pageY += diff * (reduceMotion ? 1 : 0.2);
+      window.scrollTo({ top: pageY, left: 0, behavior: "instant" });
+      raf = requestAnimationFrame(tick);
+    };
+
+    const pushPage = (dy) => {
+      if (!running) {
+        pageY = window.scrollY;
+        goalY = pageY;
+        running = true;
+        raf = requestAnimationFrame(tick);
+      }
+      goalY = clamp(goalY + dy, 0, maxY());
+    };
+
+    // Runs for every wheel event on the page: tracks where a gesture started
+    const onWinWheel = (e) => {
+      const now = performance.now();
+      if (now - lastWheel > 160) target = null; // a new gesture begins
+      lastWheel = now;
+      // gesture started outside the cards -> the page keeps it, even if the
+      // cursor slides over the cards mid-momentum
+      if (!el.contains(e.target)) target = "outside";
+    };
+
+    const onWheel = (e) => {
+      if (window.innerWidth < 1024 || e.ctrlKey) return; // phones / pinch-zoom
+      if (target === "outside") return; // let the page finish its gesture
+      if (el.scrollHeight <= el.clientHeight + 1) return; // nothing to scroll
+
+      let dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16;
+      else if (e.deltaMode === 2) dy *= window.innerHeight;
+
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      const atEdge = (dy < 0 && atTop) || (dy > 0 && atBottom);
+
+      if (target === null) target = atEdge ? "page" : "cards";
+      else if (target === "cards" && atEdge) target = "page"; // cards finished
+
+      if (target === "page") {
+        e.preventDefault();
+        pushPage(dy);
+      }
+      // target === "cards": the browser scrolls the box natively (smooth)
+    };
+
+    window.addEventListener("wheel", onWinWheel, {
+      capture: true,
+      passive: true,
+    });
+    el.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", onWinWheel, { capture: true });
+      el.removeEventListener("wheel", onWheel);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const openApply = (job) => {
     setAppForm(EMPTY_FORM);
     setAppSubmitted(false);
@@ -729,25 +825,25 @@ export default function CareersPage() {
     setActiveCategory(categories[next].key);
   };
 
-  const handleJobsWheel = (e) => {
-    const container = jobsScrollRef.current;
+  // const handleJobsWheel = (e) => {
+  //   const container = jobsScrollRef.current;
 
-    if (!container) return;
+  //   if (!container) return;
 
-    // Only control scrolling when the container
-    // actually has vertical overflow.
-    const hasVerticalScroll = container.scrollHeight > container.clientHeight;
+  //   // Only control scrolling when the container
+  //   // actually has vertical overflow.
+  //   const hasVerticalScroll = container.scrollHeight > container.clientHeight;
 
-    if (!hasVerticalScroll) return;
+  //   if (!hasVerticalScroll) return;
 
-    // Move the scroll container instead of allowing
-    // the child card to consume the wheel movement.
-    container.scrollTop += e.deltaY;
+  //   // Move the scroll container instead of allowing
+  //   // the child card to consume the wheel movement.
+  //   container.scrollTop += e.deltaY;
 
-    // Prevent the page from scrolling while cursor
-    // is inside the job cards area.
-    e.preventDefault();
-  };
+  //   // Prevent the page from scrolling while cursor
+  //   // is inside the job cards area.
+  //   e.preventDefault();
+  // };
 
   return (
     <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
@@ -1187,7 +1283,7 @@ export default function CareersPage() {
           whileInView="show"
           viewport={{ once: true, amount: 0.05 }}
           variants={staggerContainer}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mb-16"
+          className="max-w-7xl p-5 mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mb-16"
         >
           <motion.div
             variants={fadeUp}
@@ -1242,10 +1338,7 @@ export default function CareersPage() {
           {/* Two-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* LEFT: orbit selector */}
-            <motion.div
-              variants={fadeUp}
-              className="lg:col-span-5 lg:sticky lg:top-28"
-            >
+            <motion.div variants={fadeUp} className="lg:col-span-5">
               <div className="relative p-[1.5px] rounded-[2rem] bg-gradient-to-br from-[#1D82A6]/30 via-white to-[#C8952E]/40 shadow-lg">
                 <div className="bg-white rounded-[calc(2rem-1.5px)] py-4 px-2 sm:px-4">
                   <CareerOrbitSelector
@@ -1309,11 +1402,8 @@ export default function CareersPage() {
             <motion.div variants={fadeUp} className="lg:col-span-7">
               <div
                 ref={jobsScrollRef}
-                onWheel={handleJobsWheel}
-                className="lg:max-h-[640px] lg:overflow-y-auto lg:pr-1 space-y-4 lg:space-y-5"
-                style={{
-                  overscrollBehavior: "contain",
-                }}
+                className="lg:max-h-[640px] lg:overflow-y-auto lg:pr-1 space-y-4 lg:space-y-5 scrollbar-none"
+                style={{ overscrollBehavior: "auto" }}
               >
                 <AnimatePresence mode="wait">
                   <motion.div

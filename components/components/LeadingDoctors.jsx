@@ -80,7 +80,7 @@ export default function LeadingDoctors() {
   return (
     <section
       id="doctors"
-      className="relative py-24 lg:py-32 overflow-hidden bg-[#EDF6FB]"
+      className="relative py-24 lg:py-18 overflow-hidden bg-[#EDF6FB]"
     >
       {/* ───── Dynamic background — same system as the hero ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

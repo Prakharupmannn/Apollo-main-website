@@ -160,7 +160,7 @@ export default function HealthArticles() {
   return (
     <section
       id="health-articles"
-      className="relative py-20 lg:py-28 overflow-hidden bg-[#EDF6FB]"
+      className="relative py-20 lg:py-17 overflow-hidden bg-[#EDF6FB]"
     >
       {/* ───── Background Pattern & Floating Particles ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -291,7 +291,7 @@ export default function HealthArticles() {
         )}
 
         {/* ───── Category Navigation Tabs ───── */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8 no-scrollbar">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -328,8 +328,8 @@ export default function HealthArticles() {
             </button>
           </div>
         ) : (
-          <div className="relative py-10 my-4 perspective-1000">
-            <div className="relative min-h-[460px] sm:min-h-[480px] flex items-center justify-center w-full overflow-visible">
+          <div className="relative pt-10  my-2 perspective-1000">
+            <div className="relative min-h-[460px] sm:min-h-[420px] flex items-center justify-center w-full overflow-visible">
               {filteredArticles.map((item, index) => {
                 const Icon = item.icon;
                 let offset = index - activeIndex;
@@ -420,7 +420,7 @@ export default function HealthArticles() {
 
             {/* Navigation Controls */}
             {filteredArticles.length > 1 && (
-              <div className="flex items-center justify-center gap-4 mt-6 z-30 relative">
+              <div className="flex items-center justify-center gap-4 mt-2 z-30 relative">
                 <button
                   onClick={handlePrev}
                   className="w-11 h-11 rounded-full bg-white text-[#0B3446] border border-[#1D82A6]/30 shadow-md hover:bg-[#0E526B] hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"

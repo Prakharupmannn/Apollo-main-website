@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import  PodcastPlayer  from "../../../components/podcast/PodcastPlayer"
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,20 +17,20 @@ import {
   Sparkles,
   Stethoscope,
   UserRound,
-  BookOpen ,
-  ChevronDown ,
-BriefcaseBusiness,
-HeartPulse,
-Activity,
-ScanSearch,
-Target,
-Syringe,
-Focus,
-BadgeCheck,
-HeartHandshake,
-Users,
-Microscope,
-MessageCircle,
+  BookOpen,
+  ChevronDown,
+  BriefcaseBusiness,
+  HeartPulse,
+  Activity,
+  ScanSearch,
+  Target,
+  Syringe,
+  Focus,
+  BadgeCheck,
+  HeartHandshake,
+  Users,
+  Microscope,
+  MessageCircle,
 } from "lucide-react";
 
 import { rawDoctors } from "@/data/doctorsPage";
@@ -58,7 +59,7 @@ function toEducation(value) {
           degree: q.degree || "",
           institute: q.institute || "",
           year: q.year || "",
-        }
+        },
   );
 }
 
@@ -183,8 +184,8 @@ function Hero({ doctor, tone, education, languages, highlights }) {
       />
 
       {/* outline watermark */}
-     <span
-  className="
+      <span
+        className="
     pointer-events-none
     absolute
     bottom-12
@@ -200,13 +201,13 @@ function Hero({ doctor, tone, education, languages, highlights }) {
     sm:text-[16vw]
     lg:-bottom-8
   "
-  style={{
-    color: "transparent",
-    WebkitTextStroke: `1.5px ${tone.ink}20`,
-  }}
->
-  Apollo
-</span>
+        style={{
+          color: "transparent",
+          WebkitTextStroke: `1.5px ${tone.ink}20`,
+        }}
+      >
+        Apollo
+      </span>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10 lg:pt-5">
         <Link
@@ -394,7 +395,9 @@ function Facts({ doctor, education, highlights }) {
     {
       icon: Award,
       value: doctor.experience || highlights[0]?.value || "—",
-      label: doctor.experience ? "Experience" : highlights[0]?.label || "Experience",
+      label: doctor.experience
+        ? "Experience"
+        : highlights[0]?.label || "Experience",
     },
     {
       icon: GraduationCap,
@@ -403,7 +406,9 @@ function Facts({ doctor, education, highlights }) {
     },
     {
       icon: CalendarDays,
-      value: opdDays.length ? `${opdDays.length} days / week` : "By appointment",
+      value: opdDays.length
+        ? `${opdDays.length} days / week`
+        : "By appointment",
       label: "OPD",
     },
   ];
@@ -502,7 +507,11 @@ const aboutNormalizeExperience = (item) => {
   const entry = {
     title: item.role || item.title || item.position || "",
     organization:
-      item.organization || item.organisation || item.hospital || item.company || "",
+      item.organization ||
+      item.organisation ||
+      item.hospital ||
+      item.company ||
+      "",
     period: item.period || item.duration || item.year || item.years || "",
     description: item.description || item.details || "",
   };
@@ -566,7 +575,11 @@ function AboutTagItems({ items }) {
           className="flex items-start gap-2.5 rounded-xl border border-[#E3EEF2] bg-[#F8FBFD] px-3.5 py-2.5 transition-colors hover:border-[#C8952E]/40 hover:bg-white"
         >
           <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#C8952E]/15">
-            <Check className="h-2.5 w-2.5 text-[#B8821F]" strokeWidth={3.5} aria-hidden="true" />
+            <Check
+              className="h-2.5 w-2.5 text-[#B8821F]"
+              strokeWidth={3.5}
+              aria-hidden="true"
+            />
           </span>
           <span className="min-w-0 break-words text-[13px] leading-5 text-[#3F5A66]">
             {text}
@@ -642,7 +655,9 @@ function About({
 
   faqs = [],
 }) {
-  const paragraphs = aboutClean(Array.isArray(about) ? about : about ? [about] : []);
+  const paragraphs = aboutClean(
+    Array.isArray(about) ? about : about ? [about] : [],
+  );
 
   // Clean everything once, up-front
   const expertise = aboutClean(expertiseCategories);
@@ -715,7 +730,11 @@ function About({
         aria-hidden="true"
       />
 
-      <SectionTitle eyebrow="About" title="Getting to know" accent="the specialist" />
+      <SectionTitle
+        eyebrow="About"
+        title="Getting to know"
+        accent="the specialist"
+      />
 
       {/* ---------- Main About ---------- */}
       {paragraphs.length > 0 && (
@@ -737,7 +756,10 @@ function About({
 
       {/* ---------- Expertise chips ---------- */}
       {expertise.length > 0 && (
-        <ul className="mt-6 flex flex-wrap gap-2" aria-label="Areas of expertise">
+        <ul
+          className="mt-6 flex flex-wrap gap-2"
+          aria-label="Areas of expertise"
+        >
           {expertise.map((text, i) => (
             <li
               key={i}
@@ -806,7 +828,11 @@ function About({
 
             {/* Experience timeline */}
             {experience.length > 0 && (
-              <AboutGroup icon={BriefcaseBusiness} title="Professional Experience" count={experience.length}>
+              <AboutGroup
+                icon={BriefcaseBusiness}
+                title="Professional Experience"
+                count={experience.length}
+              >
                 <ol className="relative space-y-3 pl-5 before:absolute before:bottom-3 before:left-[5px] before:top-3 before:w-px before:bg-gradient-to-b before:from-[#C8952E]/60 before:to-[#DCEAF0]">
                   {experience.map((item, i) => (
                     <li key={i} className="relative">
@@ -816,10 +842,14 @@ function About({
                         {(item.title || item.organization || item.period) && (
                           <div className="mb-2">
                             {item.title && (
-                              <p className="text-[14px] font-semibold text-[#0E526B]">{item.title}</p>
+                              <p className="text-[14px] font-semibold text-[#0E526B]">
+                                {item.title}
+                              </p>
                             )}
                             {item.organization && (
-                              <p className="mt-0.5 text-[13px] text-[#3F5A66]">{item.organization}</p>
+                              <p className="mt-0.5 text-[13px] text-[#3F5A66]">
+                                {item.organization}
+                              </p>
                             )}
                             {item.period && (
                               <p className="mt-1.5 inline-block rounded-full bg-[#FFF6DF] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#9A7A32]">
@@ -829,7 +859,9 @@ function About({
                           </div>
                         )}
                         {item.description && (
-                          <p className="break-words text-[13px] leading-6 text-[#3F5A66]">{item.description}</p>
+                          <p className="break-words text-[13px] leading-6 text-[#3F5A66]">
+                            {item.description}
+                          </p>
                         )}
                       </div>
                     </li>
@@ -839,37 +871,61 @@ function About({
             )}
 
             {conditionsL.length > 0 && (
-              <AboutGroup icon={HeartPulse} title="Conditions Treated" count={conditionsL.length}>
+              <AboutGroup
+                icon={HeartPulse}
+                title="Conditions Treated"
+                count={conditionsL.length}
+              >
                 <AboutTagList items={conditionsL} />
               </AboutGroup>
             )}
 
             {proceduresL.length > 0 && (
-              <AboutGroup icon={Activity} title="Clinical Procedures" count={proceduresL.length}>
+              <AboutGroup
+                icon={Activity}
+                title="Clinical Procedures"
+                count={proceduresL.length}
+              >
                 <AboutTagList items={proceduresL} />
               </AboutGroup>
             )}
 
             {diagnosticL.length > 0 && (
-              <AboutGroup icon={ScanSearch} title="Diagnostic Services" count={diagnosticL.length}>
+              <AboutGroup
+                icon={ScanSearch}
+                title="Diagnostic Services"
+                count={diagnosticL.length}
+              >
                 <AboutTagList items={diagnosticL} />
               </AboutGroup>
             )}
 
             {interestsL.length > 0 && (
-              <AboutGroup icon={Target} title="Clinical Interests" count={interestsL.length}>
+              <AboutGroup
+                icon={Target}
+                title="Clinical Interests"
+                count={interestsL.length}
+              >
                 <AboutTagList items={interestsL} />
               </AboutGroup>
             )}
 
             {interventionsL.length > 0 && (
-              <AboutGroup icon={Syringe} title="Specialized Interventions" count={interventionsL.length}>
+              <AboutGroup
+                icon={Syringe}
+                title="Specialized Interventions"
+                count={interventionsL.length}
+              >
                 <AboutTagList items={interventionsL} />
               </AboutGroup>
             )}
 
             {specialAreasL.length > 0 && (
-              <AboutGroup icon={Focus} title="Areas of Special Interest" count={specialAreasL.length}>
+              <AboutGroup
+                icon={Focus}
+                title="Areas of Special Interest"
+                count={specialAreasL.length}
+              >
                 <AboutTagList items={specialAreasL} />
               </AboutGroup>
             )}
@@ -884,9 +940,15 @@ function About({
                       className="flex items-start gap-3 rounded-xl bg-gradient-to-r from-[#F4FAFC] to-[#FFF9EC] px-4 py-3 ring-1 ring-inset ring-[#E3EEF2]"
                     >
                       <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#F2C766] to-[#C8952E] text-white">
-                        <Check className="h-3 w-3" strokeWidth={3.5} aria-hidden="true" />
+                        <Check
+                          className="h-3 w-3"
+                          strokeWidth={3.5}
+                          aria-hidden="true"
+                        />
                       </span>
-                      <p className="text-[13px] leading-6 text-[#3F5A66]">{text}</p>
+                      <p className="text-[13px] leading-6 text-[#3F5A66]">
+                        {text}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -904,7 +966,11 @@ function About({
 
             {/* Training timeline */}
             {trainingL.length > 0 && (
-              <AboutGroup icon={GraduationCap} title="Specialized Training" count={trainingL.length}>
+              <AboutGroup
+                icon={GraduationCap}
+                title="Specialized Training"
+                count={trainingL.length}
+              >
                 <ol className="relative space-y-2.5 pl-5 before:absolute before:bottom-3 before:left-[5px] before:top-3 before:w-px before:bg-gradient-to-b before:from-[#C8952E]/60 before:to-[#DCEAF0]">
                   {trainingL.map((text, i) => (
                     <li key={i} className="relative">
@@ -919,19 +985,31 @@ function About({
             )}
 
             {certsL.length > 0 && (
-              <AboutGroup icon={BadgeCheck} title="Certifications" count={certsL.length}>
+              <AboutGroup
+                icon={BadgeCheck}
+                title="Certifications"
+                count={certsL.length}
+              >
                 <AboutTagList items={certsL} />
               </AboutGroup>
             )}
 
             {membershipsL.length > 0 && (
-              <AboutGroup icon={Users} title="Professional Memberships" count={membershipsL.length}>
+              <AboutGroup
+                icon={Users}
+                title="Professional Memberships"
+                count={membershipsL.length}
+              >
                 <AboutTagList items={membershipsL} />
               </AboutGroup>
             )}
 
             {researchL.length > 0 && (
-              <AboutGroup icon={Sparkles} title="Research & Academic Work" count={researchL.length}>
+              <AboutGroup
+                icon={Sparkles}
+                title="Research & Academic Work"
+                count={researchL.length}
+              >
                 <ul className="space-y-2">
                   {researchL.map((text, i) => (
                     <li
@@ -946,17 +1024,28 @@ function About({
             )}
 
             {researchDetailsL.length > 0 && (
-              <AboutGroup icon={Microscope} title="Research Details" count={researchDetailsL.length}>
+              <AboutGroup
+                icon={Microscope}
+                title="Research Details"
+                count={researchDetailsL.length}
+              >
                 <AboutTagList items={researchDetailsL} />
               </AboutGroup>
             )}
 
             {publicationsL.length > 0 && (
-              <AboutGroup icon={BookOpen} title="Research & Publications" count={publicationsL.length}>
+              <AboutGroup
+                icon={BookOpen}
+                title="Research & Publications"
+                count={publicationsL.length}
+              >
                 <AboutPublicationItems items={publicationsL.slice(0, 4)} />
                 {publicationsL.length > 4 && (
                   <AboutMoreWrap count={publicationsL.length - 4}>
-                    <AboutPublicationItems items={publicationsL.slice(4)} start={4} />
+                    <AboutPublicationItems
+                      items={publicationsL.slice(4)}
+                      start={4}
+                    />
                   </AboutMoreWrap>
                 )}
               </AboutGroup>
@@ -964,7 +1053,11 @@ function About({
 
             {/* FAQs — named group so each chevron reacts only to ITS own <details> */}
             {faqL.length > 0 && (
-              <AboutGroup icon={MessageCircle} title="Frequently Asked Questions" count={faqL.length}>
+              <AboutGroup
+                icon={MessageCircle}
+                title="Frequently Asked Questions"
+                count={faqL.length}
+              >
                 <div className="space-y-2.5">
                   {faqL.map((faq, i) => (
                     <details
@@ -972,32 +1065,35 @@ function About({
                       className="group/faq rounded-xl border border-[#E3EEF2] bg-white transition-colors open:border-[#C8952E]/30 open:bg-[#F8FBFD]"
                     >
                       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E526B]/30 [&::-webkit-details-marker]:hidden">
-                      {/* dono questions ek column mein */}
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[13px] font-semibold leading-5 text-[#0E526B]">
-                          {faq.question}
+                        {/* dono questions ek column mein */}
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[13px] font-semibold leading-5 text-[#0E526B]">
+                            {faq.question}
+                          </span>
+
+                          {faq.questionHindi && (
+                            <span className="mt-1 block text-[12.5px] font-medium leading-5 text-[#0E526B]/70">
+                              {faq.questionHindi}
+                            </span>
+                          )}
                         </span>
 
-                        {faq.questionHindi && (
-                          <span className="mt-1 block text-[12.5px] font-medium leading-5 text-[#0E526B]/70">
-                            {faq.questionHindi}
-                          </span>
-                        )}
-                      </span>
-
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#EDF7FA] transition-colors duration-300 group-open/faq:bg-[#C8952E] group-open/faq:text-white">
-                        <ChevronDown
-                          className="h-4 w-4 transition-transform duration-300 group-open/faq:rotate-180"
-                          aria-hidden="true"
-                        />
-                      </span>
-                    </summary>
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#EDF7FA] transition-colors duration-300 group-open/faq:bg-[#C8952E] group-open/faq:text-white">
+                          <ChevronDown
+                            className="h-4 w-4 transition-transform duration-300 group-open/faq:rotate-180"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </summary>
 
                       {faq.answer && (
                         <div className="border-t border-[#E3EEF2] px-4 pb-4 pt-3">
-                          <p className="text-[13px] leading-6 text-[#3F5A66]">{faq.answer}</p>
-                          <p className="text-[13px] leading-6 text-[#3F5A66]">{faq.answerHindi}</p>
-                          
+                          <p className="text-[13px] leading-6 text-[#3F5A66]">
+                            {faq.answer}
+                          </p>
+                          <p className="text-[13px] leading-6 text-[#3F5A66]">
+                            {faq.answerHindi}
+                          </p>
                         </div>
                       )}
                     </details>
@@ -1011,7 +1107,6 @@ function About({
     </Card>
   );
 }
-
 
 function Expertise({ items }) {
   return (
@@ -1035,7 +1130,11 @@ function Expertise({ items }) {
 function Education({ items }) {
   return (
     <Card>
-      <SectionTitle eyebrow="Credentials" title="Education &" accent="training" />
+      <SectionTitle
+        eyebrow="Credentials"
+        title="Education &"
+        accent="training"
+      />
       <ol className="space-y-3">
         {items.map((q, i) => (
           <li
@@ -1074,7 +1173,11 @@ function HowToBook() {
 
   return (
     <Card>
-      <SectionTitle eyebrow="Simple Process" title="Book in" accent="3 easy steps" />
+      <SectionTitle
+        eyebrow="Simple Process"
+        title="Book in"
+        accent="3 easy steps"
+      />
       <div className="grid gap-3 sm:grid-cols-3">
         {steps.map((s, i) => (
           <div
@@ -1191,14 +1294,11 @@ function Related({ doctors }) {
   return (
     <section className="px-4 pb-10 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
-
         {/* Header */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="min-w-0 font-serif text-lg text-[#06202B] sm:text-xl">
             More from{" "}
-            <span className="italic text-[#C8952E]">
-              this speciality
-            </span>
+            <span className="italic text-[#C8952E]">this speciality</span>
           </p>
 
           <Link
@@ -1213,9 +1313,7 @@ function Related({ doctors }) {
         {/* Doctors */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {doctors.map((d) => {
-            const tone = getTone(
-              d.specialitySlug || d.speciality
-            );
+            const tone = getTone(d.specialitySlug || d.speciality);
 
             return (
               <Link
@@ -1365,7 +1463,9 @@ function BottomCta({ doctor }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <PrimaryBtn href={`/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`}>
+            <PrimaryBtn
+              href={`/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`}
+            >
               Book Appointment
             </PrimaryBtn>
             <GhostBtn href="/doctors">All Doctors</GhostBtn>
@@ -1416,53 +1516,48 @@ export default async function DoctorProfilePage({ params }) {
     : [];
 
   const specialtyKeywords = {
-  oncology: ["onco", "cancer"],
-  cardiology: ["cardi", "heart"],
-  gastroenterology: ["gastro", "hepat"],
-  neurology: ["neuro"],
-  nephrology: ["nephro", "renal"],
-  orthopaedics: ["ortho", "joint", "spine"],
-  "critical-care": ["critical", "icu", "intensiv"],
-  gynaecology: ["gynae", "gynec", "obstet", "women"],
-  paediatrics: ["paed", "pedia", "child"],
-  urology: ["urolog"],
-};
+    oncology: ["onco", "cancer"],
+    cardiology: ["cardi", "heart"],
+    gastroenterology: ["gastro", "hepat"],
+    neurology: ["neuro"],
+    nephrology: ["nephro", "renal"],
+    orthopaedics: ["ortho", "joint", "spine"],
+    "critical-care": ["critical", "icu", "intensiv"],
+    gynaecology: ["gynae", "gynec", "obstet", "women"],
+    paediatrics: ["paed", "pedia", "child"],
+    urology: ["urolog"],
+  };
 
   const getSpecialtyKey = (d) => {
-  const text = [
-    d.specialitySlug,
-    d.speciality,
-    d.designation,
-    d.department,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+    const text = [d.specialitySlug, d.speciality, d.designation, d.department]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
-  // Explicit slug ko priority
-  if (d.specialitySlug) {
-    return d.specialitySlug.toLowerCase();
-  }
-
-  // Keywords se speciality identify
-  for (const [specialty, keywords] of Object.entries(specialtyKeywords)) {
-    if (keywords.some((keyword) => text.includes(keyword))) {
-      return specialty;
+    // Explicit slug ko priority
+    if (d.specialitySlug) {
+      return d.specialitySlug.toLowerCase();
     }
-  }
 
-  return null;
-};
+    // Keywords se speciality identify
+    for (const [specialty, keywords] of Object.entries(specialtyKeywords)) {
+      if (keywords.some((keyword) => text.includes(keyword))) {
+        return specialty;
+      }
+    }
 
-const currentSpecialty = getSpecialtyKey(doctor);
+    return null;
+  };
 
-const related = rawDoctors
-  .filter((d) => {
-    if (d.slug === doctor.slug) return false;
+  const currentSpecialty = getSpecialtyKey(doctor);
 
-    return getSpecialtyKey(d) === currentSpecialty;
-  })
-  .slice(0, 3);
+  const related = rawDoctors
+    .filter((d) => {
+      if (d.slug === doctor.slug) return false;
+
+      return getSpecialtyKey(d) === currentSpecialty;
+    })
+    .slice(0, 3);
 
   const bookHref = `/patientcare/appointment?doctor=${encodeURIComponent(doctor.slug)}`;
   const twoCols = expertise.length > 0 && education.length > 0;
@@ -1484,7 +1579,7 @@ const related = rawDoctors
           <div className="space-y-6">
             {/* <About about={about} highlights={highlights} />
              */}
-             {/* <About
+            {/* <About
   about={about}
   highlights={highlights}
   training={doctor.training}
@@ -1492,37 +1587,29 @@ const related = rawDoctors
   publications={doctor.publications}
 /> */}
 
-
-<About
-  about={about}
-  highlights={highlights}
-
-  experience={doctor.experience}
-  experienceDetails={doctor.experienceDetails}
-
-  training={doctor.training}
-  certifications={doctor.certifications}
-
-  research={doctor.research}
-  researchDetails={doctor.researchDetails}
-  publications={doctor.publications}
-
-  tagline={doctor.tagline}
-  expertiseCategories={doctor.expertiseCategories}
-  conditions={doctor.conditions}
-  clinicalProcedures={doctor.clinicalProcedures}
-  diagnosticServices={doctor.diagnosticServices}
-  clinicalInterests={doctor.clinicalInterests}
-  specializedInterventions={doctor.specializedInterventions}
-  areasOfSpecialInterest={doctor.areasOfSpecialInterest}
-
-  whyChoose={doctor.whyChoose}
-  professionalApproach={doctor.professionalApproach}
-  professionalMemberships={doctor.professionalMemberships}
-
-  faqs={doctor.faqs}
-/>
-
+            <About
+              about={about}
+              highlights={highlights}
+              experience={doctor.experience}
+              experienceDetails={doctor.experienceDetails}
+              training={doctor.training}
+              certifications={doctor.certifications}
+              research={doctor.research}
+              researchDetails={doctor.researchDetails}
+              publications={doctor.publications}
+              tagline={doctor.tagline}
+              expertiseCategories={doctor.expertiseCategories}
+              conditions={doctor.conditions}
+              clinicalProcedures={doctor.clinicalProcedures}
+              diagnosticServices={doctor.diagnosticServices}
+              clinicalInterests={doctor.clinicalInterests}
+              specializedInterventions={doctor.specializedInterventions}
+              areasOfSpecialInterest={doctor.areasOfSpecialInterest}
+              whyChoose={doctor.whyChoose}
+              professionalApproach={doctor.professionalApproach}
+              professionalMemberships={doctor.professionalMemberships}
+              faqs={doctor.faqs}
+            />
 
             {(expertise.length > 0 || education.length > 0) && (
               <div className={`grid gap-6 ${twoCols ? "md:grid-cols-2" : ""}`}>
@@ -1539,13 +1626,18 @@ const related = rawDoctors
       </section>
 
       <Related doctors={related} />
+      {doctor.podcasts?.length ? (
+        <div className="my-12">
+          <PodcastPlayer
+            podcasts={doctor.podcasts}
+            title={`Hear from ${doctor.name}`}
+          />
+        </div>
+      ) : null}
       <BottomCta doctor={doctor} />
 
       {/* mobile sticky booking bar */}
-     <MobileBookingBar
-  phone={hospital?.phone}
-  bookHref={bookHref}
-/>
+      <MobileBookingBar phone={hospital?.phone} bookHref={bookHref} />
     </main>
   );
 }

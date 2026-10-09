@@ -21,7 +21,7 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
   ];
 
   return (
-    <section className="relative py-20 lg:py-28 overflow-hidden bg-[#EDF6FB]">
+    <section className="relative py-20 lg:py-20 overflow-hidden bg-[#EDF6FB]">
       {/* ───── Dynamic background — same system as the hero ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="ab-orb ab-orb-1" />

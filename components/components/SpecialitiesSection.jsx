@@ -114,7 +114,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
   return (
     <section
       id="specialities"
-      className="relative py-24 bg-[#EDF6FB] overflow-hidden"
+      className="relative py-20 bg-[#EDF6FB] overflow-hidden"
     >
       {/* ───── Dynamic background — same system as the hero ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

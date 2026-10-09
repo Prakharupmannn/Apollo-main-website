@@ -91,7 +91,7 @@ export default function PatientTestimonials() {
   const active = testimonials[currentIndex];
 
   return (
-    <section className="relative py-20 lg:py-28 overflow-hidden bg-[#EDF6FB]">
+    <section className="relative py-20 lg:py-17 overflow-hidden bg-[#EDF6FB]">
       {/* ───── Dynamic Background Pattern & Floating Particles ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="pt-orb pt-orb-1" />

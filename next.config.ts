@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   compress: true,
   allowedDevOrigins: [
-    "192.168.2.17:3000",
-    "192.168.2.17",
+    "192.168.2.20:3000",
+    "192.168.2.20",
     "localhost:3000",
     "127.0.0.1:3000",
   ],

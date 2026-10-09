@@ -372,7 +372,7 @@ function SpecialtyRail({ active, counts }) {
 
 function WhyApollo() {
   return (
-    <section className="px-6 py-14 lg:px-10 lg:py-20">
+    <section className="px-6 py-14 lg:px-10 lg:py-15">
 
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-[#E7EDF0] bg-gradient-to-r from-[#FFFDF7] via-white to-[#F4FAFC]">
 

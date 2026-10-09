@@ -49,7 +49,7 @@ export default function WhyChooseApollo() {
   const accreditations = ["JCI Accredited", "NABH Certified", "ISO 9001:2015", "NABL Labs"];
 
   return (
-    <section id="why-choose-apollo" className="relative py-24 lg:py-32 overflow-hidden bg-[#EDF6FB]">
+    <section id="why-choose-apollo" className="relative py-15 lg:py-15 overflow-hidden bg-[#EDF6FB]">
       {/* ───── Dynamic background — same system as the hero ───── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="wca-orb wca-orb-1" />

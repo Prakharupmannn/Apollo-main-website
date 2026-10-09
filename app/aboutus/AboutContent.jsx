@@ -38,7 +38,9 @@ import {
   useSpring,
   useInView,
 } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+const AUTOPLAY_MS = 3000;
 
 /* =========================================================
    DATA
@@ -2007,32 +2009,96 @@ function Philosophy() {
 
 function Values() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedValue, setSelectedValue] = useState(null); // 👈 NEW
+  const [selectedValue, setSelectedValue] = useState(null);
 
+  const total = values.length;
+  const sectionRef = useRef(null);
+  const timerRef = useRef(null);
+  const flags = useRef({
+    hover: false,
+    inView: false,
+    tab: true,
+    modal: false,
+    reduce: false,
+  });
+
+  /* ---------- Autoplay (ref based, no extra re-renders) ---------- */
+  const schedule = useCallback(() => {
+    clearTimeout(timerRef.current);
+    const f = flags.current;
+    if (total < 2 || f.hover || f.modal || f.reduce || !f.inView || !f.tab) return;
+    timerRef.current = setTimeout(
+      () => setActiveIndex((p) => (p + 1) % total),
+      AUTOPLAY_MS
+    );
+  }, [total]);
+
+  // one-time setup: viewport, tab visibility, reduced motion
+  useEffect(() => {
+    const f = flags.current;
+    f.reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        f.inView = entry.isIntersecting;
+        schedule();
+      },
+      { threshold: 0.3 }
+    );
+    if (sectionRef.current) io.observe(sectionRef.current);
+
+    const onVis = () => {
+      f.tab = !document.hidden;
+      schedule();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+      clearTimeout(timerRef.current);
+    };
+  }, [schedule]);
+
+  // slide change (auto ya manual) => timer reset
+  useEffect(() => {
+    schedule();
+  }, [activeIndex, schedule]);
+
+  // modal open/close => pause/resume
+  useEffect(() => {
+    flags.current.modal = Boolean(selectedValue);
+    schedule();
+  }, [selectedValue, schedule]);
+
+  const setHover = (value) => (e) => {
+    if (e.pointerType && e.pointerType !== "mouse") return; // touch par pause nahi
+    flags.current.hover = value;
+    schedule();
+  };
+
+  /* ---------- Handlers ---------- */
   const openValue = (valueNumber) => {
     const index = values.findIndex((item) => item.number === valueNumber);
     if (index === -1) return;
     setActiveIndex(index);
   };
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + values.length) % values.length);
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % values.length);
-  };
+  const handlePrev = () => setActiveIndex((prev) => (prev - 1 + total) % total);
+  const handleNext = () => setActiveIndex((prev) => (prev + 1) % total);
 
   return (
-    <section className="relative overflow-hidden bg-[#EDF6FB] px-5 py-10 sm:px-8 lg:py-20">
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-[#EDF6FB] px-5 py-10 sm:px-8 lg:py-20"
+    >
       {/* Background */}
       <div className="pointer-events-none absolute -left-40 top-20 h-[500px] w-[500px] rounded-full bg-[#1D82A6]/[0.06] blur-3xl" />
       <div className="pointer-events-none absolute -right-40 bottom-0 h-[500px] w-[500px] rounded-full bg-[#C8952E]/[0.05] blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-4">
-          {/* ================= LEFT (unchanged) ================= */}
-          {/* ...same as before... */}
+          {/* ================= LEFT ================= */}
           <div className="lg:col-span-4 lg:pr-6">
             <div className="mb-5 flex items-center gap-3">
               <span className="h-px w-8 bg-[#C8952E]" />
@@ -2049,8 +2115,8 @@ function Values() {
             </h2>
 
             <p className="mt-6 max-w-sm text-sm leading-6 text-slate-500">
-              Four things that shape every patient's experience at Apollo JBP
-              Hospitals, from diagnosis to discharge.
+              Four things that shape every patient&apos;s experience at Apollo
+              JBP Hospitals, from diagnosis to discharge.
             </p>
 
             {/* VALUE LIST */}
@@ -2092,7 +2158,9 @@ function Values() {
 
                     <div>
                       <p
-                        className={`text-sm font-bold transition-colors ${isActive ? "text-[#C8952E]" : "text-[#0B3446]"}`}
+                        className={`text-sm font-bold transition-colors ${
+                          isActive ? "text-[#C8952E]" : "text-[#0B3446]"
+                        }`}
                       >
                         {value.title}
                       </p>
@@ -2107,14 +2175,25 @@ function Values() {
           </div>
 
           {/* ================= CARDS ================= */}
-          <div className="min-w-0 lg:col-span-8">
+          <div
+            className="min-w-0 lg:col-span-8"
+            onPointerEnter={setHover(true)}
+            onPointerLeave={setHover(false)}
+            onFocus={() => {
+              flags.current.hover = true;
+              schedule();
+            }}
+            onBlur={() => {
+              flags.current.hover = false;
+              schedule();
+            }}
+          >
             <div className="relative overflow-hidden py-10 perspective-1000">
-              <div className="relative min-h-[460px] sm:min-h-[480px] flex items-center justify-center w-full [mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)]">
+              <div className="relative flex min-h-[520px] w-full items-center justify-center [mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)]">
                 {values.map((value, index) => {
                   const Icon = value.icon;
 
                   let offset = index - activeIndex;
-                  const total = values.length;
                   if (offset > total / 2) offset -= total;
                   if (offset < -total / 2) offset += total;
 
@@ -2134,7 +2213,7 @@ function Values() {
                         if (!isCenter) {
                           setActiveIndex(index);
                         } else {
-                          setSelectedValue(value); // 👈 center click = open modal
+                          setSelectedValue(value); // center click = open modal
                         }
                       }}
                       style={{
@@ -2143,7 +2222,7 @@ function Values() {
                         opacity,
                         pointerEvents: absOffset > 2 ? "none" : "auto",
                       }}
-                      className={`group absolute top-0 h-[460px] w-[290px] sm:w-[320px] cursor-pointer select-none overflow-hidden rounded-[28px] transition-all duration-700 ease-out ${
+                      className={`group absolute top-[14px] h-[460px] w-[290px] cursor-pointer select-none overflow-hidden rounded-[28px] transition-[transform,opacity,box-shadow] duration-700 ease-out will-change-transform sm:w-[320px] ${
                         isCenter
                           ? "ring-2 ring-[#C8952E] ring-offset-4 ring-offset-[#EDF6FB] shadow-[0_28px_60px_-14px_rgba(6,32,43,.45)]"
                           : "shadow-[0_18px_40px_-18px_rgba(6,32,43,.35)]"
@@ -2153,7 +2232,9 @@ function Values() {
                         src={value.image}
                         alt={value.title}
                         draggable={false}
-                        className="absolute inset-0 h-full w-full select-none object-cover transition-all duration-700"
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full select-none object-cover transition-[filter,transform] duration-700"
                         style={{
                           filter: isCenter
                             ? "grayscale(0) brightness(1)"
@@ -2194,12 +2275,15 @@ function Values() {
                         </h3>
 
                         <p
-                          className={`mt-3 text-sm leading-5 text-white/75 transition-all duration-500 ${isCenter ? "line-clamp-2 opacity-100" : "line-clamp-1 opacity-0"}`}
+                          className={`mt-3 text-sm leading-5 text-white/75 transition-all duration-500 ${
+                            isCenter
+                              ? "line-clamp-2 opacity-100"
+                              : "line-clamp-1 opacity-0"
+                          }`}
                         >
                           {value.text}
                         </p>
 
-                        {/* CTA — ab clickable hai */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -2223,8 +2307,8 @@ function Values() {
                 })}
               </div>
 
-              {/* Nav + Dots — unchanged */}
-              {values.length > 1 && (
+              {/* Nav + Dots */}
+              {total > 1 && (
                 <div className="mt-6 flex items-center justify-center gap-4">
                   <button
                     onClick={handlePrev}
@@ -2233,16 +2317,22 @@ function Values() {
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
+
                   <div className="flex items-center justify-center gap-2">
                     {values.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setActiveIndex(idx)}
                         aria-label={`Go to value ${idx + 1}`}
-                        className={`h-[7px] rounded-full transition-all duration-300 ${idx === activeIndex ? "w-[22px] bg-[#0E526B]" : "w-[7px] bg-[#1D82A6]/25 hover:bg-[#1D82A6]/50"}`}
+                        className={`h-[7px] rounded-full transition-all duration-300 ${
+                          idx === activeIndex
+                            ? "w-[22px] bg-[#0E526B]"
+                            : "w-[7px] bg-[#1D82A6]/25 hover:bg-[#1D82A6]/50"
+                        }`}
                       />
                     ))}
                   </div>
+
                   <button
                     onClick={handleNext}
                     aria-label="Next value"
@@ -2259,7 +2349,7 @@ function Values() {
 
       {/* ================= Value Detail Modal ================= */}
       {selectedValue && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#06202B]/80 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#06202B]/80 p-4 backdrop-blur-md animate-fade-in sm:p-6">
           <div className="relative grid w-full max-w-4xl grid-cols-1 overflow-hidden rounded-[2rem] bg-white shadow-[0_40px_100px_-20px_rgba(6,32,43,.55)] md:h-[560px] md:grid-cols-5">
             {/* Close */}
             <button
@@ -2270,7 +2360,7 @@ function Values() {
               <X className="h-4 w-4" />
             </button>
 
-            {/* ================= LEFT — Photographic panel ================= */}
+            {/* LEFT: Photographic panel */}
             <div className="relative hidden h-full overflow-hidden md:col-span-2 md:block">
               <img
                 src={selectedValue.image}
@@ -2299,9 +2389,9 @@ function Values() {
               </div>
             </div>
 
-            {/* ================= RIGHT — Content panel ================= */}
+            {/* RIGHT: Content panel */}
             <div className="relative flex flex-col md:col-span-3">
-              {/* Mobile-only compact header (image panel hidden below md) */}
+              {/* Mobile-only compact header */}
               <div className="border-b border-slate-100 px-6 pb-5 pt-7 md:hidden">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C8952E]">
                   Patient Care Philosophy
@@ -2321,7 +2411,7 @@ function Values() {
                 </div>
               )}
 
-              {/* Scrollable content — scrollbar hidden */}
+              {/* Scrollable content */}
               <div className="scrollbar-hide flex-1 overflow-y-auto px-6 py-6 md:px-9 md:py-7">
                 <span className="font-serif text-5xl italic leading-none text-[#C8952E]/30">
                   &ldquo;
