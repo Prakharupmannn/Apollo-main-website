@@ -381,7 +381,7 @@ function HeroLive({
             <span className="absolute inset-0 rounded-full bg-[#F6D98A]/40 hx-halo" />
             <div className="relative p-[3px] rounded-full bg-gradient-to-br from-[#F6D98A] via-white to-[#C8952E] shadow-[0_30px_70px_rgba(0,0,0,0.35)]">
               <Photo
-                src={p3}
+                src={p2}
                 alt="Apollo health story"
                 className="w-52 h-52 sm:w-64 sm:h-64 lg:w-72 lg:h-72"
               />
@@ -392,7 +392,7 @@ function HeroLive({
           <div className="absolute top-[4%] right-[4%] hx-float">
             <div className="p-[2px] rounded-full bg-white/70 shadow-xl">
               <Photo
-                src={p1}
+                src={p3}
                 alt="Apollo news"
                 className="w-20 h-20 sm:w-28 sm:h-28"
               />
@@ -404,7 +404,7 @@ function HeroLive({
           >
             <div className="p-[2px] rounded-full bg-gradient-to-br from-[#F6D98A] to-[#C8952E] shadow-xl">
               <Photo
-                src={p2}
+                src={p1}
                 alt="Apollo care"
                 className="w-24 h-24 sm:w-32 sm:h-32"
               />
