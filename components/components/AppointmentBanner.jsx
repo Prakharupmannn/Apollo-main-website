@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Calendar,
   ChevronRight,
@@ -13,11 +14,20 @@ import {
   Headphones,
 } from "lucide-react";
 
-export default function AppointmentBanner({ onOpenAppointmentModal }) {
+
+export default function AppointmentBanner() {
   const trustPoints = [
     { icon: Zap, label: "Zero Wait Times", desc: "Instant slot confirmation" },
-    { icon: MessageCircleMore, label: "SMS & WhatsApp", desc: "Digital receipt, instantly" },
-    { icon: Clock, label: "24/7 Booking Desk", desc: "Round-the-clock support" },
+    {
+      icon: MessageCircleMore,
+      label: "SMS & WhatsApp",
+      desc: "Digital receipt, instantly",
+    },
+    {
+      icon: Clock,
+      label: "24/7 Booking Desk",
+      desc: "Round-the-clock support",
+    },
   ];
 
   return (
@@ -32,14 +42,28 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
           style={{
             backgroundImage: "radial-gradient(#2A8FAF 1px, transparent 1px)",
             backgroundSize: "26px 26px",
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black 15%, transparent 75%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black 15%, transparent 75%)",
+            maskImage:
+              "radial-gradient(ellipse 70% 60% at 50% 40%, black 15%, transparent 75%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 70% 60% at 50% 40%, black 15%, transparent 75%)",
           }}
         />
-        <span className="ab-sparkle" style={{ top: "16%", left: "10%", animationDelay: "0s" }} />
-        <span className="ab-sparkle" style={{ top: "72%", left: "6%", animationDelay: "1.3s" }} />
-        <span className="ab-sparkle" style={{ top: "22%", left: "90%", animationDelay: "2.1s" }} />
-        <span className="ab-sparkle" style={{ top: "80%", left: "92%", animationDelay: "0.7s" }} />
+        <span
+          className="ab-sparkle"
+          style={{ top: "16%", left: "10%", animationDelay: "0s" }}
+        />
+        <span
+          className="ab-sparkle"
+          style={{ top: "72%", left: "6%", animationDelay: "1.3s" }}
+        />
+        <span
+          className="ab-sparkle"
+          style={{ top: "22%", left: "90%", animationDelay: "2.1s" }}
+        />
+        <span
+          className="ab-sparkle"
+          style={{ top: "80%", left: "92%", animationDelay: "0.7s" }}
+        />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
@@ -55,37 +79,46 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
               {/* Left content */}
               <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-[#FEF3C7] text-xs font-bold border border-[#F6D98A]/40 shadow-inner">
-                  <Sparkles className="w-3.5 h-3.5 text-[#F6D98A] animate-pulse" /> Take the First Step
+                  <Sparkles className="w-3.5 h-3.5 text-[#F6D98A] animate-pulse" />{" "}
+                  Take the First Step
                 </span>
 
                 <h2 className="text-3xl sm:text-4xl lg:text-[2.85rem] font-extrabold text-white leading-[1.15] tracking-tight">
                   Book Your Appointment{" "}
                   <span
                     className="bg-clip-text text-transparent drop-shadow-sm"
-                    style={{ backgroundImage: "linear-gradient(90deg, #F6D98A 0%, #E8C173 50%, #C8952E 100%)" }}
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(90deg, #F6D98A 0%, #E8C173 50%, #C8952E 100%)",
+                    }}
                   >
                     Today
                   </span>
                 </h2>
 
                 <p className="text-sm sm:text-base text-slate-100/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                  World-class healthcare is just a click away. Connect with top surgeons and
-                  multi-specialty consultants in minutes — no queues, no delays.
+                  World-class healthcare is just a click away. Connect with top
+                  surgeons and multi-specialty consultants in minutes — no
+                  queues, no delays.
                 </p>
 
                 {/* CTAs */}
                 <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                  <button
-                    onClick={onOpenAppointmentModal}
+                  <Link
+                    href="/patientcare/appointment"
                     className="group relative inline-flex items-center gap-2.5 px-8 py-4 rounded-full text-sm font-extrabold text-[#3A2B0A] shadow-[0_10px_30px_rgba(197,146,46,0.45)] hover:shadow-[0_16px_40px_rgba(197,146,46,0.65)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
-                    style={{ background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" }}
+                    style={{
+                      background:
+                        "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                    }}
                   >
-                    {/* Subtle shine sweep on button hover */}
-                    <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                    <Calendar className="w-4 h-4 text-[#3A2B0A]" />
-                    <span>Book Now</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-                  </button>
+                    {" "}
+                    {/* Subtle shine sweep on button hover */}{" "}
+                    <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />{" "}
+                    <Calendar className="w-4 h-4 text-[#3A2B0A]" />{" "}
+                    <span>Book Now</span>{" "}
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />{" "}
+                  </Link>
 
                   <a
                     href="tel:1066"
@@ -110,7 +143,9 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
                         className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.08] backdrop-blur-sm border border-white/15 text-xs text-slate-100 hover:bg-white/15 hover:border-white/25 transition-all duration-200"
                       >
                         <Icon className="w-3.5 h-3.5 text-[#F6D98A] shrink-0" />
-                        <span className="font-semibold text-[11.5px]">{t.label}</span>
+                        <span className="font-semibold text-[11.5px]">
+                          {t.label}
+                        </span>
                       </div>
                     );
                   })}
@@ -135,7 +170,10 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
                       <div className="absolute inset-0 rounded-2xl bg-[#F6D98A]/40 blur-xl group-hover:blur-2xl transition-all duration-300" />
                       <div
                         className="relative w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl border border-white/30 transform group-hover:scale-105 transition-transform duration-300"
-                        style={{ background: "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)" }}
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)",
+                        }}
                       >
                         <ShieldCheck className="w-8 h-8 text-[#3A2B0A]" />
                       </div>
@@ -146,7 +184,8 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
                       <CheckCircle2 className="w-4 h-4 text-[#F6D98A]" />
                     </h3>
                     <p className="text-xs text-slate-100/90 mt-2 leading-relaxed max-w-[240px]">
-                      Zero wait times, Instant Digital Receipt, and immediate SMS &amp; WhatsApp confirmation.
+                      Zero wait times, Instant Digital Receipt, and immediate
+                      SMS &amp; WhatsApp confirmation.
                     </p>
                   </div>
 
@@ -181,8 +220,15 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
           animation: abGlowPulse 6s ease-in-out infinite;
         }
         @keyframes abGlowPulse {
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.08); }
+          0%,
+          100% {
+            opacity: 0.5;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.08);
+          }
         }
 
         .ab-orb {
@@ -218,16 +264,31 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
           animation: abFloat3 18s ease-in-out infinite;
         }
         @keyframes abFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, 40px) scale(1.08); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, 40px) scale(1.08);
+          }
         }
         @keyframes abFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 30px) scale(1.06); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-40px, 30px) scale(1.06);
+          }
         }
         @keyframes abFloat3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -35px) scale(1.05); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(30px, -35px) scale(1.05);
+          }
         }
         .ab-sparkle {
           position: absolute;
@@ -239,8 +300,15 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
           animation: abTwinkle 3.5s ease-in-out infinite;
         }
         @keyframes abTwinkle {
-          0%, 100% { opacity: 0; transform: scale(0.6); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%,
+          100% {
+            opacity: 0;
+            transform: scale(0.6);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
       `}</style>
     </section>

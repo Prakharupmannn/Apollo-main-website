@@ -190,7 +190,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         {
           name: "Make Appointment",
           href: "/patientcare/appointment",
-          desc: "Instant Doctor Consultation Booking",
+          desc: "Book a Doctor’s Appointment Instantly",
         },
         {
           name: "Ambulance Service",

@@ -81,7 +81,7 @@ export default function Footer({ onOpenAppointmentModal }) {
             <div className="space-y-2 max-w-2xl relative z-10">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0E526B]/10 text-[#0E526B] text-[11px] font-bold uppercase tracking-wider border border-[#0E526B]/20">
                 <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
-                <span>Apollo Hospitals Jabalpur • Central India Hub</span>
+                <span>Apollo JBP Hospitals Jabalpur • Central India Hub</span>
               </div>
               <h3 className="font-serif-apollo text-2xl sm:text-3xl font-bold text-[#0E526B] leading-tight">
                 Touching Lives, Healing Hearts,{" "}
@@ -121,7 +121,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               <div className="bg-white p-2 rounded-2xl shadow-md border border-white/40">
                 <Image
                   src="/images/apollologo.png"
-                  alt="Apollo Hospitals Logo"
+                  alt="Apollo JBP Hospitals Logo"
                   width={160}
                   height={40}
                   className="h-10 w-auto object-contain"
@@ -129,7 +129,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </div>
               <div>
                 <span className="font-serif-apollo text-xl font-bold text-white block leading-none">
-                  Apollo Hospitals
+                  Apollo JBP Hospitals
                 </span>
                 <span className="text-[10px] text-[#F59E0B] uppercase tracking-widest font-bold block mt-1">
                   JABALPUR • MADHYA PRADESH
@@ -138,7 +138,7 @@ export default function Footer({ onOpenAppointmentModal }) {
             </div>
 
             <p className="text-xs text-slate-200 leading-relaxed max-w-sm">
-              Apollo Hospitals Jabalpur is a state-of-the-art multi-specialty
+              Apollo JBP Hospitals Jabalpur is a state-of-the-art multi-specialty
               tertiary care center providing advanced cardiac, oncology, robotic
               joint replacement, and neuro-trauma services.
             </p>
@@ -340,7 +340,7 @@ export default function Footer({ onOpenAppointmentModal }) {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 gap-4 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <span>
-              © {new Date().getFullYear()} Apollo Hospitals Jabalpur. All Rights
+              © {new Date().getFullYear()} Apollo JBP Hospitals Jabalpur. All Rights
               Reserved.
             </span>
           </div>
