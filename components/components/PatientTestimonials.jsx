@@ -45,7 +45,7 @@ export default function PatientTestimonials() {
     },
     {
       id: 3,
-      name: "Ankush Singh Kotwal",
+      name: "Ankush Rai",
       location: "Indore, India",
       procedure: "Total Hip Replacement",
       rating: 5,

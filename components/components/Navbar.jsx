@@ -687,7 +687,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   Need Immediate Help?
                 </h4>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  We always support in emergencies. Contact us immediately if you are experiencing any serious health problems.
+                  We are always here to help in an emergency. Contact us immediately if you are experiencing any serious health problems.
                 </p>
                 <a
                   href="tel:7566123666"
@@ -766,7 +766,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
             className="w-full flex items-center justify-center gap-2 py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#0A5F7A] via-[#17627D] to-[#0E526B] shadow-[0_8px_20px_rgba(10,95,122,0.35)] hover:shadow-[0_10px_25px_rgba(10,95,122,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer group"
           >
             <Calendar className="w-4 h-4 text-[#F6D98A]" />
-            <span>Request An Appointment</span>
+            <span>Request an Appointment</span>
             <ArrowRight className="w-4 h-4 text-[#F6D98A] group-hover:translate-x-1 transition-transform" />
           </button>
 

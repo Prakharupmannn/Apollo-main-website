@@ -146,7 +146,7 @@ export default function AppointmentBanner({ onOpenAppointmentModal }) {
                       <CheckCircle2 className="w-4 h-4 text-[#F6D98A]" />
                     </h3>
                     <p className="text-xs text-slate-100/90 mt-2 leading-relaxed max-w-[240px]">
-                      Zero wait times, direct digital receipt, and immediate SMS &amp; WhatsApp confirmation.
+                      Zero wait times, Instant Digital Receipt, and immediate SMS &amp; WhatsApp confirmation.
                     </p>
                   </div>
 

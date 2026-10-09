@@ -147,7 +147,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
                 <span>
-                  Global Square, Patan Rd, Karmeta, Jabalpur, MP 482002
+                  Global Square, Patan Road, Karmeta, Jabalpur, MP 482002
                 </span>
               </div>
               <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">

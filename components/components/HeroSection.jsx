@@ -240,8 +240,7 @@ export default function HeroSection({ onSearchSubmit }) {
             {/* Description */}
             <p className="text-[15px] sm:text-base text-slate-600 leading-[1.8] max-w-xl mx-auto lg:mx-0 break-words">
               Advanced healthcare, trusted by millions, for every stage of life.
-              Combining 40+ years of clinical excellence, robotic surgical
-              precision, and world-renowned specialists — because every life
+              Combining over 40 years of clinical experience with advanced surgical technology and expert specialists — because every life
               matters.
             </p>
 
@@ -323,7 +322,7 @@ export default function HeroSection({ onSearchSubmit }) {
                     JCI Accredited
                   </div>
                   <div className="text-[10.5px] text-slate-500">
-                    Global gold standard
+                    A Global Gold Standard in Healthcare
                   </div>
                 </div>
               </div>
@@ -351,7 +350,7 @@ export default function HeroSection({ onSearchSubmit }) {
                     13,000+ Doctors
                   </div>
                   <div className="text-[10.5px] text-slate-500">
-                    Top consultants
+                    Leading Medical Specialists
                   </div>
                 </div>
               </div>

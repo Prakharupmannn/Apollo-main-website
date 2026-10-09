@@ -59,7 +59,7 @@ export default function HealthArticles() {
     {
       id: 2,
       title: "The Importance of Regular Checkups",
-      subtitle: "Prevention is better than care: silent symptoms caught early",
+      subtitle: "Prevention Is Better Than Cure: silent symptoms caught early",
       category: "Preventive Care",
       readTime: "5 min read",
       author: "Dr. Meera Vasudevan",

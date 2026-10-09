@@ -33,14 +33,14 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
     {
       id: "health-check",
       title: "Health Checkup",
-      desc: "Expert, clinical, comprehensive preventive plans",
+      desc: "Comprehensive Preventive Health Check-up Plans",
       icon: Activity,
       href: "/ourspecialities",
       badge: "Full Body Care",
     },
     {
       id: "ambulance",
-      title: "Book Ambulance",
+      title: "Ambulance Service",
       desc: "Fully equipped ambulance with trained paramedics, at your doorstep",
       icon: Ambulance,
       href: "/patientcare/ambulance",
@@ -49,7 +49,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
     {
       id: "emergency",
       title: "Emergency Care",
-      desc: "24x7 critical care, trauma & ambulance service",
+      desc: "24/7 Critical Care, Trauma and Ambulance Services",
       icon: Siren,
       href: "/emergency",
       badge: "24/7 Rapid",
@@ -59,7 +59,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
 
   const stats = [
     { value: "40+", label: "Years of Trusted Care", desc: "Pioneering healthcare since 1983" },
-    { value: "13,000+", label: "Expert Doctors", desc: "World-renowned medical minds" },
+    { value: "13,000+", label: "Expert Doctors", desc: "Highly Experienced Medical Specialists" },
     { value: "70+", label: "Hospitals Across India", desc: "State-of-the-art facilities" },
     { value: "Millions", label: "Lives Touched", desc: "Across 120+ countries worldwide" },
   ];
