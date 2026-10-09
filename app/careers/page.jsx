@@ -312,7 +312,7 @@ const defaultTheme = {
 };
 
 /* ───────────── All 22 job openings ───────────── */
-const LOC = "Apollo Hospitals Jabalpur";
+const LOC = "Apollo JBP Hospitals Jabalpur";
 const jobsList = [
   {
     id: "dietician",
@@ -1004,7 +1004,7 @@ export default function CareersPage() {
                 </span>
                 <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
                 <span>
-                  Work With Asia's Healthcare Leader • Apollo Hospitals Jabalpur
+                  Work With Asia's Healthcare Leader • Apollo JBP Hospitals Jabalpur
                 </span>
               </motion.div>
 
@@ -1071,7 +1071,7 @@ export default function CareersPage() {
               >
                 <Image
                   src="/images/careers/careers.png"
-                  alt="Apollo Hospitals Jabalpur careers"
+                  alt="Apollo JBP Hospitals Jabalpur careers"
                   width={800}
                   height={460}
                   className="w-full h-[340px] sm:h-[420px] lg:h-[460px] object-cover"
@@ -1449,7 +1449,7 @@ export default function CareersPage() {
                                 <h3
                                   className={`font-serif-apollo text-sm font-black leading-snug mb-1.5 ${theme.titleAccent}`}
                                 >
-                                  {job.title} – Apollo Hospitals Jabalpur
+                                  {job.title} – Apollo JBP Hospitals Jabalpur
                                 </h3>
                                 <p className="text-[11px] text-slate-600 font-semibold">
                                   {job.dept}

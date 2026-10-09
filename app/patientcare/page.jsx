@@ -280,7 +280,7 @@ export default function PatientCarePage() {
                   >
                     <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
                     <span>
-                      Patient-Centred Healthcare • Apollo Hospitals Jabalpur
+                      Patient-Centred Healthcare • Apollo JBP Hospitals Jabalpur
                     </span>
                   </motion.div>
 

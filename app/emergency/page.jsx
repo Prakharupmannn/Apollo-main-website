@@ -510,7 +510,7 @@ export default function EmergencyPage() {
                   >
                     Rapid high-precision response, cardiac ACLS ambulances,
                     Level-1 trauma surgeons, 24/7 STEMI Cath Lab, and express
-                    emergency triage at Apollo Hospitals Jabalpur.
+                    emergency triage at Apollo JBP Hospitals Jabalpur.
                   </motion.p>
 
                   {/* Primary Emergency CTA Buttons */}

@@ -351,7 +351,7 @@ export default function OurSpecialitiesPage() {
               <div className="relative z-10 max-w-3xl">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-[#FEF3C7] text-xs font-bold mb-6 shadow-inner">
                   <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
-                  <span>Apollo Hospitals Jabalpur • Multi-Super Specialty Directory</span>
+                  <span>Apollo JBP Hospitals Jabalpur • Multi-Super Specialty Directory</span>
                 </div>
 
                 <h1 className="font-serif-apollo text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-4">

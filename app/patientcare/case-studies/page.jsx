@@ -515,7 +515,7 @@ export default function CaseStudiesPage() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1D82A6]" />
                 </span>
                 <span className="truncate">
-                  Clinical Excellence • Apollo Hospitals Jabalpur
+                  Clinical Excellence • Apollo JBP Hospitals Jabalpur
                 </span>
               </motion.div>
 
@@ -604,7 +604,7 @@ export default function CaseStudiesPage() {
               >
                 <img
                   src="/images/case-studies/Case-Studies.png"
-                  alt="Apollo Hospitals clinical team"
+                  alt="Apollo JBP Hospitals clinical team"
                   className="w-full h-[300px] sm:h-[420px] lg:h-[460px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B3446]/40 via-transparent to-transparent" />

@@ -38,7 +38,7 @@ const jsonLd = {
   },
   parentOrganization: {
     "@type": "Organization",
-    name: "Apollo Hospitals Enterprise Ltd.",
+    name: "Apollo JBP Hospitals Enterprise Ltd.",
   },
   medicalSpecialty: [
     "Cardiology",

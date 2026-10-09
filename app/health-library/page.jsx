@@ -246,7 +246,7 @@ function HeroLive({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-400" />
             </span>
             <span className="tracking-wide">
-              Live from Apollo Hospitals Jabalpur
+              Live from Apollo JBP Hospitals Jabalpur
             </span>
             <Sparkles className="w-4 h-4 text-[#F6D98A] animate-pulse" />
           </div>
@@ -266,7 +266,7 @@ function HeroLive({
 
           <p className="text-slate-100/90 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
             Real-time medical updates, EBUS pulmonary diagnostics, insurance TPA
-            guides and doctor-reviewed articles, straight from Apollo Hospitals
+            guides and doctor-reviewed articles, straight from Apollo JBP Hospitals
             Jabalpur.
           </p>
 

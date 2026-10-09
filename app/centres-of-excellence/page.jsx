@@ -4,9 +4,9 @@ import CentresJourney, { CentreIcon } from "@/components/centres/CentresJourney"
 import { centresOfExcellence } from "@/data/centresOfExcellence";
 
 export const metadata = {
-  title: "Centres of Excellence | Apollo Hospitals Jabalpur",
+  title: "Centres of Excellence | Apollo JBP Hospitals Jabalpur",
   description:
-    "Explore the Centres of Excellence at Apollo Hospitals Jabalpur.",
+    "Explore the Centres of Excellence at Apollo JBP Hospitals Jabalpur.",
 };
 
 const pad = (n) => String(n).padStart(2, "0");

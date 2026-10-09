@@ -52,7 +52,7 @@ export default function AppointmentModal({ isOpen, onClose }) {
               <h3 className="font-serif-apollo text-xl font-bold text-[#FEF3C7]">
                 Book Appointment
               </h3>
-              <p className="text-xs text-slate-200">Apollo Hospitals • Fast Track Registration</p>
+              <p className="text-xs text-slate-200">Apollo JBP Hospitals • Fast Track Registration</p>
             </div>
           </div>
 

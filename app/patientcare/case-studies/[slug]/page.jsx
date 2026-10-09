@@ -526,7 +526,7 @@ export default function CaseStudyDetailPage({ params }) {
                       {caseData.patient || "Verified Apollo Patient"}
                     </div>
                     <div className="text-[10px] font-semibold text-[#8C6418]">
-                      Apollo Hospitals Jabalpur Patient Review
+                      Apollo JBP Hospitals Jabalpur Patient Review
                     </div>
                   </div>
                 </div>

@@ -344,8 +344,8 @@ export default function ContactPage() {
 
   const faqs = [
     {
-      q: "Where is Apollo Hospital Jabalpur located and how do I navigate there?",
-      a: "Apollo Hospital Jabalpur is conveniently situated on the main arterial corridor in Jabalpur, Madhya Pradesh. You can follow our live interactive Google Map embed above or navigate via GPS for direct entry to main OPD and Emergency gates.",
+      q: "Where is Apollo JBP Hospital Jabalpur located and how do I navigate there?",
+      a: "Apollo JBP Hospital Jabalpur is conveniently situated on the main arterial corridor in Jabalpur, Madhya Pradesh. You can follow our live interactive Google Map embed above or navigate via GPS for direct entry to main OPD and Emergency gates.",
     },
     {
       q: "What emergency services are available 24/7 at the Jabalpur facility?",
@@ -470,7 +470,7 @@ export default function ContactPage() {
                 <div className="p-1 rounded-full bg-[#1D82A6]/10">
                   <Building className="w-4 h-4 text-[#1D82A6]" />
                 </div>
-                <span>Apollo Hospital Jabalpur</span>
+                <span>Apollo JBP Hospital Jabalpur</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#C8952E]" />
                 <span className="text-slate-500 font-semibold">
                   Super-Specialty Medical Hub
@@ -759,7 +759,7 @@ export default function ContactPage() {
                     <span>Hospital Navigation & Campus Map</span>
                   </div>
                   <h2 className="font-serif-apollo text-2xl sm:text-3xl font-black text-[#0B3446]">
-                    Apollo Hospitals{" "}
+                    Apollo JBP Hospitals{" "}
                     <span
                       className="bg-clip-text text-transparent"
                       style={{

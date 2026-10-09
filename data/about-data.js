@@ -17,7 +17,7 @@ export const storyBeats = [
   {
     year: "Origin",
     title: "A Partnership Years in the Making",
-    text: "Apollo JBP Hospitals is a managed unit of Apollo Hospitals Enterprise Limited, established through a strategic partnership between the Global Institute of Medical Science & Health Care and Apollo Hospitals Enterprise Limited.",
+    text: "Apollo JBP Hospitals is a managed unit of Apollo JBP Hospitals Enterprise Limited, established through a strategic partnership between the Global Institute of Medical Science & Health Care and Apollo JBP Hospitals Enterprise Limited.",
   },
   {
     year: "May 2025",
@@ -67,7 +67,7 @@ export const localStats = [
 ];
 
 export const networkStats = {
-  caption: "Backed by the Apollo Hospitals Enterprise network",
+  caption: "Backed by the Apollo JBP Hospitals Enterprise network",
   items: [
     { value: "42+", label: "Years since Apollo's founding, 1983" },
     { value: "70+", label: "Hospitals across the Apollo network" },

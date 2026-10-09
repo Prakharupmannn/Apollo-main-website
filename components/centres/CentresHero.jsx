@@ -60,7 +60,7 @@ export default function CentresHero() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#C8952E]" />
             </span>
             <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#0E526B] sm:text-[11px]">
-              Apollo Hospitals · Jabalpur
+              Apollo JBP Hospitals · Jabalpur
             </span>
           </div>
 
@@ -185,7 +185,7 @@ export default function CentresHero() {
             className="cx-float absolute bottom-[14%] right-0 z-10 rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-[0_20px_50px_-15px_rgba(6,32,43,.35)]"
             style={{ animationDelay: "-3s" }}
           >
-            <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">Apollo Hospitals</div>
+            <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">Apollo JBP Hospitals</div>
             <div className="mt-0.5 font-serif text-[15px] italic text-[#06202B]">For a Healthier Tomorrow</div>
           </div>
         </div>

@@ -514,7 +514,7 @@ export const centresOfExcellence = [
   subtitle: "Advanced heart care for every beat of life",
 
   description:
-    "At Apollo Hospitals, the Best Heart Hospital in Jabalpur, our expert Heart Specialists in Jabalpur provide advanced diagnostics, cutting-edge treatments, and compassionate cardiac care.",
+    "At Apollo JBP Hospitals, the Best Heart Hospital in Jabalpur, our expert Heart Specialists in Jabalpur provide advanced diagnostics, cutting-edge treatments, and compassionate cardiac care.",
 
   descriptionn:
     "Comprehensive cardiac care combining advanced diagnostics, interventional cardiology, cardiac surgery, vascular surgery, pediatric cardiology and preventive heart care.",

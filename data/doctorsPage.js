@@ -686,7 +686,7 @@ export const rawDoctors = [
     },
     {
       designation: "Senior Consultant Medical Gastroenterologist",
-      hospital: "Apollo Hospitals, Arilova Health City, Visakhapatnam"
+      hospital: "Apollo JBP Hospitals, Arilova Health City, Visakhapatnam"
     },
     {
       designation:
@@ -759,14 +759,14 @@ export const rawDoctors = [
   languages: [],
 
   summary:
-    "Dr. Devashish Chhuttani is a Consultant Orthopaedic Surgeon with over 8 years of experience in Complex Trauma, Joint Replacement, Arthroscopy, and Sports Medicine. He is currently practicing at Apollo Hospital, Jabalpur.",
+    "Dr. Devashish Chhuttani is a Consultant Orthopaedic Surgeon with over 8 years of experience in Complex Trauma, Joint Replacement, Arthroscopy, and Sports Medicine. He is currently practicing at Apollo JBP Hospital, Jabalpur.",
 
   about: [
     "Dr. Devashish Chhuttani is a Consultant Orthopaedic Surgeon with over 8 years of experience in Complex Trauma, Joint Replacement, Arthroscopy, and Sports Medicine.",
 
     "He completed his MBBS from Government Stanley Medical College, Chennai, and MS Orthopaedics from MGM Medical College, Indore, where he was awarded a Gold Medal. He further served as Senior Resident in the Department of Orthopaedics at AIIMS, New Delhi — the premier and most prestigious medical institute of the country.",
 
-    "Dr. Chhuttani has completed advanced fellowships in Robotic Knee Arthroplasty and Advanced Arthroscopy & Sports Medicine. He is currently practicing at Apollo Hospital, Jabalpur. His areas of expertise include Robotic Total Knee Replacement, Primary and Revision Hip & Knee Arthroplasty, Pelvic-Acetabulum fracture fixation, and advanced arthroscopic procedures for knee and shoulder injuries.",
+    "Dr. Chhuttani has completed advanced fellowships in Robotic Knee Arthroplasty and Advanced Arthroscopy & Sports Medicine. He is currently practicing at Apollo JBP Hospital, Jabalpur. His areas of expertise include Robotic Total Knee Replacement, Primary and Revision Hip & Knee Arthroplasty, Pelvic-Acetabulum fracture fixation, and advanced arthroscopic procedures for knee and shoulder injuries.",
 
     "A gold medalist and active academician, he has 11+ indexed publications in national and international journals and has received multiple awards for research presentations. He is dedicated to providing advanced, minimally invasive, and patient-centered orthopaedic care."
   ],
@@ -5202,7 +5202,7 @@ export const rawDoctors = [
     "Dr. Amit Vijay Ghatge is a highly experienced ENT (Ear, Nose & Throat) surgeon with over 20 years of post-MS clinical expertise.",
     "He has trained and worked at some of India's prestigious hospitals and institutions, developing advanced skills in micro-ear surgery, endoscopic sinus surgery, head and neck surgery and comprehensive ENT care.",
     "His professional experience includes leading hospitals and medical institutions across Nagpur, Mumbai and Aurangabad, including Tata Memorial Hospital, Jaslok Hospital, Wadia Children's Hospital and Seth A.J.B. Municipal ENT Hospital.",
-    "Currently associated with Apollo Hospitals, Jabalpur, he provides advanced ENT consultation and surgical treatment with a focus on compassion, precision and patient care."
+    "Currently associated with Apollo JBP Hospitals, Jabalpur, he provides advanced ENT consultation and surgical treatment with a focus on compassion, precision and patient care."
   ],
 
   qualifications: [

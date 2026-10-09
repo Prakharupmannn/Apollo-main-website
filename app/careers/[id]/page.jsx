@@ -368,7 +368,7 @@ export default function JobDetailPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Building2 className="w-4 h-4 text-[#1D82A6] shrink-0" />
-                  <span>Apollo Hospitals Enterprise</span>
+                  <span>Apollo JBP Hospitals Enterprise</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-[#C8952E] shrink-0" />
@@ -489,7 +489,7 @@ export default function JobDetailPage() {
                   <Award className="w-5 h-5" />
                 </div>
                 <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
-                  Why Join Apollo Hospitals Jabalpur?
+                  Why Join Apollo JBP Hospitals Jabalpur?
                 </h2>
               </div>
               <ul className="space-y-3 pt-2">
@@ -526,7 +526,7 @@ export default function JobDetailPage() {
                     Apply For {job.title}
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Fill out the form below to submit your CV directly to Apollo
+                    Fill out the form below to submit your CV directly to Apollo JBP
                     Hospitals HR team.
                   </p>
                 </div>
@@ -764,7 +764,7 @@ export default function JobDetailPage() {
                       <span className="font-bold">{appForm.name}</span>. Your
                       application for{" "}
                       <span className="font-bold">{job.title}</span> has been
-                      received by Apollo Hospitals Jabalpur HR team.
+                      received by Apollo JBP Hospitals Jabalpur HR team.
                     </p>
                     <button
                       type="button"
@@ -821,7 +821,7 @@ export default function JobDetailPage() {
         >
           <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
           <span>
-            Notice: Apollo Hospitals Jabalpur never asks for monetary payments,
+            Notice: Apollo JBP Hospitals Jabalpur never asks for monetary payments,
             processing fees, or bank transfers during any stage of recruitment.
             Beware of fraudulent agencies.
           </span>

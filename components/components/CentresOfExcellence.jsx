@@ -111,7 +111,7 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
       id: 5,
       title: "Cardiology",
       subtitle: "Heart & Vascular Institute",
-      desc: "At Apollo Hospitals, our expert Heart Specialists in Jabalpur provide advanced diagnostics and cutting-edge treatments for comprehensive cardiac care.",
+      desc: "At Apollo JBP Hospitals, our expert Heart Specialists in Jabalpur provide advanced diagnostics and cutting-edge treatments for comprehensive cardiac care.",
       icon: Heart,
       badge: "24/7 STEMI Care",
       stat: "15K+",

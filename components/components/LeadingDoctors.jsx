@@ -19,7 +19,7 @@ export default function LeadingDoctors() {
     {
       id: 1,
       name: "Dr. Prathap C. Reddy",
-      title: "Founder & Chairman, Apollo Hospitals Group",
+      title: "Founder & Chairman, Apollo JBP Hospitals Group",
       specialty: "Cardiology & Pioneer Healthcare Architect",
       exp: "45+ Years Exp.",
       quals: "MBBS, FCCP, FICA",

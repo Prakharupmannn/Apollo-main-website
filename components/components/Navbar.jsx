@@ -217,7 +217,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         {
           name: "Careers",
           href: "/careers",
-          desc: "Join Apollo Hospitals Jabalpur Team",
+          desc: "Join Apollo JBP Hospitals Jabalpur Team",
         },
       ],
     },

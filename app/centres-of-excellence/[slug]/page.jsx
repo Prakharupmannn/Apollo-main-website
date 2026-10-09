@@ -369,7 +369,7 @@ function Hero({ c }) {
           <Reveal y={20}>
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8952E]/25 bg-white/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0E526B] shadow-[0_6px_18px_rgba(200,149,46,.10)]">
               <i className="h-1.5 w-1.5 rounded-full bg-[#C8952E]" />
-              Apollo Hospitals Jabalpur — Centre {c.id} / 07
+              Apollo JBP Hospitals Jabalpur — Centre {c.id} / 07
             </span>
 
             <p className="font-serif text-xl italic text-[#C8952E]">{c.subtitle}</p>
@@ -764,7 +764,7 @@ function Cta({ c }) {
               Ready to begin your <span className="italic text-[#C8952E]">care journey?</span>
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-[#526B77]">
-              Connect with our specialists at Apollo Hospitals, Jabalpur and take the first step toward the right care for you.
+              Connect with our specialists at Apollo JBP Hospitals, Jabalpur and take the first step toward the right care for you.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -788,7 +788,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const c = getCentreBySlug(slug);
   if (!c) return {};
-  const title = `${c.title} | Apollo Hospitals Jabalpur`;
+  const title = `${c.title} | Apollo JBP Hospitals Jabalpur`;
   const description = c.seoDescription || c.description;
   return { title, description, openGraph: { title, description } };
 }

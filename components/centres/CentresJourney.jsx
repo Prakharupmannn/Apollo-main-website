@@ -164,7 +164,7 @@ function CentresJourneyDesktop() {
 
             <div className="max-w-xl border-l border-[#1D82A6]/20 pl-5 lg:mb-1">
               <p className="text-[13px] leading-6 text-slate-500 lg:text-sm">
-                At Apollo Hospitals, Jabalpur, our Centres of Excellence bring
+                At Apollo JBP Hospitals, Jabalpur, our Centres of Excellence bring
                 together specialist expertise, advanced technology and a
                 patient-first approach across complex and critical care.
               </p>
@@ -364,7 +364,7 @@ function CentresJourneyDesktop() {
 
                   <div className="absolute bottom-6 right-6 z-10 rounded-xl border border-white/50 bg-white/90 px-3.5 py-2.5 shadow-lg">
                     <div className="text-[8px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">
-                      Apollo Hospitals
+                      Apollo JBP Hospitals
                     </div>
                     <div className="mt-1 text-[11px] font-semibold text-[#06202B]">Jabalpur</div>
                   </div>

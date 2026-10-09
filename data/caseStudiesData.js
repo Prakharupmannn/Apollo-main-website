@@ -192,7 +192,7 @@ export const caseStudiesData = [
       "Incisionless ARMA (Anti-Reflux Mucosectomy) endoscopic fundoplication was performed by Dr. Arun Iyer.",
       "On post-op Day 1, patient ate normal solid food without vomiting and was discharged on Day 2.",
     ],
-    quote: "I was suffering from GERD for three years and had lost all hope of recovery. Dr. Arun Iyer and his team at Apollo Hospitals Jabalpur gave me a new life.",
+    quote: "I was suffering from GERD for three years and had lost all hope of recovery. Dr. Arun Iyer and his team at Apollo JBP Hospitals Jabalpur gave me a new life.",
     challenge:
       "Eliminating severe refractory acid reflux and lower esophageal sphincter incompetence without open or laparoscopic surgical fundoplication.",
     procedure: [

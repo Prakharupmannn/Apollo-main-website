@@ -252,7 +252,7 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
                 <Sparkles className="w-4 h-4 text-[#F6D98A] shrink-0" />
-                <span>Apollo Hospitals Jabalpur • Express Digital Booking</span>
+                <span>Apollo JBP Hospitals Jabalpur • Express Digital Booking</span>
               </div>
 
               <h1
@@ -1130,7 +1130,7 @@ const StepThree = memo(function StepThree({ booking, passId, onReset }) {
           <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-dashed border-white/25">
             <span className="inline-flex items-center gap-2 font-black text-[#F6D98A] tracking-[0.16em] uppercase text-[10px] leading-normal">
               <HeartPulse className="w-4 h-4" />
-              Apollo Hospitals
+              Apollo JBP Hospitals
             </span>
             <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold leading-normal">
               CONFIRMED

@@ -24,10 +24,10 @@ export default function PatientTestimonials() {
       procedure: "Robotic Cardiac Surgery",
       rating: 5,
       quote:
-        "The care and support I received at Apollo Hospitals was exceptional. The doctors and staff were always there for me, and I felt healthier and stronger today. Truly a life-changing experience!",
+        "The care and support I received at Apollo JBP Hospitals was exceptional. The doctors and staff were always there for me, and I felt healthier and stronger today. Truly a life-changing experience!",
       avatar: "RK",
       recoveredIn: "12 Days",
-      hospitalBranch: "Apollo Delhi",
+      hospitalBranch: "Apollo JBP Jabalpur",
       verified: true,
     },
     {
@@ -40,7 +40,7 @@ export default function PatientTestimonials() {
         "When I was diagnosed with an early-stage tumor, Apollo's CyberKnife team gave me absolute confidence. Non-invasive, pain-free treatments, and I was back with my family in days.",
       avatar: "AS",
       recoveredIn: "5 Days",
-      hospitalBranch: "Apollo Mumbai",
+      hospitalBranch: "Apollo JBP Hospital",
       verified: true,
     },
     {
@@ -50,10 +50,10 @@ export default function PatientTestimonials() {
       procedure: "Total Hip Replacement",
       rating: 5,
       quote:
-        "Traveled from the Indore for orthopedic surgery at Apollo Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
+        "Traveled from the Indore for orthopedic surgery at Apollo JBP Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
       avatar: "DM",
       recoveredIn: "18 Days",
-      hospitalBranch: "Apollo Chennai",
+      hospitalBranch: "Apollo JBP Hospital",
       verified: true,
     },
     {
@@ -66,7 +66,7 @@ export default function PatientTestimonials() {
         "From emergency admittance to intensive rehabilitation, every specialist showed deep empathy and surgical precision. I couldn't have asked for a better medical team.",
       avatar: "PN",
       recoveredIn: "14 Days",
-      hospitalBranch: "Apollo Bengaluru",
+      hospitalBranch: "Apollo JBP Hospital",
       verified: true,
     },
   ];
