@@ -45,12 +45,12 @@ export default function PatientTestimonials() {
     },
     {
       id: 3,
-      name: "David Miller",
-      location: "London, UK",
+      name: "Ankush Singh Kotwal",
+      location: "Indore, India",
       procedure: "Total Hip Replacement",
       rating: 5,
       quote:
-        "Traveled from the UK for orthopedic surgery at Apollo Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
+        "Traveled from the Indore for orthopedic surgery at Apollo Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
       avatar: "DM",
       recoveredIn: "18 Days",
       hospitalBranch: "Apollo Chennai",
