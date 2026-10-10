@@ -58,6 +58,7 @@ export default function AppointmentModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-2 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
@@ -69,10 +70,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
             {/* Specialty & Doctor Selector */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-specialty" className="block text-xs font-bold text-slate-700 mb-1">
                   Select Specialty
                 </label>
                 <select
+                  id="appt-specialty"
                   value={formData.specialty}
                   onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:border-[#1D82A6] focus:ring-2 focus:ring-[#1D82A6]/20 focus:outline-none bg-[#EBF5F8]"
@@ -87,10 +89,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-doctor" className="block text-xs font-bold text-slate-700 mb-1">
                   Select Doctor
                 </label>
                 <select
+                  id="appt-doctor"
                   value={formData.doctor}
                   onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:border-[#1D82A6] focus:ring-2 focus:ring-[#1D82A6]/20 focus:outline-none bg-[#EBF5F8]"
@@ -107,10 +110,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
             {/* Date & Time Slot */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-date" className="block text-xs font-bold text-slate-700 mb-1">
                   Preferred Date
                 </label>
                 <input
+                  id="appt-date"
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -120,10 +124,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-time" className="block text-xs font-bold text-slate-700 mb-1">
                   Time Slot
                 </label>
                 <select
+                  id="appt-time"
                   value={formData.time}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:border-[#1D82A6] focus:ring-2 focus:ring-[#1D82A6]/20 focus:outline-none bg-[#EBF5F8]"
@@ -140,10 +145,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
             {/* Patient Info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-name" className="block text-xs font-bold text-slate-700 mb-1">
                   Patient Full Name *
                 </label>
                 <input
+                  id="appt-name"
                   type="text"
                   placeholder="e.g. Rajesh Kumar"
                   value={formData.patientName}
@@ -154,10 +160,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="appt-phone" className="block text-xs font-bold text-slate-700 mb-1">
                   Phone Number *
                 </label>
                 <input
+                  id="appt-phone"
                   type="tel"
                   placeholder="+91 98765 43210"
                   value={formData.phone}
@@ -169,10 +176,11 @@ export default function AppointmentModal({ isOpen, onClose }) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label htmlFor="appt-notes" className="block text-xs font-bold text-slate-700 mb-1">
                 Medical Notes / Symptoms (Optional)
               </label>
               <textarea
+                id="appt-notes"
                 rows={2}
                 placeholder="Brief description of consultation request..."
                 value={formData.notes}

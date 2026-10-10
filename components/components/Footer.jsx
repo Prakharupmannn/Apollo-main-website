@@ -162,10 +162,10 @@ export default function Footer({ onOpenAppointmentModal }) {
                   </a>{" "}
                   | Reception:{" "}
                   <a
-                    href="tel:+917614000100"
+                    href="tel:+917566123666"
                     className="hover:text-[#F59E0B] transition-colors"
                   >
-                    +91 761 4000100
+                    +91 7566 123666
                   </a>
                 </span>
               </div>
@@ -307,6 +307,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                   <input
                     type="email"
                     required
+                    aria-label="Email address for health newsletter"
                     value={subscribedEmail}
                     onChange={(e) => setSubscribedEmail(e.target.value)}
                     placeholder="Your email address..."

@@ -17,6 +17,15 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const CornerBrackets = () => (
+  <>
+    <span className="corner-bracket corner-tl" />
+    <span className="corner-bracket corner-tr" />
+    <span className="corner-bracket corner-bl" />
+    <span className="corner-bracket corner-br" />
+  </>
+);
+
 export default function SpecialitiesSection({ onOpenAppointmentModal }) {
   const [activeSpecialty, setActiveSpecialty] = useState(null);
 
@@ -101,15 +110,6 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
 
   const featured = specialities.find((s) => s.featured);
   const rest = specialities.filter((s) => !s.featured);
-
-  const CornerBrackets = () => (
-    <>
-      <span className="corner-bracket corner-tl" />
-      <span className="corner-bracket corner-tr" />
-      <span className="corner-bracket corner-bl" />
-      <span className="corner-bracket corner-br" />
-    </>
-  );
 
   return (
     <section

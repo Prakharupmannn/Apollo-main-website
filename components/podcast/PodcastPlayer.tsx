@@ -107,14 +107,18 @@ type Props = {
   variant?: "section" | "compact";
 };
 
+import Image from "next/image";
+
 /* Big thumbnail: tries maxres first, falls back to hq */
 function Thumb({ vid, className = "" }: { vid: string; className?: string }) {
   const [src, setSrc] = useState(`https://i.ytimg.com/vi/${vid}/maxresdefault.jpg`);
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <Image
       src={src}
       alt=""
+      width={480}
+      height={270}
+      unoptimized
       className={className}
       onError={() => setSrc(`https://i.ytimg.com/vi/${vid}/hqdefault.jpg`)}
     />
@@ -335,11 +339,12 @@ export default function PodcastPlayer({
                           isSection ? "lg:w-36 lg:shrink-0 lg:rounded-xl" : ""
                         }`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={`https://i.ytimg.com/vi/${p.vid}/mqdefault.jpg`}
                           alt=""
-                          loading="lazy"
+                          width={240}
+                          height={135}
+                          unoptimized
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                         <span className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 transition group-hover:opacity-100">

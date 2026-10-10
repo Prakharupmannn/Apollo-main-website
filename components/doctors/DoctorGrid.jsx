@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Heart,
@@ -70,16 +71,15 @@ function DoctorPhoto({ src, name, tone }) {
   }
 
   return (
-    <img
-  src={src}
-  alt={name}
-  width={300}
-  height={200}
-  loading="lazy"
-  decoding="async"
-  onError={() => setFailed(true)}
-  className="doctor-photo h-full w-full object-cover object-top transition-transform duration-700"
-/>
+    <Image
+      src={src}
+      alt={name}
+      width={300}
+      height={200}
+      unoptimized={typeof src === "string" && src.startsWith("http")}
+      onError={() => setFailed(true)}
+      className="doctor-photo h-full w-full object-cover object-top transition-transform duration-700"
+    />
   );
 }
 const DoctorCard = memo(function DoctorCard({ doctor }) {

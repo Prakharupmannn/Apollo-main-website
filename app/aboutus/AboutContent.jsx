@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import React, { useRef } from "react";
 import {
   X,
@@ -2228,11 +2229,12 @@ function Values() {
                           : "shadow-[0_18px_40px_-18px_rgba(6,32,43,.35)]"
                       }`}
                     >
-                      <img
+                      <Image
                         src={value.image}
                         alt={value.title}
+                        width={320}
+                        height={460}
                         draggable={false}
-                        loading="lazy"
                         decoding="async"
                         className="absolute inset-0 h-full w-full select-none object-cover transition-[filter,transform] duration-700"
                         style={{
@@ -2362,9 +2364,11 @@ function Values() {
 
             {/* LEFT: Photographic panel */}
             <div className="relative hidden h-full overflow-hidden md:col-span-2 md:block">
-              <img
+              <Image
                 src={selectedValue.image}
                 alt={selectedValue.title}
+                width={400}
+                height={600}
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#06202B] via-[#06202B]/60 to-[#06202B]/10" />

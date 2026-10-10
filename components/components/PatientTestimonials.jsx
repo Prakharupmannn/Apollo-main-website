@@ -51,7 +51,7 @@ export default function PatientTestimonials() {
       rating: 5,
       quote:
         "Traveled from the Indore for orthopedic surgery at Apollo JBP Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
-      avatar: "DM",
+      avatar: "AR",
       recoveredIn: "18 Days",
       hospitalBranch: "Apollo JBP Hospital",
       verified: true,

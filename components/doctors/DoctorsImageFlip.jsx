@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const images = [
   {
@@ -63,10 +64,11 @@ export default function DoctorsImageFlip() {
             }}
             className="absolute inset-0"
           >
-            <img
+            <Image
               src={current.src}
               alt={current.alt}
-              loading="lazy"
+              width={600}
+              height={450}
               decoding="async"
               className="h-[360px] w-full object-cover sm:h-[450px]"
             />
@@ -86,10 +88,11 @@ export default function DoctorsImageFlip() {
 
         {/* keeps frame height stable */}
         <div className="invisible">
-          <img
+          <Image
             src={images[0].src}
             alt=""
-            loading="lazy"
+            width={600}
+            height={450}
             decoding="async"
             className="h-[360px] w-full object-cover sm:h-[450px]"
           />
