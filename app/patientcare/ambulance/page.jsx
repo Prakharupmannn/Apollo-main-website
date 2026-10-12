@@ -737,7 +737,7 @@ export default function AmbulanceServicePage() {
                     Apollo JBP Hospitals Ambulance Hub
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Global Square, Patan Rd, Karmeta, Jabalpur • Emergency Helpline: 1800-123-6666 / 7566 123666.
+                    Global Square, Patan Road, Karmeta, Jabalpur • Emergency Helpline: 1800-123-6666 / 7566 123666.
                   </p>
                 </div>
               </div>

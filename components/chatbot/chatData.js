@@ -4,7 +4,7 @@
 export const WELCOME_MESSAGE = {
   id: "welcome-1",
   sender: "assistant",
-  text: "Hello! Welcome to Apollo Hospitals Jabalpur. I am Apollo Assist, your 24/7 personal healthcare companion. How can I help you today?",
+  text: "Hello! Welcome to Apollo JBP Hospitals Jabalpur. I am Apollo Assist, your 24/7 personal healthcare companion. How can I help you today?",
   timestamp: "Just now",
   isWelcome: true,
 };
@@ -73,7 +73,7 @@ export const FLOW_RESPONSES = {
   },
 
   healthCheck: {
-    text: "Preventive health screenings are essential for early detection and long-term wellness. Apollo Hospitals Jabalpur offers tailored ProHealth health check packages:",
+    text: "Preventive health screenings are essential for early detection and long-term wellness. Apollo JBP Hospitals Jabalpur offers tailored ProHealth health check packages:",
     cards: [
       {
         title: "Apollo ProHealth Comprehensive",
@@ -312,7 +312,7 @@ export function generateBotResponse(userInput) {
   // 7. General Greetings
   if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("namaste") || query.includes("good morning") || query.includes("good afternoon") || query.includes("good evening")) {
     return {
-      text: "Hello! Welcome to Apollo Hospitals Jabalpur. How can I assist you with your health and healthcare needs today?",
+      text: "Hello! Welcome to Apollo JBP Hospitals Jabalpur. How can I assist you with your health and healthcare needs today?",
       suggestions: [
         "I want to book appointment",
         "I want to book health check",

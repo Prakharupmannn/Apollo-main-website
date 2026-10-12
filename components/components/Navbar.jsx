@@ -736,7 +736,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 <div className="min-w-0">
                   <h4 className="text-xs font-bold text-slate-800">Hospital Address</h4>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed font-medium">
-                    Global Square, Patan Rd, Karmeta, Jabalpur, Madhya Pradesh 482002
+                    Global Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh 482002
                   </p>
                 </div>
               </div>
