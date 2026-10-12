@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -9,7 +8,6 @@ import {
   Baby,
   Bone,
   Brain,
-  CalendarDays,
   Check,
   ChevronDown,
   Droplets,
@@ -19,7 +17,6 @@ import {
   Loader2,
   Search,
   ShieldAlert,
-  Sparkles,
   Stethoscope,
   X,
   Zap,
@@ -222,6 +219,7 @@ function SpecialtyDropdown({ value, onChange, items }) {
           role="combobox"
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-controls="doctor-specialty-listbox"
           onClick={() => (open ? closeList() : openList())}
           className="relative mt-0.5 hidden w-full items-center justify-between gap-2 text-left text-sm font-semibold text-[#06202B] outline-none after:absolute after:-inset-x-16 after:-inset-y-6 after:content-[''] md:flex"
         >
@@ -243,6 +241,7 @@ function SpecialtyDropdown({ value, onChange, items }) {
         >
           <div
             ref={listRef}
+            id="doctor-specialty-listbox"
             role="listbox"
             className="thin-scroll relative max-h-[340px] overflow-y-auto overscroll-contain px-1"
           >

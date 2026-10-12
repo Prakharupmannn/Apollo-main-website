@@ -9,11 +9,10 @@ import {
   MessageCircleMore,
   Zap,
   CheckCircle2,
-  Headphones,
 } from "lucide-react";
 
 
-export default function AppointmentBanner() {
+export default function AppointmentBanner({ onOpenAppointmentModal }) {
   const trustPoints = [
     { icon: Zap, label: "Zero Wait Times", desc: "Instant slot confirmation" },
     {
@@ -102,21 +101,35 @@ export default function AppointmentBanner() {
 
                 {/* CTAs */}
                 <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                  <Link
-                    href="/patientcare/appointment"
-                    className="group relative inline-flex items-center gap-2.5 px-8 py-4 rounded-full text-sm font-extrabold text-[#3A2B0A] shadow-[0_10px_30px_rgba(197,146,46,0.45)] hover:shadow-[0_16px_40px_rgba(197,146,46,0.65)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
-                    }}
-                  >
-                    {" "}
-                    {/* Subtle shine sweep on button hover */}{" "}
-                    <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />{" "}
-                    <Calendar className="w-4 h-4 text-[#3A2B0A]" />{" "}
-                    <span>Book Now</span>{" "}
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />{" "}
-                  </Link>
+                  {onOpenAppointmentModal ? (
+                    <button
+                      onClick={onOpenAppointmentModal}
+                      className="group relative inline-flex items-center gap-2.5 px-8 py-4 rounded-full text-sm font-extrabold text-[#3A2B0A] shadow-[0_10px_30px_rgba(197,146,46,0.45)] hover:shadow-[0_16px_40px_rgba(197,146,46,0.65)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden border-0"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                      }}
+                    >
+                      <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                      <Calendar className="w-4 h-4 text-[#3A2B0A]" />
+                      <span>Book Now</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                    </button>
+                  ) : (
+                    <Link
+                      href="/patientcare/appointment"
+                      className="group relative inline-flex items-center gap-2.5 px-8 py-4 rounded-full text-sm font-extrabold text-[#3A2B0A] shadow-[0_10px_30px_rgba(197,146,46,0.45)] hover:shadow-[0_16px_40px_rgba(197,146,46,0.65)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
+                      }}
+                    >
+                      <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                      <Calendar className="w-4 h-4 text-[#3A2B0A]" />
+                      <span>Book Now</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                    </Link>
+                  )}
 
                   <a
                     href="tel:1066"

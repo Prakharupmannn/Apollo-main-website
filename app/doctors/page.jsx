@@ -2,10 +2,11 @@
 
 
 import {
-  ArrowRight,ChevronRight,RotateCcw,SlidersHorizontal,X, CalendarDays, CheckCircle2, ChevronDown, Clock3, Heart,
-  MapPin, Search, ShieldCheck, Stethoscope, UsersRound,
+  ArrowRight,ChevronRight,RotateCcw,SlidersHorizontal,X, CheckCircle2, ChevronDown, Heart,
+  Search, ShieldCheck, Stethoscope, UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Btn, Head, Section } from "@/components/doctors/ui";
 
 import Steps from "@/components/doctors/Steps";
@@ -17,8 +18,6 @@ import DoctorsHero from "../../components/doctors/DoctorsHero"
 import DoctorsImageFlip from "@/components/doctors/DoctorsImageFlip";
 import DoctorGrid from "@/components/doctors/DoctorGrid";
 import DoctorFinder from "@/components/doctors/DoctorFinder";
-
-const PAGE_SIZE = 12;
 
 const specialties = [
   {
@@ -279,27 +278,57 @@ export default async function DoctorsPage({ searchParams }) {
 
 
 
-function HeroStat({ value, label, icon: Icon }) {
+function ApolloDoctorsIntro() {
   return (
-    <div className="flex items-center gap-3 border-l border-[#0E526B]/10 pl-3 first:border-0 first:pl-0">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-[#0E526B] shadow-sm ring-1 ring-[#0E526B]/10">
-        <Icon className="h-5 w-5" />
-      </span>
-
-      <div>
-        <div className="text-sm font-bold text-[#06202B]">
-          {value}
+    <Section bg="bg-white">
+      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
+        <div className="relative">
+          <DoctorsImageFlip />
+          <div className="absolute bottom-6 right-[-10px] rounded-[18px] bg-[#1c4455] px-5 py-4 text-white shadow-xl">
+            <p className="text-[8px] uppercase tracking-[0.2em] text-[#DDBB63]">
+              Advanced Facility
+            </p>
+            <p className="mt-1 font-serif text-xl">
+              PET-CT & LINAC
+            </p>
+          </div>
         </div>
-
-        <div className="mt-0.5 text-[9px] text-[#607681]">
-          {label}
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-[#0E526B]">
+            Expert Doctors in Jabalpur
+          </p>
+          <h2 className="mt-3 font-serif text-[34px] leading-tight text-[#06202B] sm:text-[42px]">
+            Apollo JBP{" "}
+            <span className="italic text-[#C8952E]">
+              Doctors
+            </span>
+          </h2>
+          <p className="mt-5 text-sm leading-7 text-[#607681]">
+            Apollo JBP Hospitals, Jabalpur is now open to deliver exceptional
+            care across multiple specialties. Our expert doctors in Jabalpur
+            encompass a diverse team of consultants supported by advanced
+            technology and comprehensive diagnostic and treatment facilities.
+          </p>
+          <p className="mt-4 text-sm leading-7 text-[#607681]">
+            The hospital provides specialist care across Oncology, Cardiology,
+            Neurology, Orthopaedics, Gastroenterology, Gynecology, Dermatology,
+            Ophthalmology, Pediatrics, Endocrinology, Urology, Nephrology,
+            Pulmonology, Rheumatology, Neurosurgery, ENT, Vascular Surgery,
+            Psychiatry, Dentistry and Transplant Services.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Btn href="/centres-of-excellence">
+              Our Centres of Excellence
+            </Btn>
+            <Btn href="/contact" v="line">
+              Contact Us
+            </Btn>
+          </div>
         </div>
       </div>
-    </div>
+    </Section>
   );
 }
-
-
 
 function SpecialtyRail({ active, counts }) {
   return (
@@ -373,38 +402,27 @@ function SpecialtyRail({ active, counts }) {
 function WhyApollo() {
   return (
     <section className="px-6 py-14 lg:px-10 lg:py-15">
-
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-[#E7EDF0] bg-gradient-to-r from-[#FFFDF7] via-white to-[#F4FAFC]">
-
         <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
-
           <div className="relative overflow-hidden bg-[#0E526B] px-7 py-10 text-white sm:px-10">
-
             <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full border border-[#C8952E]/30" />
-
             <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-[#F1D68D]">
               Why Apollo Doctors?
             </p>
-
             <h2 className="mt-4 max-w-sm font-serif text-3xl leading-tight sm:text-4xl">
               Expertise that puts{" "}
               <span className="italic text-[#E1B54A]">
                 people first.
               </span>
             </h2>
-
             <p className="mt-5 max-w-md text-sm leading-6 text-white/70">
               Specialist expertise, advanced technology and compassionate
-              clinical care come together to support every patient's journey.
+              clinical care come together to support every patient&apos;s journey.
             </p>
-
           </div>
-
           <div className="grid sm:grid-cols-2 lg:grid-cols-5">
-
-            {benefits.map((item, index) => {
+            {benefits.map((item) => {
               const Icon = item.icon;
-
               return (
                 <div
                   key={item.title}
@@ -413,162 +431,18 @@ function WhyApollo() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF8E7] text-[#C8952E]">
                     <Icon className="h-5 w-5" />
                   </span>
-
                   <h3 className="mt-5 text-sm font-bold text-[#06202B]">
                     {item.title}
                   </h3>
-
                   <p className="mt-2 text-xs leading-5 text-[#687D86]">
                     {item.text}
                   </p>
                 </div>
               );
             })}
-
           </div>
         </div>
       </div>
-    </section>
-  );
-}
-
-function ApolloDoctorsIntro({ hospital }) {
-  return (
-    <Section bg="bg-white">
-
-      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
-
-        {/* IMAGE */}
-        <div className="relative">
-
-          <DoctorsImageFlip />
-
-          <div className="absolute bottom-6 right-[-10px] rounded-[18px] bg-[#1c4455] px-5 py-4 text-white shadow-xl">
-
-            <p className="text-[8px] uppercase tracking-[0.2em] text-[#DDBB63]">
-              Advanced Facility
-            </p>
-
-            <p className="mt-1 font-serif text-xl">
-              PET-CT & LINAC
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* CONTENT */}
-        <div>
-
-          <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-[#0E526B]">
-            Expert Doctors in Jabalpur
-          </p>
-
-          <h2 className="mt-3 font-serif text-[34px] leading-tight text-[#06202B] sm:text-[42px]">
-            Apollo JBP{" "}
-            <span className="italic text-[#C8952E]">
-              Doctors
-            </span>
-          </h2>
-
-          <p className="mt-5 text-sm leading-7 text-[#607681]">
-            Apollo JBP Hospitals, Jabalpur is now open to deliver exceptional
-            care across multiple specialties. Our expert doctors in Jabalpur
-            encompass a diverse team of consultants supported by advanced
-            technology and comprehensive diagnostic and treatment facilities.
-          </p>
-
-          <p className="mt-4 text-sm leading-7 text-[#607681]">
-            The hospital provides specialist care across Oncology, Cardiology,
-            Neurology, Orthopaedics, Gastroenterology, Gynecology, Dermatology,
-            Ophthalmology, Pediatrics, Endocrinology, Urology, Nephrology,
-            Pulmonology, Rheumatology, Neurosurgery, ENT, Vascular Surgery,
-            Psychiatry, Dentistry and Transplant Services.
-          </p>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-
-            <Btn href="/centres-of-excellence">
-              Our Centres of Excellence
-            </Btn>
-
-            <Btn
-              href="/contact"
-              v="line"
-            >
-              Contact Us
-            </Btn>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </Section>
-  );
-}
-
-function SpecialtyOverview() {
-  const items = [
-    "Oncology",
-    "Cardiology",
-    "Neurology",
-    "Orthopaedics",
-    "Gastroenterology",
-    "Gynecology",
-    "Dermatology",
-    "Ophthalmology",
-    "Pediatrics",
-    "Endocrinology",
-    "Urology",
-    "Nephrology",
-    "Pulmonology",
-    "Rheumatology",
-    "Neurosurgery",
-    "Radiology",
-    "ENT",
-    "Vascular Surgery",
-    "Psychiatry",
-    "Dentistry",
-    "Transplant Services",
-  ];
-
-  return (
-    <section className="px-6 pb-16 lg:px-10">
-
-      <div className="mx-auto max-w-[1380px] rounded-[28px] bg-[#06202B] p-7 text-white sm:p-10">
-
-        <div className="max-w-2xl">
-
-          <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-[#DDBB63]">
-            Comprehensive Specialist Care
-          </p>
-
-          <h2 className="mt-3 font-serif text-3xl sm:text-4xl">
-            Care across{" "}
-            <span className="italic text-[#DDBB63]">
-              multiple specialties.
-            </span>
-          </h2>
-
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-2">
-
-          {items.map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs text-white/80"
-            >
-              {item}
-            </span>
-          ))}
-
-        </div>
-
-      </div>
-
     </section>
   );
 }
@@ -834,9 +708,11 @@ function PatientStories() {
 
                 <div className="flex gap-4">
 
-                  <img
+                  <Image
                     src={item.image}
-                    alt=""
+                    alt={item.name || "Patient avatar"}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 rounded-2xl object-cover"
                   />
 

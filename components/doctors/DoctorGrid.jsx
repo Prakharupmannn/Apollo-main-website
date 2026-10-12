@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -312,27 +312,31 @@ export default function DoctorGrid({ doctors, pageSize = 12 }) {
     ? Math.round((shown.length / doctors.length) * 100)
     : 0;
 
-  const storageKey = () => `doctors-grid:${window.location.search}`;
-
-  const save = (patch) => {
+  const save = useCallback((patch) => {
     try {
-      const prev = JSON.parse(sessionStorage.getItem(storageKey()) || "{}");
-      sessionStorage.setItem(storageKey(), JSON.stringify({ ...prev, ...patch }));
+      const key = `doctors-grid:${window.location.search}`;
+      const prev = JSON.parse(sessionStorage.getItem(key) || "{}");
+      sessionStorage.setItem(key, JSON.stringify({ ...prev, ...patch }));
     } catch {}
-  };
+  }, []);
 
   // 1) Paint se pehle count restore
   useLayoutEffect(() => {
+    let target = pageSize;
     try {
-      const saved = JSON.parse(sessionStorage.getItem(storageKey()) || "null");
+      const key = `doctors-grid:${window.location.search}`;
+      const saved = JSON.parse(sessionStorage.getItem(key) || "null");
       if (saved?.count && saved.count > pageSize) {
-        setVisible(Math.min(saved.count, doctors.length));
+        target = Math.min(saved.count, doctors.length);
       }
       pendingSlug.current = saved?.slug || null;
     } catch {}
-    setReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const timer = requestAnimationFrame(() => {
+      setVisible(target);
+      setReady(true);
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [doctors.length, pageSize]);
 
   // 2) Usi card par INSTANT jump (smooth nahi, taaki scrolling dikhe hi na)
   useLayoutEffect(() => {
@@ -354,7 +358,7 @@ export default function DoctorGrid({ doctors, pageSize = 12 }) {
     go();
     requestAnimationFrame(go); // Next ka apna scroll restore override ho jaye
     save({ slug: null });
-  }, [ready, visible]);
+  }, [ready, visible, save]);
 
   const handleClickCapture = (e) => {
     const el = e.target.closest("[data-doctor-slug]");

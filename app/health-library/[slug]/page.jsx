@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -140,10 +141,12 @@ export default async function HealthArticlePage({ params }) {
         <header className="relative p-[1.5px] rounded-[1.75rem] sm:rounded-[2.25rem] bg-gradient-to-r from-[#1D82A6] via-[#F6D98A] to-[#C8952E] shadow-[0_25px_60px_rgba(10,95,122,0.28)]">
           <div className="relative rounded-[calc(1.75rem-1.5px)] sm:rounded-[calc(2.25rem-1.5px)] overflow-hidden bg-gradient-to-br from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white">
             {art.image && (
-              <img
+              <Image
                 src={art.image}
                 alt={art.title}
-                className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity"
+                fill
+                priority
+                className="object-cover opacity-25 mix-blend-luminosity"
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B3446]/85 via-[#0B3446]/40 to-transparent" />

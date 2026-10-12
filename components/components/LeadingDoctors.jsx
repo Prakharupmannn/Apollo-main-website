@@ -166,7 +166,7 @@ export default function LeadingDoctors() {
                 <span className="inline-flex items-center gap-1.5 mb-6 px-3 py-1 rounded-full bg-white/10 border border-[#F6D98A]/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#F6D98A]" />
                   <span className="text-[10.5px] font-bold text-[#F6D98A] tracking-wide uppercase">
-                    Founder's Vision
+                    Founder&apos;s Vision
                   </span>
                 </span>
 
@@ -191,7 +191,7 @@ export default function LeadingDoctors() {
                 <div className="mt-6 pl-4 border-l-2 border-[#F6D98A]/50 relative">
                   <Quote className="absolute -left-2 -top-1 w-4 h-4 text-[#F6D98A]/40" />
                   <p className="text-sm italic text-white/85 leading-relaxed">
-                    "{featured.quote}"
+                    &quot;{featured.quote}&quot;
                   </p>
                 </div>
               </div>

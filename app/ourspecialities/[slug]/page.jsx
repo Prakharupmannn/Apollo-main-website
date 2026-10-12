@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Activity, ShieldCheck, Bone, Droplets, Heart, Brain, Microscope, Stethoscope, Baby,
   Syringe, Sparkles, Ear, Eye, Smile, Apple,
@@ -192,8 +193,8 @@ export default async function SpecialityDetailPage({ params }) {
                 style={{ background: "linear-gradient(135deg,#F6D98A,#C8952E,#FFF3C4,#C8952E,#1D82A6,#F6D98A)", backgroundSize: "300% 300%" }}
               >
                 <div className="rounded-[calc(2.1rem-3px)] bg-white p-3 sm:p-4">
-                  <div className="group rounded-[1.5rem] overflow-hidden ring-1 ring-slate-200/70" style={photoBg}>
-                    <img src={s.image} alt={s.name} className="block w-full h-[320px] sm:h-[440px] object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                  <div className="group relative rounded-[1.5rem] overflow-hidden ring-1 ring-slate-200/70 h-[320px] sm:h-[440px]" style={photoBg}>
+                    <Image src={s.image} alt={s.name} fill priority sizes="(max-width: 640px) 100vw, 50vw" className="object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3 px-2 pb-1">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -378,9 +379,9 @@ export default async function SpecialityDetailPage({ params }) {
                     className="group block p-[2px] rounded-[1.6rem] bg-gradient-to-br from-[#1D82A6]/40 via-white to-[#C8952E]/50 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
                   >
                     <div className="bg-white rounded-[calc(1.6rem-2px)] overflow-hidden">
-                      <div className="relative overflow-hidden" style={photoBg}>
-                        <img src={o.image} alt={o.name} className="w-full h-44 object-cover group-hover:scale-110 transition-transform duration-700" />
-                        <span className="absolute top-3 left-3 w-10 h-10 rounded-xl flex items-center justify-center text-[#F6D98A] border-2 border-white shadow-lg" style={teal}>
+                      <div className="relative overflow-hidden h-44" style={photoBg}>
+                        <Image src={o.image} alt={o.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <span className="absolute top-3 left-3 w-10 h-10 rounded-xl flex items-center justify-center text-[#F6D98A] border-2 border-white shadow-lg z-10" style={teal}>
                           <OIcon className="w-5 h-5" />
                         </span>
                       </div>

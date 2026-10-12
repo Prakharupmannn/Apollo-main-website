@@ -9,7 +9,7 @@ export default function ShareButton() {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-    } catch (e) {}
+    } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

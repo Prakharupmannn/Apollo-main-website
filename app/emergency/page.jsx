@@ -12,22 +12,12 @@ import {
   Clock,
   ShieldAlert,
   AlertTriangle,
-  UserCheck,
   CheckCircle,
   MapPin,
   Stethoscope,
-  Building,
-  HelpCircle,
-  ChevronRight,
   ShieldCheck,
-  FileText,
-  Share2,
   Siren,
-  Sparkles,
-  ArrowRight,
-  Radio,
   Crosshair,
-  Waves,
 } from "lucide-react";
 import AppointmentModal from "../../components/components/AppointmentModal";
 

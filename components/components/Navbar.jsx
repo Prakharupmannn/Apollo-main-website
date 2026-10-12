@@ -90,11 +90,25 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
   }, []);
 
   // Close menus whenever the route changes
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    if (mobileMenuOpen) setMobileMenuOpen(false);
+    if (mobileExpanded !== null) setMobileExpanded(null);
+    if (activeDropdown !== null) setActiveDropdown(null);
+  }
+
+  // Handle Escape key to close mobile menu or sidebar
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setMobileExpanded(null);
-    setActiveDropdown(null);
-  }, [pathname]);
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSidebarOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Close mobile menu automatically if screen grows to desktop size
   useEffect(() => {
@@ -304,7 +318,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/15 backdrop-blur-sm transition-all cursor-pointer"
                 aria-label="Search website"
               >
-                {/* <Search className="w-4 h-4" /> */}
+                <Search className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -633,6 +647,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
       {/* Drawer */}
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Apollo Hospital Info and Contact"
         className={`fixed top-0 right-0 z-[101] h-[100dvh] w-full sm:max-w-md bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}

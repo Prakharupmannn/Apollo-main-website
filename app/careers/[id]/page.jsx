@@ -290,7 +290,7 @@ export default function JobDetailPage() {
       // const res = await fetch("/api/apply", { method: "POST", body: fd });
       // if (!res.ok) throw new Error("Failed");
       setAppSubmitted(true);
-    } catch (err) {
+    } catch {
       alert(
         "Could not submit your application. Please try again or email your CV.",
       );

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import  PodcastPlayer  from "../../../components/podcast/PodcastPlayer"
 import {
@@ -314,9 +315,12 @@ function Hero({ doctor, tone, education, languages, highlights }) {
                 />
 
                 {doctor.image ? (
-                  <img
+                  <Image
                     src={doctor.image}
                     alt={doctor.name}
+                    width={500}
+                    height={600}
+                    priority
                     className="relative h-full w-full object-cover object-top"
                   />
                 ) : (
@@ -451,23 +455,6 @@ function Facts({ doctor, education, highlights }) {
           );
         })}
       </div>
-    </section>
-  );
-}
-
-function Block({ icon: Icon, title, children }) {
-  return (
-    <section className="mt-7">
-      <div className="flex items-center gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FFF4D9] to-[#FCE9B8] ring-1 ring-[#C8952E]/25">
-          <Icon className="h-4 w-4 text-[#B07C1A]" />
-        </span>
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#0E526B]">
-          {title}
-        </h3>
-        <span className="h-px flex-1 bg-gradient-to-r from-[#DCEAF0] to-transparent" />
-      </div>
-      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -1348,10 +1335,11 @@ function Related({ doctors }) {
                   }}
                 >
                   {d.image ? (
-                    <img
+                    <Image
                       src={d.image}
                       alt={d.name}
-                      loading="lazy"
+                      width={120}
+                      height={120}
                       className="h-full w-full object-cover object-top"
                     />
                   ) : (

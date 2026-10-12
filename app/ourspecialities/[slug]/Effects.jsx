@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Clock, Languages, GraduationCap, CalendarCheck, Phone, BadgeCheck } from "lucide-react";
 
 const gold = { background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)" };
@@ -207,9 +208,11 @@ export function DoctorCard({ doctor }) {
                 </span>
               </div>
             ) : (
-              <img
+              <Image
                 src={doctor.image}
                 alt={doctor.name}
+                width={300}
+                height={256}
                 onError={() => setBroken(true)}
                 className="w-full h-64 object-cover object-top group-hover:scale-105 transition-transform duration-700"
               />

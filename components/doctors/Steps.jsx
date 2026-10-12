@@ -3,7 +3,6 @@ import {
   CalendarDays,
   ClipboardCheck,
   Stethoscope,
-  ArrowRight,
 } from "lucide-react";
 
 const STEP_ICONS = [

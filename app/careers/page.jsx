@@ -36,7 +36,6 @@ import {
   X,
   ArrowRight,
   ShieldAlert,
-  Star,
   PhoneCall,
 } from "lucide-react";
 import AppointmentModal from "../../components/components/AppointmentModal";
@@ -622,16 +621,11 @@ export default function CareersPage() {
   const [appSubmitted, setAppSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [appForm, setAppForm] = useState(EMPTY_FORM);
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
   const [activeCategory, setActiveCategory] = useState(categories[0].key);
   const [searchQuery, setSearchQuery] = useState("");
   const jobsScrollRef = useRef(null);
-
-  // needed so createPortal only runs in the browser
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Smooth hand-off between the job-cards box and the page scroll
   // Smooth hand-off between the job-cards box and the page scroll
@@ -729,11 +723,6 @@ export default function CareersPage() {
     };
   }, []);
 
-  const openApply = (job) => {
-    setAppForm(EMPTY_FORM);
-    setAppSubmitted(false);
-    setSelectedJob(job);
-  };
   const closeApply = () => setSelectedJob(null);
 
   // ESC closes the modal + lock page scroll while it is open
@@ -805,7 +794,7 @@ export default function CareersPage() {
       // const res = await fetch("/api/apply", { method: "POST", body: fd });
       // if (!res.ok) throw new Error("Failed");
       setAppSubmitted(true);
-    } catch (err) {
+    } catch {
       alert(
         "Could not submit your application. Please try again or email your CV.",
       );
@@ -1004,7 +993,7 @@ export default function CareersPage() {
                 </span>
                 <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
                 <span>
-                  Work With Asia's Healthcare Leader • Apollo JBP Hospitals Jabalpur
+                  Work With Asia&apos;s Healthcare Leader • Apollo JBP Hospitals Jabalpur
                 </span>
               </motion.div>
 
@@ -1022,7 +1011,7 @@ export default function CareersPage() {
               </h1>
 
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl mb-8">
-                Join Asia's premier healthcare group. We invite passionate
+                Join Asia&apos;s premier healthcare group. We invite passionate
                 doctors, nurses, technicians, and administrative professionals
                 to shape the future of medicine in Central India.
               </p>
@@ -1796,7 +1785,7 @@ export default function CareersPage() {
                               className="w-6 h-6 accent-blue-600 cursor-pointer"
                             />
                             <span className="text-xs font-normal text-slate-700">
-                              I'm not a robot
+                              I&apos;m not a robot
                             </span>
                           </label>
                           <div className="flex flex-col items-center justify-center pl-2">

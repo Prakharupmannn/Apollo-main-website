@@ -263,7 +263,7 @@ export default function PatientTestimonials() {
                 <div className="relative">
                   <Quote className="w-12 h-12 text-[#F6D98A]/30 mb-2" />
                   <p className="text-lg sm:text-2xl font-medium text-slate-100 leading-relaxed italic font-serif">
-                    "{active.quote}"
+                    &quot;{active.quote}&quot;
                   </p>
                 </div>
 

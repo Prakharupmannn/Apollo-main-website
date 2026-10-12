@@ -1,4 +1,4 @@
-import { HeartPulse, ShieldAlert, Brain, Bone, Microscope, Stethoscope } from "lucide-react";
+import { Microscope, Stethoscope } from "lucide-react";
 
 // Central source of truth for both the listing page and the individual
 // case detail pages. Add a new object here and it automatically gets:

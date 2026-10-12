@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import React, { useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   ArrowDown,
@@ -11,34 +12,21 @@ import {
   Quote,
   Heart,
   Star,
-  Brain,
   CheckCircle2,
   HeartPulse,
   Hospital,
   Microscope,
   ShieldCheck,
   Sparkles,
-  Stethoscope,
   Users,
   Activity,
-  Dna,
   ScanLine,
   Zap,
-  Trees,
-  Building2,
-  Handshake,
-  Landmark,
   Check,
   Radiation,
 } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useInView,
-} from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 
 const AUTOPLAY_MS = 3000;
@@ -195,12 +183,14 @@ const stagger = {
 ========================================================= */
 
 export default function AboutPage() {
+  const router = useRouter();
+
   const handleOpenAppointmentModal = () => {
-    window.location.href = "/patientcare/appointment";
+    router.push("/patientcare/appointment");
   };
 
   const handleFindDoctor = () => {
-    window.location.href = "/doctors";
+    router.push("/doctors");
   };
 
   return (
@@ -697,7 +687,7 @@ function AboutHero({ onOpenAppointmentModal, onFindDoctor }) {
                 </span>
                 <span className="h-3 w-px bg-slate-300" />
                 <span className="text-[9px] font-semibold text-slate-500">
-                  Region's only PET-CT
+                  Region&apos;s only PET-CT
                 </span>
               </motion.div>
             </motion.div>
@@ -1213,7 +1203,7 @@ function ChairmanSection() {
                 <Sparkles className="h-3 w-3 text-[#C8952E]" />
 
                 <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8B6417]">
-                  Founder Chairman's Message
+                  Founder Chairman&apos;s Message
                 </span>
               </motion.div>
 
@@ -1321,10 +1311,11 @@ function ChairmanSection() {
                 <Quote className="absolute right-5 top-5 h-9 w-9 text-[#C8952E]/10 transition-transform duration-500 group-hover:scale-110" />
 
                 <p className="relative max-w-2xl font-serif text-[15px] italic leading-7 text-[#06202B] sm:text-[17px]">
-                  "Our mission is to bring healthcare of International standards
-                  within the reach of every individual. We are committed to the
-                  achievement and maintenance of excellence in education,
-                  research and healthcare for the benefit of humanity."
+                  &quot;Our mission is to bring healthcare of International
+                  standards within the reach of every individual. We are
+                  committed to the achievement and maintenance of excellence in
+                  education, research and healthcare for the benefit of
+                  humanity.&quot;
                 </p>
 
                 <div className="mt-4 flex items-center gap-3">
@@ -1356,10 +1347,10 @@ function ChairmanSection() {
                 className="max-w-2xl text-[13px] leading-6 text-slate-600 sm:text-[14px]"
               >
                 In 1983, Dr. Prathap Chandra Reddy revolutionized the Indian
-                healthcare landscape by establishing Apollo Hospitals — India's
-                first corporate hospital chain. That same vision now powers
-                Apollo JBP Hospitals in Jabalpur, a managed unit of Apollo
-                Hospitals Enterprise Ltd, bringing quaternary and
+                healthcare landscape by establishing Apollo Hospitals —
+                India&apos;s first corporate hospital chain. That same vision
+                now powers Apollo JBP Hospitals in Jabalpur, a managed unit of
+                Apollo Hospitals Enterprise Ltd, bringing quaternary and
                 super-specialised care to Central India.
               </motion.p>
 
@@ -1457,7 +1448,21 @@ function ChairmanSection() {
                 }}
                 className="mt-8 flex flex-wrap items-center gap-5"
               >
-                {/*  */}
+                {/* chairman route to main website of apollo */}
+
+                <Link
+                  href="https://www.apollohospitals.com/company-overview/the-apollo-story#overview"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#0E526B] px-5 py-2.5 text-[10px] font-bold text-white shadow-[0_10px_25px_rgba(14,82,107,0.18)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#06202B]"
+                >
+                  {/* Button shimmer */}
+                  <span className="absolute inset-y-0 -left-[80%] w-[45%] skew-x-[-20deg] bg-white/20 transition-all duration-700 group-hover:left-[130%]" />
+
+                  <span className="relative">The Apollo Story</span>
+
+                  <ArrowRight className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
 
                 <div className="flex items-center gap-2 text-[10px] font-medium text-slate-500">
                   <span className="relative flex h-4 w-4 items-center justify-center">
@@ -2027,10 +2032,11 @@ function Values() {
   const schedule = useCallback(() => {
     clearTimeout(timerRef.current);
     const f = flags.current;
-    if (total < 2 || f.hover || f.modal || f.reduce || !f.inView || !f.tab) return;
+    if (total < 2 || f.hover || f.modal || f.reduce || !f.inView || !f.tab)
+      return;
     timerRef.current = setTimeout(
       () => setActiveIndex((p) => (p + 1) % total),
-      AUTOPLAY_MS
+      AUTOPLAY_MS,
     );
   }, [total]);
 
@@ -2044,7 +2050,7 @@ function Values() {
         f.inView = entry.isIntersecting;
         schedule();
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     if (sectionRef.current) io.observe(sectionRef.current);
 
@@ -2072,11 +2078,33 @@ function Values() {
     schedule();
   }, [selectedValue, schedule]);
 
-  const setHover = (value) => (e) => {
-    if (e.pointerType && e.pointerType !== "mouse") return; // touch par pause nahi
-    flags.current.hover = value;
+  const handlePointerEnter = useCallback(
+    (e) => {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      flags.current.hover = true;
+      schedule();
+    },
+    [schedule],
+  );
+
+  const handlePointerLeave = useCallback(
+    (e) => {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      flags.current.hover = false;
+      schedule();
+    },
+    [schedule],
+  );
+
+  const handleFocus = useCallback(() => {
+    flags.current.hover = true;
     schedule();
-  };
+  }, [schedule]);
+
+  const handleBlur = useCallback(() => {
+    flags.current.hover = false;
+    schedule();
+  }, [schedule]);
 
   /* ---------- Handlers ---------- */
   const openValue = (valueNumber) => {
@@ -2178,16 +2206,10 @@ function Values() {
           {/* ================= CARDS ================= */}
           <div
             className="min-w-0 lg:col-span-8"
-            onPointerEnter={setHover(true)}
-            onPointerLeave={setHover(false)}
-            onFocus={() => {
-              flags.current.hover = true;
-              schedule();
-            }}
-            onBlur={() => {
-              flags.current.hover = false;
-              schedule();
-            }}
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           >
             <div className="relative overflow-hidden py-10 perspective-1000">
               <div className="relative flex min-h-[520px] w-full items-center justify-center [mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_90%,transparent_100%)]">
@@ -2649,9 +2671,11 @@ function Quality() {
               />
 
               <div className="relative overflow-hidden rounded-[1.5rem]">
-                <img
+                <Image
                   src="/images/quality.png"
                   alt="Apollo JBP Hospitals quality and patient care"
+                  width={800}
+                  height={480}
                   className="h-[480px] w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
                 />
 

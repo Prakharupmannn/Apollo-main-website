@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Activity,
@@ -132,11 +133,15 @@ export default function OurSpecialitiesPage() {
 
   const router = useRouter();
 
-  // reset when filter changes
-  useEffect(() => {
-    setActiveIndex(0);
-    setCarIndex(0);
-  }, [selectedCategory, searchQuery]);
+  const [prevFilter, setPrevFilter] = useState({ selectedCategory, searchQuery });
+  if (
+    prevFilter.selectedCategory !== selectedCategory ||
+    prevFilter.searchQuery !== searchQuery
+  ) {
+    setPrevFilter({ selectedCategory, searchQuery });
+    if (activeIndex !== 0) setActiveIndex(0);
+    if (carIndex !== 0) setCarIndex(0);
+  }
 
   // responsive flag (client only, no hydration mismatch)
   useEffect(() => {
@@ -408,9 +413,11 @@ export default function OurSpecialitiesPage() {
                 <div className="bg-white rounded-[calc(2rem-2px)] overflow-hidden">
                   <div key={active.slug} className="sp-fade">
                     <div className="relative" style={photoBg}>
-                      <img
+                      <Image
                         src={active.image}
                         alt={active.name}
+                        width={800}
+                        height={400}
                         className="w-full h-56 sm:h-72 object-cover"
                       />
                       <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
@@ -631,10 +638,11 @@ export default function OurSpecialitiesPage() {
                             className="relative overflow-hidden"
                             style={photoBg}
                           >
-                            <img
+                            <Image
                               src={s.image}
                               alt={s.name}
-                              loading="lazy"
+                              width={600}
+                              height={350}
                               className={`w-full h-48 sm:h-56 object-cover transition-transform duration-700 ${center ? "group-hover:scale-105" : ""}`}
                             />
                             <span

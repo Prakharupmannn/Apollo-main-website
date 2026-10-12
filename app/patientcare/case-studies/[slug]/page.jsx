@@ -515,7 +515,7 @@ export default function CaseStudyDetailPage({ params }) {
               >
                 <Quote className="w-8 h-8 text-[#C8952E] mb-3 opacity-60" />
                 <p className="font-serif-apollo italic text-base sm:text-lg font-bold leading-relaxed mb-4">
-                  "{caseData.quote}"
+                  &quot;{caseData.quote}&quot;
                 </p>
                 <div className="flex items-center gap-3 border-t border-[#F6D98A]/60 pt-4">
                   <div className="w-9 h-9 rounded-full bg-[#C8952E] text-white font-black text-xs flex items-center justify-center">

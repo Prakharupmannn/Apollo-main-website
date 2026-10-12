@@ -17,7 +17,6 @@ import {
   Calendar,
   ChevronDown,
   CheckCircle2,
-  Phone,
   Sparkles,
   Activity,
   MessageCircle,
@@ -930,7 +929,7 @@ export default function ContactPage() {
 
                           <p className="text-[11.5px] leading-relaxed opacity-90 pt-2">
                             Patients in {selectedDistrict} have direct access to
-                            Apollo Jabalpur's express critical care transfer,
+                            Apollo Jabalpur&apos;s express critical care transfer,
                             video consultations, and specialized surgical
                             admissions.
                           </p>

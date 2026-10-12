@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -121,10 +122,11 @@ function Photo({ src, alt, className = "" }) {
       className={`relative rounded-full overflow-hidden bg-gradient-to-br from-[#0B3446] to-[#2A8FAF] ${className}`}
     >
       {src && (
-        <img
+        <Image
           src={src}
           alt={alt}
-          loading="lazy"
+          width={100}
+          height={100}
           onError={(e) => {
             e.currentTarget.style.display = "none";
           }}
@@ -145,7 +147,7 @@ function HeroLive({
   goldStyle,
 }) {
   // LIVE VALUES (simulated). Replace with real API / websocket data later.
-  const [time, setTime] = useState(null);
+  const [time, setTime] = useState(IST_PARTS);
 
   const [bpm, setBpm] = useState(72);
   const [doctors, setDoctors] = useState(38);
@@ -153,7 +155,6 @@ function HeroLive({
   const [eta, setEta] = useState(6);
 
   useEffect(() => {
-    setTime(IST_PARTS());
     const t = setInterval(() => setTime(IST_PARTS()), 1000);
     const h = setInterval(() => setBpm((v) => wander(v, 66, 80)), 1300);
     const d = setInterval(() => {
@@ -853,7 +854,7 @@ export default function HealthLibraryPage() {
   const copyArticleLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-    } catch (err) {
+    } catch {
       // clipboard may be blocked; still show feedback
     }
     setCopiedLink(true);
@@ -877,10 +878,11 @@ export default function HealthLibraryPage() {
           <div>
             {/* Image Header */}
             <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-[#0A5F7A] via-[#2A8FAF] to-[#17627D]">
-              <img
+              <Image
                 src={art.image}
                 alt={art.title}
-                loading="lazy"
+                width={500}
+                height={300}
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}
@@ -994,9 +996,11 @@ export default function HealthLibraryPage() {
         <div className="rounded-[calc(2rem-1.5px)] bg-white overflow-hidden grid grid-cols-1 md:grid-cols-2">
           {/* Image */}
           <div className="relative min-h-[260px] md:min-h-[380px] bg-gradient-to-br from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] overflow-hidden">
-            <img
+            <Image
               src={art.image}
               alt={art.title}
+              width={600}
+              height={400}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
@@ -1494,8 +1498,8 @@ export default function HealthLibraryPage() {
                       No content matched your query
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 mb-5">
-                      Try searching for terms like "EBUS", "Insurance", "Winter
-                      Heart", or "Joint Pain".
+                      Try searching for terms like &quot;EBUS&quot;, &quot;Insurance&quot;, &quot;Winter
+                      Heart&quot;, or &quot;Joint Pain&quot;.
                     </p>
                     <button
                       onClick={resetFilters}
@@ -2280,9 +2284,11 @@ export default function HealthLibraryPage() {
 
             {/* Header image with title overlay */}
             <div className="relative h-60 sm:h-80 bg-gradient-to-br from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] overflow-hidden">
-              <img
+              <Image
                 src={selectedArticle.image}
                 alt={selectedArticle.title}
+                width={800}
+                height={400}
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}

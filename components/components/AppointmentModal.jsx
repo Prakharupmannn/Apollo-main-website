@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Calendar, Clock, User, Phone, Mail, Stethoscope, CheckCircle, ShieldCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Calendar, CheckCircle, ShieldCheck } from "lucide-react";
 
 export default function AppointmentModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
@@ -26,6 +26,16 @@ export default function AppointmentModal({ isOpen, onClose }) {
 
   const timeSlots = ["09:30 AM", "10:30 AM", "11:30 AM", "02:00 PM", "04:00 PM", "06:00 PM"];
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
@@ -39,7 +49,12 @@ export default function AppointmentModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appt-modal-title"
+    >
       <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-2 border-[#1D82A6] relative overflow-hidden">
         
         {/* Header Ribbon */}
@@ -49,7 +64,7 @@ export default function AppointmentModal({ isOpen, onClose }) {
               <Calendar className="w-5 h-5 text-slate-950" />
             </div>
             <div>
-              <h3 className="font-serif-apollo text-xl font-bold text-[#FEF3C7]">
+              <h3 id="appt-modal-title" className="font-serif-apollo text-xl font-bold text-[#FEF3C7]">
                 Book Appointment
               </h3>
               <p className="text-xs text-slate-200">Apollo JBP Hospitals • Fast Track Registration</p>
@@ -59,7 +74,7 @@ export default function AppointmentModal({ isOpen, onClose }) {
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-2 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#FEF3C7]"
           >
             <X className="w-5 h-5" />
           </button>

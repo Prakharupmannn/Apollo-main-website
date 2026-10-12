@@ -1,3 +1,4 @@
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -146,7 +147,6 @@ function Section({ id, bg = "bg-white", dark, defer = true, children }) {
 
 /* Feature card (default) — gold-edged, glass-clean */
 function FeatureCard({ name, list, description, i, dark }) {
-  const Icon = iconFor(name);
   const [grad, ink] = dark ? TONES[0] : TONES[i % 4];
 
   return (
@@ -175,7 +175,7 @@ function FeatureCard({ name, list, description, i, dark }) {
           <span className="relative">
             <span aria-hidden className="absolute inset-0 rounded-2xl opacity-40 blur-lg transition group-hover:opacity-70" style={{ background: ink }} />
             <span className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${grad} text-white shadow-lg ring-1 ring-white/40 transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110 motion-reduce:transition-none`}>
-              <Icon className="h-6 w-6" />
+              {React.createElement(iconFor(name), { className: "h-6 w-6" })}
             </span>
           </span>
           <span

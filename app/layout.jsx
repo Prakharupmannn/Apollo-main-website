@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "../components/components/Navbar";
 import Footer from "../components/components/Footer";
 import { GoogleTranslateLoader } from "../components/components/GoogleTranslate";
+import ApolloAssistChatbot from "../components/chatbot/ApolloAssistChatbot";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ const deva = Noto_Sans_Devanagari({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://apollojbphospitals.com"),
   title: "Apollo Hospitals | Expert Care for a Healthier Tomorrow",
   description:
     "Apollo Hospitals - Advanced Healthcare, Trusted by Millions, For Every Stage of Life. Book Appointments, Find Doctors, Emergency 24/7 Care & Centres of Excellence.",
@@ -79,6 +81,7 @@ export default function RootLayout({ children }) {
         <main>{children}</main>
 
         <Footer />
+        <ApolloAssistChatbot />
       </body>
     </html>
   );

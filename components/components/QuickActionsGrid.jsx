@@ -65,7 +65,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
   ];
 
   return (
-    <section className="relative -mt-10 z-20 max-w-7xl mx-auto px-4 sm:px-8">
+    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-8">
       {/* Dynamic Keyframe Injection for Pure Tailwind Scroll */}
       <style>{`
         @keyframes marquee {
@@ -99,7 +99,12 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
     <Link
       key={card.id}
       href={card.href || "#"}
-      onClick={card.action ? card.action : undefined}
+      onClick={(e) => {
+        if (card.id === "appointment" && onOpenAppointmentModal) {
+          e.preventDefault();
+          onOpenAppointmentModal();
+        }
+      }}
       className={`group relative p-[1.5px] rounded-[1.75rem] cursor-pointer transition-all duration-300 hover:-translate-y-2 ${
         card.highlight
           ? "bg-gradient-to-br from-red-500 via-red-600 to-[#0E526B] shadow-[0_10px_30px_rgba(239,68,68,0.35)] hover:shadow-[0_20px_45px_rgba(239,68,68,0.5)]"

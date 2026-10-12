@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import Navbar from "../components/components/Navbar";
 import HeroSection from "../components/components/HeroSection";
 import QuickActionsGrid from "../components/components/QuickActionsGrid";
 import SpecialitiesSection from "../components/components/SpecialitiesSection";
@@ -12,7 +11,6 @@ import LeadingDoctors from "../components/components/LeadingDoctors";
 import AppointmentBanner from "../components/components/AppointmentBanner";
 import PatientTestimonials from "../components/components/PatientTestimonials";
 import HealthArticles from "../components/components/HealthArticles";
-import Footer from "../components/components/Footer";
 import { Search, X } from "lucide-react";
 
 const AppointmentModal = dynamic(
@@ -23,7 +21,6 @@ const AppointmentModal = dynamic(
 export default function Home() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Force every load/refresh of this page to start at the top, instead of
@@ -60,6 +57,17 @@ export default function Home() {
     };
   }, []);
 
+  // Escape key handler for search modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isSearchModalOpen) {
+        setIsSearchModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchModalOpen]);
+
   const handleOpenAppointmentModal = () => {
     setIsAppointmentModalOpen(true);
   };
@@ -70,35 +78,11 @@ export default function Home() {
 
   const handleHeroSearch = (query) => {
     setSearchQuery(query);
-    setSearchResults([
-      {
-        title: "Dr. Sangita Reddy",
-        cat: "Executive Leadership",
-        link: "#doctors",
-      },
-      { title: "Dr. Vivek Gupta", cat: "Cardiology", link: "#doctors" },
-      {
-        title: "Robotic Cardiac Surgery",
-        cat: "Specialty Procedure",
-        link: "#specialities",
-      },
-      {
-        title: "Cancer Care Institute",
-        cat: "Centre of Excellence",
-        link: "#centres-of-excellence",
-      },
-    ]);
     setIsSearchModalOpen(true);
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D82A6] selection:text-white">
-      {/* Fixed Navbar Header */}
-      {/* <Navbar
-        onOpenAppointmentModal={handleOpenAppointmentModal}
-        onOpenSearchModal={() => setIsSearchModalOpen(true)}
-      /> */}
-
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D82A6] selection:text-white">
       {/* Hero Section */}
       <HeroSection
         onOpenAppointmentModal={handleOpenAppointmentModal}
@@ -133,11 +117,6 @@ export default function Home() {
       {/* Health Articles & Awareness */}
       <HealthArticles />
 
-      {/* Footer
-      <Footer
-        onOpenAppointmentModal={handleOpenAppointmentModal}
-      /> */}
-
       {/* Interactive Appointment Modal */}
       <AppointmentModal
         isOpen={isAppointmentModalOpen}
@@ -146,11 +125,17 @@ export default function Home() {
 
       {/* Quick Search Modal */}
       {isSearchModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search Apollo Hospitals"
+        >
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border-2 border-[#1D82A6] relative">
             <button
               onClick={() => setIsSearchModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900"
+              aria-label="Close search modal"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D82A6]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -168,6 +153,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search doctors, specialities, packages..."
+              aria-label="Search query"
               className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:border-[#1D82A6] focus:ring-2 focus:ring-[#1D82A6]/20 focus:outline-none mb-4"
             />
 
@@ -213,6 +199,6 @@ export default function Home() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
