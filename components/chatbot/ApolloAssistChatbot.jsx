@@ -409,7 +409,7 @@ export default function ApolloAssistChatbot() {
 
                   <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-cyan-100/90 font-medium truncate">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="truncate">Online • Apollo Hospitals Jabalpur</span>
+                    <span className="truncate">Online • Apollo JBP Hospitals Jabalpur</span>
                   </div>
                 </div>
               </div>
@@ -749,7 +749,7 @@ export default function ApolloAssistChatbot() {
               >
                 Eka Care
               </a>
-              <span>• Apollo Hospitals Jabalpur</span>
+              <span>• Apollo JBP Hospitals Jabalpur</span>
             </div>
           </div>
         </div>
