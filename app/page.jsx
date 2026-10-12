@@ -43,9 +43,16 @@ export default function Home() {
       });
     }
 
-    // Save the current scroll position while scrolling
+    // Save the current scroll position while scrolling (throttled with rAF)
+    let ticking = false;
     const handleScroll = () => {
-      sessionStorage.setItem("homeScrollPosition", String(window.scrollY));
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          sessionStorage.setItem("homeScrollPosition", String(window.scrollY));
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, {

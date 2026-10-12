@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import {
   motion,
   AnimatePresence,
@@ -90,7 +90,7 @@ const capWord = {
 };
 
 /* ───────────── Count-up number ───────────── */
-function CountUp({ to, suffix = "" }) {
+const CountUp = memo(function CountUp({ to, suffix = "" }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const [v, setV] = useState(0);
@@ -109,28 +109,12 @@ function CountUp({ to, suffix = "" }) {
       {suffix}
     </span>
   );
-}
+});
 
-export default function HeroSection({ onSearchSubmit }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory] = useState("all");
-  const [active, setActive] = useState(0);
+/* ───────────── Isolated Live Pulse Chip (prevents whole Hero re-renders) ───────────── */
+const LivePulseChip = memo(function LivePulseChip({ chipX2, chipY }) {
   const [bpm, setBpm] = useState(74);
 
-  /* ── timer driven by one motion value (pauses on hover) ── */
-  const progress = useMotionValue(0);
-  const ctrl = useRef(null);
-  useEffect(() => {
-    progress.set(0);
-    ctrl.current = animate(progress, 1, {
-      duration: INTERVAL / 1000,
-      ease: "linear",
-      onComplete: () => setActive((i) => (i + 1) % SLIDES.length),
-    });
-    return () => ctrl.current?.stop();
-  }, [active, progress]);
-
-  /* live BPM */
   useEffect(() => {
     const id = setInterval(
       () => setBpm(70 + Math.round(Math.random() * 8)),
@@ -139,7 +123,67 @@ export default function HeroSection({ onSearchSubmit }) {
     return () => clearInterval(id);
   }, []);
 
-  /* ── mouse: parallax + tilt + spotlight ── */
+  return (
+    <motion.div
+      style={{ x: chipX2, y: chipY }}
+      className="hidden sm:flex absolute -right-6 top-20 z-30 items-center gap-3 bg-[#0B3446] text-white rounded-2xl px-4 py-3 shadow-[0_16px_36px_rgba(15,52,72,0.3)]"
+    >
+      <svg width="46" height="22" viewBox="0 0 46 22" fill="none">
+        <motion.path
+          d="M0 11 H12 L16 3 L21 19 L26 8 L29 11 H46"
+          stroke="#F6D98A"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          animate={{ pathLength: [0, 1, 1], opacity: [0, 1, 0] }}
+          transition={{
+            duration: 1.6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </svg>
+      <div className="leading-tight">
+        <div className="text-[10px] text-white/60 font-medium uppercase tracking-wider">
+          Live pulse
+        </div>
+        <div className="text-sm font-extrabold tabular-nums">
+          {bpm}{" "}
+          <span className="text-[10px] font-semibold text-[#F6D98A]">
+            BPM
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+export default function HeroSection({ onSearchSubmit }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory] = useState("all");
+  const [active, setActive] = useState(0);
+
+  const sectionRef = useRef(null);
+  const isSectionInView = useInView(sectionRef, { margin: "200px" });
+
+  /* ── timer driven by one motion value (pauses when offscreen or on hover) ── */
+  const progress = useMotionValue(0);
+  const ctrl = useRef(null);
+  useEffect(() => {
+    if (!isSectionInView) {
+      ctrl.current?.pause();
+      return;
+    }
+    progress.set(0);
+    ctrl.current = animate(progress, 1, {
+      duration: INTERVAL / 1000,
+      ease: "linear",
+      onComplete: () => setActive((i) => (i + 1) % SLIDES.length),
+    });
+    return () => ctrl.current?.stop();
+  }, [active, progress, isSectionInView]);
+
+  /* ── mouse: parallax + tilt + spotlight (optimized for zero layout thrashing) ── */
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const px = useMotionValue(-600);
@@ -158,8 +202,36 @@ export default function HeroSection({ onSearchSubmit }) {
   const glare = useMotionTemplate`radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.30), transparent 55%)`;
   const spot = useMotionTemplate`radial-gradient(520px circle at ${px}px ${py}px, rgba(232,193,115,0.22), transparent 65%)`;
 
+  const rectRef = useRef(null);
+  const isHoverSupportedRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      isHoverSupportedRef.current = window.matchMedia("(hover: hover)").matches;
+    }
+    const handleScrollOrResize = () => {
+      rectRef.current = null;
+    };
+    window.addEventListener("resize", handleScrollOrResize, { passive: true });
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleScrollOrResize);
+      window.removeEventListener("scroll", handleScrollOrResize);
+    };
+  }, []);
+
+  const handleMouseEnter = (e) => {
+    if (!isHoverSupportedRef.current) return;
+    rectRef.current = e.currentTarget.getBoundingClientRect();
+  };
+
   const handleMouseMove = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
+    if (!isHoverSupportedRef.current) return;
+    if (!rectRef.current) {
+      rectRef.current = e.currentTarget.getBoundingClientRect();
+    }
+    const r = rectRef.current;
+    if (!r.width || !r.height) return;
     mx.set(((e.clientX - r.left) / r.width) * 2 - 1);
     my.set(((e.clientY - r.top) / r.height) * 2 - 1);
     px.set(e.clientX - r.left);
@@ -175,6 +247,8 @@ export default function HeroSection({ onSearchSubmit }) {
 
   return (
     <section
+      ref={sectionRef}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       className="relative pt-36 pb-0 lg:pt-44 overflow-hidden bg-[#EDF6FB]"
     >
@@ -765,37 +839,7 @@ export default function HeroSection({ onSearchSubmit }) {
                 </div>
               </motion.div> */}
 
-              <motion.div
-                style={{ x: chipX2, y: chipY }}
-                className="hidden sm:flex absolute -right-6 top-20 z-30 items-center gap-3 bg-[#0B3446] text-white rounded-2xl px-4 py-3 shadow-[0_16px_36px_rgba(15,52,72,0.3)]"
-              >
-                <svg width="46" height="22" viewBox="0 0 46 22" fill="none">
-                  <motion.path
-                    d="M0 11 H12 L16 3 L21 19 L26 8 L29 11 H46"
-                    stroke="#F6D98A"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    animate={{ pathLength: [0, 1, 1], opacity: [0, 1, 0] }}
-                    transition={{
-                      duration: 1.6,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </svg>
-                <div className="leading-tight">
-                  <div className="text-[10px] text-white/60 font-medium uppercase tracking-wider">
-                    Live pulse
-                  </div>
-                  <div className="text-sm font-extrabold tabular-nums">
-                    {bpm}{" "}
-                    <span className="text-[10px] font-semibold text-[#F6D98A]">
-                      BPM
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
+              <LivePulseChip chipX2={chipX2} chipY={chipY} />
 
               {/* emergency chip */}
               <motion.div
@@ -1148,6 +1192,32 @@ export default function HeroSection({ onSearchSubmit }) {
         @keyframes marquee {
           to {
             transform: translateX(-50%);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hero-mesh {
+            filter: blur(40px);
+            animation: none !important;
+          }
+          .hero-orb {
+            filter: blur(25px);
+            animation: none !important;
+          }
+          .hero-orb-3,
+          .hero-orb-4 {
+            display: none !important;
+          }
+          .hero-ring-1,
+          .hero-ring-2 {
+            animation: none !important;
+          }
+          .hero-wave {
+            animation: none !important;
+          }
+          .hero-aura {
+            filter: blur(20px);
+            animation: none !important;
           }
         }
 

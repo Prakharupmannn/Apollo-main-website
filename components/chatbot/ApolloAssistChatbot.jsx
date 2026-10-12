@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   MessageSquare,
   X,
@@ -37,6 +38,9 @@ function formatCurrentTime() {
 }
 
 export default function ApolloAssistChatbot() {
+  const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
+
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadNotice, setHasUnreadNotice] = useState(true);
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
@@ -51,6 +55,22 @@ export default function ApolloAssistChatbot() {
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
   const chatWindowRef = useRef(null);
+
+  // Automatically close chatbot on every route change across the entire website
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      setIsOpen(false);
+      if (isListening && recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore
+        }
+        setIsListening(false);
+      }
+    }
+  }, [pathname, isListening]);
 
   // Initialize from sessionStorage on client-side
   useEffect(() => {
@@ -280,11 +300,11 @@ export default function ApolloAssistChatbot() {
       {/* ─────────────────────────────────────────────────────────────
           1. FLOATING LAUNCHER BUTTON (Bottom-Right)
           ───────────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end pointer-events-auto select-none">
+      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end pointer-events-none select-none">
         {/* Entrance / Floating Tooltip Badge when closed */}
         {!isOpen && hasUnreadNotice && (
           <div
-            className="mb-3 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-[#087F9C]/30 shadow-xl text-slate-800 text-xs font-semibold flex items-center gap-2 animate-bounce transition-all duration-300"
+            className="mb-3 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-[#087F9C]/30 shadow-xl text-slate-800 text-xs font-semibold flex items-center gap-2 animate-bounce transition-all duration-300 pointer-events-auto"
             role="status"
           >
             <span className="relative flex h-2.5 w-2.5">
@@ -310,7 +330,7 @@ export default function ApolloAssistChatbot() {
           onClick={toggleChat}
           aria-expanded={isOpen}
           aria-label={isOpen ? "Close Apollo Assist chat" : "Chat with Apollo Assist"}
-          className={`group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_10px_35px_rgba(14,82,107,0.38)] transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#16A6C5]/40 border-2 ${
+          className={`pointer-events-auto group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_10px_35px_rgba(14,82,107,0.38)] transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#16A6C5]/40 border-2 ${
             isOpen
               ? "bg-[#0E526B] border-white/30 rotate-90"
               : "bg-gradient-to-tr from-[#0E526B] via-[#087F9C] to-[#16A6C5] border-white/60 hover:shadow-[0_12px_40px_rgba(8,127,156,0.5)]"
@@ -352,12 +372,12 @@ export default function ApolloAssistChatbot() {
           role="dialog"
           aria-modal="true"
           aria-label="Apollo Assist Healthcare Assistant"
-          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[440px] max-w-[460px] h-[640px] max-h-[calc(100vh-6.5rem)] sm:max-h-[690px] flex flex-col bg-[#F4FAFC] rounded-3xl border border-[#BFD6DF]/70 shadow-[0_20px_60px_-10px_rgba(14,82,107,0.35)] overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 origin-bottom-right"
+          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[440px] max-w-[460px] h-[min(640px,calc(100dvh-5.5rem))] max-h-[calc(100dvh-5.5rem)] sm:max-h-[690px] flex flex-col bg-[#F4FAFC] rounded-3xl border border-[#BFD6DF]/70 shadow-[0_20px_60px_-10px_rgba(14,82,107,0.35)] overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 origin-bottom-right"
         >
           {/* ─────────────────────────────────────────────────────────
               A. ATTRACTIVE HEALTHCARE HEADER
               ───────────────────────────────────────────────────────── */}
-          <div className="relative z-10 bg-gradient-to-r from-[#0E526B] via-[#087F9C] to-[#0E526B] text-white p-4 sm:p-4.5 border-b border-white/10 shadow-md">
+          <div className="relative z-10 bg-gradient-to-r from-[#0E526B] via-[#087F9C] to-[#0E526B] text-white p-3.5 sm:p-4.5 border-b border-white/10 shadow-md">
             {/* Soft background pattern */}
             <div
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
@@ -367,29 +387,29 @@ export default function ApolloAssistChatbot() {
               }}
             />
 
-            <div className="relative z-10 flex items-center justify-between gap-3">
+            <div className="relative z-10 flex items-center justify-between gap-2.5">
               {/* Avatar + Brand info */}
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/15 p-1 border border-white/30 shadow-inner flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/15 p-1 border border-white/30 shadow-inner flex items-center justify-center shrink-0">
                   <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#0E526B] to-[#16A6C5] flex items-center justify-center text-white">
-                    <Bot className="w-5 h-5 text-white" />
+                    <Bot className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0E526B]" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 border-2 border-[#0E526B]" />
                 </div>
 
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-serif-apollo text-base sm:text-lg font-bold text-white tracking-wide truncate">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <h2 className="font-serif-apollo text-sm sm:text-base font-bold text-white tracking-wide truncate">
                       Apollo Assist
                     </h2>
-                    <span className="px-2 py-0.5 rounded-full bg-[#16A6C5]/25 border border-[#16A6C5]/40 text-[10px] font-bold text-cyan-100 uppercase tracking-wider">
+                    <span className="shrink-0 px-1.5 sm:px-2 py-0.5 rounded-full bg-[#16A6C5]/25 border border-[#16A6C5]/40 text-[9px] sm:text-[10px] font-bold text-cyan-100 uppercase tracking-wider">
                       24/7 AI
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs text-cyan-100/90 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Online • Apollo Hospitals Jabalpur</span>
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-cyan-100/90 font-medium truncate">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="truncate">Online • Apollo Hospitals Jabalpur</span>
                   </div>
                 </div>
               </div>
@@ -400,7 +420,7 @@ export default function ApolloAssistChatbot() {
                   onClick={handleResetConversation}
                   aria-label="Restart conversation"
                   title="New conversation"
-                  className="p-2 rounded-xl text-cyan-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A6C5]"
+                  className="p-1.5 sm:p-2 rounded-xl text-cyan-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A6C5]"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -409,7 +429,7 @@ export default function ApolloAssistChatbot() {
                   onClick={() => setIsOpen(false)}
                   aria-label="Close chat window"
                   title="Close"
-                  className="p-2 rounded-xl text-cyan-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A6C5]"
+                  className="p-1.5 sm:p-2 rounded-xl text-cyan-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A6C5]"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -635,7 +655,7 @@ export default function ApolloAssistChatbot() {
           {/* ─────────────────────────────────────────────────────────
               D. MODERN MESSAGE COMPOSER & VOICE INPUT
               ───────────────────────────────────────────────────────── */}
-          <div className="p-3 bg-white border-t border-[#E3EEF2] relative z-10">
+          <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white border-t border-[#E3EEF2] relative z-10 shrink-0">
             {/* Listening Banner or Microphone Notice */}
             {isListening && (
               <div className="mb-2 px-3 py-1.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs font-medium flex items-center justify-between animate-pulse">

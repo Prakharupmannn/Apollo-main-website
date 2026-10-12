@@ -541,7 +541,7 @@ function DoctorFilters({ search, specialty }) {
           </div>
 
           {/* Search */}
-          <form action="/doctors" method="get" className="mt-5">
+          {/* <form action="/doctors" method="get" className="mt-5">
             {hasSpecialty && <input type="hidden" name="specialty" value={specialty} />}
             <div className="group flex items-center gap-2 rounded-2xl border border-[#E2ECEF] bg-[#F7FBFD] px-3.5 py-2.5 transition focus-within:border-[#0E526B]/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#0E526B]/10">
               <Search className="h-4 w-4 shrink-0 text-[#0E526B]/60" />
@@ -553,7 +553,7 @@ function DoctorFilters({ search, specialty }) {
                 className="w-full bg-transparent text-xs text-[#06202B] outline-none placeholder:text-[#8FA3AB]"
               />
             </div>
-          </form>
+          </form> */}
 
           {/* Active chips */}
           {activeCount > 0 && (

@@ -25,7 +25,8 @@
     background-color: #F8FAFC;
     color: #0F172A;
     font-family: var(--font-manrope), system-ui, sans-serif;
-    overflow-x: hidden;
+    overflow-x: clip;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -186,7 +187,7 @@ html { scroll-behavior: smooth; }
 
 html,
 body {
-  overflow-anchor: none;
+  overflow-anchor: auto;
 }
 
 @keyframes floaty {
