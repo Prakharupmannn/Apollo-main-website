@@ -236,7 +236,9 @@ export default function ApolloAssistChatbot() {
   };
 
   const handleSendMessage = (textToSend) => {
-    const text = (typeof textToSend === "string" ? textToSend : inputMessage).trim();
+    const text = (
+      typeof textToSend === "string" ? textToSend : inputMessage
+    ).trim();
     if (!text) return;
 
     if (isListening && recognitionRef.current) {
@@ -300,7 +302,7 @@ export default function ApolloAssistChatbot() {
       {/* ─────────────────────────────────────────────────────────────
           1. FLOATING LAUNCHER BUTTON (Bottom-Right)
           ───────────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end pointer-events-none select-none">
+      <div className="fixed bottom-20 right-4 sm:bottom-6 pt-2 sm:right-6 z-50 pt-1 flex flex-col items-end pointer-events-none select-none">
         {/* Entrance / Floating Tooltip Badge when closed */}
         {!isOpen && hasUnreadNotice && (
           <div
@@ -311,7 +313,9 @@ export default function ApolloAssistChatbot() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
             </span>
-            <span className="text-[#0E526B] font-bold">Chat with Apollo Assist</span>
+            <span className="text-[#0E526B] font-bold">
+              Chat with Apollo Assist
+            </span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -329,7 +333,9 @@ export default function ApolloAssistChatbot() {
         <button
           onClick={toggleChat}
           aria-expanded={isOpen}
-          aria-label={isOpen ? "Close Apollo Assist chat" : "Chat with Apollo Assist"}
+          aria-label={
+            isOpen ? "Close Apollo Assist chat" : "Chat with Apollo Assist"
+          }
           className={`pointer-events-auto group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_10px_35px_rgba(14,82,107,0.38)] transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#16A6C5]/40 border-2 ${
             isOpen
               ? "bg-[#0E526B] border-white/30 rotate-90"
@@ -372,17 +378,18 @@ export default function ApolloAssistChatbot() {
           role="dialog"
           aria-modal="true"
           aria-label="Apollo Assist Healthcare Assistant"
-          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[440px] max-w-[460px] h-[min(640px,calc(100dvh-5.5rem))] max-h-[calc(100dvh-5.5rem)] sm:max-h-[690px] flex flex-col bg-[#F4FAFC] rounded-3xl border border-[#BFD6DF]/70 shadow-[0_20px_60px_-10px_rgba(14,82,107,0.35)] overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 origin-bottom-right"
+          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[440px] max-w-[460px] h-[min(640px,calc(100dvh-6rem))] max-h-[calc(100dvh-6rem)] sm:max-h-[690px] flex flex-col bg-[#F4FAFC] rounded-3xl border border-[#BFD6DF]/70 shadow-[0_20px_60px_-10px_rgba(14,82,107,0.35)] overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 origin-bottom-right"
         >
           {/* ─────────────────────────────────────────────────────────
               A. ATTRACTIVE HEALTHCARE HEADER
               ───────────────────────────────────────────────────────── */}
-          <div className="relative z-10 bg-gradient-to-r from-[#0E526B] via-[#087F9C] to-[#0E526B] text-white p-3.5 sm:p-4.5 border-b border-white/10 shadow-md">
+          <div className="relative z-10 bg-gradient-to-r from-[#0E526B] via-[#087F9C] to-[#0E526B] text-white p-3.5 pt-2 sm:pt-2 border-b border-white/10 shadow-md">
             {/* Soft background pattern */}
             <div
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
               style={{
-                backgroundImage: "radial-gradient(#FFFFFF 1px, transparent 1px)",
+                backgroundImage:
+                  "radial-gradient(#FFFFFF 1px, transparent 1px)",
                 backgroundSize: "16px 16px",
               }}
             />
@@ -409,7 +416,9 @@ export default function ApolloAssistChatbot() {
 
                   <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-cyan-100/90 font-medium truncate">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="truncate">Online • Apollo JBP Hospitals Jabalpur</span>
+                    <span className="truncate">
+                      Online • Apollo JBP Hospitals Jabalpur
+                    </span>
                   </div>
                 </div>
               </div>
@@ -704,8 +713,8 @@ export default function ApolloAssistChatbot() {
                   isListening
                     ? "Stop listening"
                     : speechSupported
-                    ? "Voice input"
-                    : "Speech recognition not supported"
+                      ? "Voice input"
+                      : "Speech recognition not supported"
                 }
                 className={`p-2 rounded-xl transition-all duration-200 shrink-0 ${
                   isListening

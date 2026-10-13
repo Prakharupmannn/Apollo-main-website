@@ -100,7 +100,8 @@ export const FLOW_RESPONSES = {
         actionText: "Book for Senior",
       },
     ],
-    infoNote: "Tip: 10-12 hours of overnight fasting is recommended for accurate blood and lipid profile results.",
+    infoNote:
+      "Tip: 10-12 hours of overnight fasting is recommended for accurate blood and lipid profile results.",
     suggestions: [
       "Fasting Guidelines",
       "I want to book appointment",
@@ -173,24 +174,116 @@ export function generateBotResponse(userInput) {
   const query = userInput.trim().toLowerCase();
 
   // 1. Core Quick Actions
-  if (query.includes("appointment") || query.includes("book appointment") || query.includes("doctor appointment")) {
+  if (
+    query.includes("appointment") ||
+    query.includes("book appointment") ||
+    query.includes("doctor appointment")
+  ) {
     return FLOW_RESPONSES.appointment;
   }
 
-  if (query.includes("health check") || query.includes("checkup") || query.includes("package") || query.includes("prohealth") || query.includes("screening")) {
+  if (
+    query.includes("health check") ||
+    query.includes("checkup") ||
+    query.includes("package") ||
+    query.includes("prohealth") ||
+    query.includes("screening")
+  ) {
     return FLOW_RESPONSES.healthCheck;
   }
 
-  if (query.includes("international") || query.includes("visa") || query.includes("foreign") || query.includes("abroad") || query.includes("overseas")) {
+  if (
+    query.includes("international") ||
+    query.includes("visa") ||
+    query.includes("foreign") ||
+    query.includes("abroad") ||
+    query.includes("overseas")
+  ) {
     return FLOW_RESPONSES.international;
   }
 
-  if (query.includes("emergency") || query.includes("1066") || query.includes("ambulance") || query.includes("trauma") || query.includes("urgent") || query.includes("heart attack") || query.includes("accident")) {
+  if (
+    query.includes("emergency") ||
+    query.includes("1066") ||
+    query.includes("ambulance") ||
+    query.includes("trauma") ||
+    query.includes("urgent") ||
+    query.includes("heart attack") ||
+    query.includes("accident")
+  ) {
     return FLOW_RESPONSES.emergency;
   }
 
+  // Centres of Excellence
+  if (
+    query.includes("centres of excellence") ||
+    query.includes("centers of excellence") ||
+    query.includes("centre of excellence") ||
+    query.includes("center of excellence") ||
+    query.includes("centres") ||
+    query.includes("centers")
+  ) {
+    return {
+      text: "Explore the Centres of Excellence at Apollo JBP Hospitals Jabalpur. Discover our specialized medical departments, advanced treatments, and expert healthcare services.",
+      cards: [
+        {
+          title: "Centres of Excellence",
+          desc: "Explore our specialized medical centres, expert doctors, and advanced treatment facilities.",
+          actionType: "link",
+          actionUrl: "/centres-of-excellence",
+          actionText: "Explore Centres of Excellence",
+        },
+      ],
+      suggestions: [
+        "Gastro Sciences",
+        "Onco Sciences",
+        "Cardiac Sciences",
+        "Neuro Sciences",
+        "Nephro Sciences",
+        "Ortho-Joint & Spine",
+        "Critical Care",
+        "View All Centres of Excellence",
+      ],
+    };
+  }
+
+  // departments routes
+  // Centres of Excellence - Individual Route Handling
+
+  const centreRoutes = {
+    "gastro sciences": "/centres-of-excellence/gastro",
+    "onco sciences": "/centres-of-excellence/onco",
+    "cardiac sciences": "/centres-of-excellence/cardiac",
+    "neuro sciences": "/centres-of-excellence/neuro",
+    "nephro sciences": "/centres-of-excellence/nephro",
+    "ortho-joint & spine": "/centres-of-excellence/ortho-joint-spine",
+    "critical care": "/centres-of-excellence/critical-care",
+    "view all centres of excellence": "/centres-of-excellence",
+  };
+
+  if (centreRoutes[query]) {
+    return {
+      text: `Explore ${userInput} at Apollo JBP Hospitals Jabalpur.`,
+      cards: [
+        {
+          title: userInput,
+          desc: "Explore specialized treatments, expert doctors, and healthcare services.",
+          actionType: "link",
+          actionUrl: centreRoutes[query],
+          actionText: `Explore ${userInput}`,
+        },
+      ],
+      suggestions: ["View All Centres of Excellence"],
+    };
+  }
+
   // 2. Doctor Inquiries
-  if (query.includes("doctor") || query.includes("specialist") || query.includes("physician") || query.includes("surgeon")) {
+  if (
+    query.includes("doctor") ||
+    query.includes("specialist") ||
+    query.includes("physician") ||
+    query.includes("surgeon")
+  ) {
     return {
       text: "Apollo JBP Hospitals Jabalpur has over 49 specialist and super-specialist consultants across Cardiology, Oncology, Neuro Sciences, Orthopaedics, Gastro, Nephro, and Critical Care.\n\nYou can explore doctor profiles, credentials, and OPD schedules here:",
       cards: [
@@ -212,7 +305,12 @@ export function generateBotResponse(userInput) {
   }
 
   // 3. Specialties / Centres of Excellence
-  if (query.includes("cardio") || query.includes("heart") || query.includes("tavi") || query.includes("angioplasty")) {
+  if (
+    query.includes("cardio") ||
+    query.includes("heart") ||
+    query.includes("tavi") ||
+    query.includes("angioplasty")
+  ) {
     return {
       text: "Our Cardiac Sciences Centre of Excellence provides 24/7 STEMI interventional care, primary angioplasty, TAVI, bypass surgery, and electrophysiology under senior cardiologists including Dr. Vivek Gupta and team.",
       cards: [
@@ -224,11 +322,21 @@ export function generateBotResponse(userInput) {
           actionText: "Explore Cardiac Centre",
         },
       ],
-      suggestions: ["Book Cardiology Appointment", "Cardiac Health Check", "Emergency Hotline"],
+      suggestions: [
+        "Book Cardiology Appointment",
+        "Cardiac Health Check",
+        "Emergency Hotline",
+      ],
     };
   }
 
-  if (query.includes("cancer") || query.includes("onco") || query.includes("chemo") || query.includes("radiation") || query.includes("cyberknife")) {
+  if (
+    query.includes("cancer") ||
+    query.includes("onco") ||
+    query.includes("chemo") ||
+    query.includes("radiation") ||
+    query.includes("cyberknife")
+  ) {
     return {
       text: "The Apollo Comprehensive Cancer Care Centre offers precision oncology, medical oncology, surgical oncology, targeted chemotherapy, and immunotherapy backed by multidisciplinary tumor boards.",
       cards: [
@@ -240,11 +348,20 @@ export function generateBotResponse(userInput) {
           actionText: "Explore Oncology Centre",
         },
       ],
-      suggestions: ["Book Oncology Consultation", "Health Check Packages", "Contact Hospital"],
+      suggestions: [
+        "Book Oncology Consultation",
+        "Health Check Packages",
+        "Contact Hospital",
+      ],
     };
   }
 
-  if (query.includes("neuro") || query.includes("brain") || query.includes("spine") || query.includes("stroke")) {
+  if (
+    query.includes("neuro") ||
+    query.includes("brain") ||
+    query.includes("spine") ||
+    query.includes("stroke")
+  ) {
     return {
       text: "Our Neuro Sciences Institute features 24/7 Acute Stroke thrombolysis, neuro-navigation surgery, endoscopic spine surgery, and neurological critical care.",
       cards: [
@@ -260,7 +377,13 @@ export function generateBotResponse(userInput) {
     };
   }
 
-  if (query.includes("ortho") || query.includes("joint") || query.includes("bone") || query.includes("knee") || query.includes("hip")) {
+  if (
+    query.includes("ortho") ||
+    query.includes("joint") ||
+    query.includes("bone") ||
+    query.includes("knee") ||
+    query.includes("hip")
+  ) {
     return {
       text: "The Orthopaedics & Joint Care Centre specializes in robotic knee & hip replacement, sports injury arthroscopy, minimally invasive fracture trauma, and pediatric orthopaedics.",
       cards: [
@@ -277,15 +400,32 @@ export function generateBotResponse(userInput) {
   }
 
   // 4. Timings & Visiting Hours
-  if (query.includes("timing") || query.includes("hour") || query.includes("visiting") || query.includes("opd time") || query.includes("open")) {
+  if (
+    query.includes("timing") ||
+    query.includes("hour") ||
+    query.includes("visiting") ||
+    query.includes("opd time") ||
+    query.includes("open")
+  ) {
     return {
       text: "🏥 **Apollo Hospitals Jabalpur Timings**:\n\n• **OPD Consultations**: Monday to Saturday, 9:00 AM – 6:00 PM\n• **Emergency & Trauma**: Open 24 Hours, 7 Days a week (24x7)\n• **Diagnostic Labs & Pharmacy**: Open 24x7\n• **Inpatient Visiting Hours**: 4:00 PM – 6:00 PM (1 visitor per pass)",
-      suggestions: ["I want to book appointment", "Hospital Location", "I have an emergency"],
+      suggestions: [
+        "I want to book appointment",
+        "Hospital Location",
+        "I have an emergency",
+      ],
     };
   }
 
   // 5. Location, Address & Directions
-  if (query.includes("location") || query.includes("address") || query.includes("where") || query.includes("direction") || query.includes("map") || query.includes("reach")) {
+  if (
+    query.includes("location") ||
+    query.includes("address") ||
+    query.includes("where") ||
+    query.includes("direction") ||
+    query.includes("map") ||
+    query.includes("reach")
+  ) {
     return {
       text: "📍 **Hospital Address**:\nApollo JBP Hospitals\nGlobal Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh 482002, India.\n\nEasily accessible from Jabalpur Railway Station (approx. 7 km) and Dumna Airport (approx. 22 km).",
       cards: [
@@ -297,20 +437,45 @@ export function generateBotResponse(userInput) {
           actionText: "Open in Google Maps",
         },
       ],
-      suggestions: ["OPD Timings", "Call Reception", "I want to book appointment"],
+      suggestions: [
+        "OPD Timings",
+        "Call Reception",
+        "I want to book appointment",
+      ],
     };
   }
 
   // 6. Insurance & Cashless TPA
-  if (query.includes("insurance") || query.includes("tpa") || query.includes("cashless") || query.includes("ayushman") || query.includes("pmjay") || query.includes("cghs") || query.includes("echs") || query.includes("claim")) {
+  if (
+    query.includes("insurance") ||
+    query.includes("tpa") ||
+    query.includes("cashless") ||
+    query.includes("ayushman") ||
+    query.includes("pmjay") ||
+    query.includes("cghs") ||
+    query.includes("echs") ||
+    query.includes("claim")
+  ) {
     return {
       text: "Apollo JBP Hospitals Jabalpur supports cashless hospitalization across leading Private TPAs and Government schemes, including:\n\n• AB-PMJAY (Ayushman Bharat)\n• CGHS & ECHS\n• ESIC\n• Railway & BSNL\n• Major Private Insurers (Star Health, HDFC ERGO, ICICI Lombard, Max Bupa, Care, etc.)\n\nPlease carry your insurance card, Government ID, and policy documents to our dedicated TPA Desk at the hospital lobby.",
-      suggestions: ["Contact TPA Desk", "I want to book appointment", "Hospital Timings"],
+      suggestions: [
+        "Contact TPA Desk",
+        "I want to book appointment",
+        "Hospital Timings",
+      ],
     };
   }
 
   // 7. General Greetings
-  if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("namaste") || query.includes("good morning") || query.includes("good afternoon") || query.includes("good evening")) {
+  if (
+    query.includes("hi") ||
+    query.includes("hello") ||
+    query.includes("hey") ||
+    query.includes("namaste") ||
+    query.includes("good morning") ||
+    query.includes("good afternoon") ||
+    query.includes("good evening")
+  ) {
     return {
       text: "Hello! Welcome to Apollo JBP Hospitals Jabalpur. How can I assist you with your health and healthcare needs today?",
       suggestions: [
@@ -325,7 +490,11 @@ export function generateBotResponse(userInput) {
   if (query.includes("thank") || query.includes("thanks")) {
     return {
       text: "You're very welcome! We are always here to help you and your family. Wishing you good health and happiness!",
-      suggestions: ["I want to book appointment", "Health Check Packages", "Contact Hospital"],
+      suggestions: [
+        "I want to book appointment",
+        "Health Check Packages",
+        "Contact Hospital",
+      ],
     };
   }
 
