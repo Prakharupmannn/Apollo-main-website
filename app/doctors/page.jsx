@@ -129,13 +129,13 @@ const testimonials = [
     name: "Ramesh Verma",
     location: "Jabalpur",
     text: "The doctors and care team were extremely supportive throughout the consultation and treatment journey.",
-    image: "/images/doctors/user.png",
+    image: "/images/doctors/user.webp",
   },
   {
     name: "Sunita Sharma",
     location: "Jabalpur",
     text: "The experience was reassuring and the team explained everything clearly at every step.",
-    image: "/images/doctors/user.png",
+    image: "/images/doctors/user.webp",
   },
 ];
 

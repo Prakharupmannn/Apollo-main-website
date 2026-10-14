@@ -6,11 +6,11 @@ import Image from "next/image";
 
 const images = [
   {
-    src: "/images/doctors/hanumanthu2.png",
+    src: "/images/doctors/hanumanthu2.webp",
     alt: "Apollo JBP Doctor",
   },
   {
-    src: "/images/doctors/group2.webp",
+    src: "/images/doctors/doctors.webp",
     alt: "Apollo JBP Doctor",
   },
 ];
