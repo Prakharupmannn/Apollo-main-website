@@ -193,7 +193,7 @@ export default function DoctorsHero({ total = 49 }) {
             </div>
             <div className="absolute inset-[5px] overflow-hidden rounded-full bg-[#DCEEF5]">
               <Image
-                src="/images/doctors/doctorhero.png"
+                src="/images/doctors/doctorhero.webp"
                 alt="Expert doctors at Apollo JBP Hospitals"
                 fill
                 priority

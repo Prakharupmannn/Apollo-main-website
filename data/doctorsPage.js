@@ -3608,7 +3608,7 @@ export const rawDoctors = [
   specialitySlug: "reproductive-medicine",
   department: "gynae",
 
-  image: "/images/doctors/Dr-deepa.webp",
+  image: "/images/doctors/Dr-Deepa.webp",
 
   profileUrl:
     "https://apollojbphospitals.com/doctor/best-ivf-specialist-in-jabalpur/",
@@ -3840,7 +3840,7 @@ export const rawDoctors = [
   specialitySlug: "paediatric-emergency",
   department: "pediatrics",
 
-  image: "/images/doctors/Dr-shobhit.webp",
+  image: "/images/doctors/Dr-Shobhit.webp",
 
   profileUrl:
     "https://apollojbphospitals.com/doctor/paediatric-emergency-specialist-in-jabalpur/",
