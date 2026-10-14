@@ -33,7 +33,10 @@ import {
   Phone,
   Clock,
   ExternalLink,
+  LogIn,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 // Icon + accent lookup for dropdown items, matched by name.
 const DROPDOWN_ICON_MAP = {
@@ -67,6 +70,21 @@ const DEFAULT_DROPDOWN_ICON = {
 };
 
 export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      setMobileMenuOpen(false);
+      setSidebarOpen(false);
+
+      await logout();
+
+      router.replace("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -320,6 +338,40 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               >
                 <Search className="w-4 h-4" />
               </button>
+
+              <span className="h-3 w-0.5 bg-white/25 rounded-full" />
+
+              {/* Portal Login / Logout Icon */}
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="p-1.5 rounded-lg text-white/90 hover:text-white hover:bg-white/15 backdrop-blur-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-300/40 flex items-center gap-1.5 group"
+                  aria-label="Sign out of hospital portal"
+                  title={
+                    user?.email
+                      ? `Signed in as ${user.email} - Click to Sign Out`
+                      : "Sign Out of Hospital Portal"
+                  }
+                >
+                  <LogOut className="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span className="hidden xl:inline text-[11px] font-bold text-amber-200">
+                    Logout
+                  </span>
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="p-1.5 rounded-lg text-white/90 hover:text-white hover:bg-white/15 backdrop-blur-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-300/40 flex items-center gap-1.5 group"
+                  aria-label="Sign in to hospital portal"
+                  title="Sign In to Hospital Portal"
+                >
+                  <LogIn className="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span className="hidden xl:inline text-[11px] font-bold text-amber-200">
+                    Login
+                  </span>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -406,7 +458,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
                                   <div className="min-w-0 flex-1">
                                     <div className="text-[13px] font-bold text-[#0A5F7A] flex items-center justify-between gap-2">
-                                      <span className="truncate">{sub.name}</span>
+                                      <span className="truncate">
+                                        {sub.name}
+                                      </span>
                                       <ArrowRight className="w-3.5 h-3.5 text-[#C8952E] shrink-0 opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200" />
                                     </div>
                                     {sub.desc && (
@@ -454,11 +508,35 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               </button>
             </div>
 
-            {/* Right group on phones/tablets: language switcher (phones only) + menu toggle */}
+            {/* Right group on phones/tablets: language switcher (phones only) + auth icon + menu toggle */}
             <div className="flex items-center gap-2 xl:hidden shrink-0">
               {/* Phones only: the top bar is hidden here, so show the switcher beside the menu button */}
               <div className="sm:hidden">
                 <LanguageSwitcher variant="dark" showIcon />
+              </div>
+
+              {/* Phones only: Portal Login / Logout icon button */}
+              <div className="sm:hidden">
+                {isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 active:bg-rose-100 transition-all shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400/40 flex items-center justify-center"
+                    aria-label="Sign out of hospital portal"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="p-2 rounded-xl border border-slate-200 text-[#0A5F7A] hover:bg-[#EDF6FB] active:bg-[#D8ECF5] transition-all shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0A5F7A]/30 flex items-center justify-center"
+                    aria-label="Sign in to hospital portal"
+                    title="Sign In"
+                  >
+                    <LogIn className="w-5 h-5" />
+                  </Link>
+                )}
               </div>
 
               {/* Mobile / tablet toggle button */}
@@ -515,11 +593,44 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                 </a>
               </div>
 
+              {/* Mobile Drawer: Portal Login / Logout Row */}
+              <div className="pt-0.5 pb-1">
+                {isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4 text-rose-600" />
+                      <span>Sign Out from Portal</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-rose-600 bg-rose-100/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Active
+                    </span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-xs font-bold text-[#0A5F7A] bg-[#EDF6FB] border border-[#1D82A6]/20 hover:bg-[#D8ECF5] transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <LogIn className="w-4 h-4 text-[#0A5F7A]" />
+                      <span>Hospital Portal Sign In</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-[#C8952E] bg-amber-50 border border-amber-200/50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Portal
+                    </span>
+                  </Link>
+                )}
+              </div>
+
               <ul className="space-y-1">
                 {navItems.map((item) => {
                   const expanded = mobileExpanded === item.label;
                   const hasDropdown = Boolean(
-                    item.dropdown && item.dropdown.length > 0
+                    item.dropdown && item.dropdown.length > 0,
                   );
 
                   return (
@@ -538,8 +649,8 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                             expanded
                               ? "bg-[#EDF6FB] text-[#0A5F7A] font-bold"
                               : isActive(item.href)
-                              ? "text-[#0A5F7A] font-semibold bg-slate-50"
-                              : "text-slate-700 hover:text-[#0A5F7A] hover:bg-slate-50"
+                                ? "text-[#0A5F7A] font-semibold bg-slate-50"
+                                : "text-slate-700 hover:text-[#0A5F7A] hover:bg-slate-50"
                           }`}
                           aria-label={`Toggle ${item.label} menu`}
                           aria-expanded={expanded}
@@ -641,7 +752,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
       <div
         onClick={() => setSidebarOpen(false)}
         className={`fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${
-          sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          sidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       />
 
@@ -704,7 +817,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   Need Immediate Help?
                 </h4>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  We are always here to help in an emergency. Contact us immediately if you are experiencing any serious health problems.
+                  We are always here to help in an emergency. Contact us
+                  immediately if you are experiencing any serious health
+                  problems.
                 </p>
                 <a
                   href="tel:7566123666"
@@ -734,9 +849,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#0A5F7A]" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800">Hospital Address</h4>
+                  <h4 className="text-xs font-bold text-slate-800">
+                    Hospital Address
+                  </h4>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed font-medium">
-                    Global Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh 482002
+                    Global Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh
+                    482002
                   </p>
                 </div>
               </div>
@@ -748,7 +866,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#0A5F7A]" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800">Phone Consultation</h4>
+                  <h4 className="text-xs font-bold text-slate-800">
+                    Phone Consultation
+                  </h4>
                   <a
                     href="tel:7566123666"
                     className="notranslate text-sm font-bold text-[#0A5F7A] hover:underline mt-0.5 block"
@@ -766,7 +886,9 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#0A5F7A]" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800">OPD Timing</h4>
+                  <h4 className="text-xs font-bold text-slate-800">
+                    OPD Timing
+                  </h4>
                   <p className="text-xs text-slate-600 font-medium mt-0.5">
                     Mon - Sat: 09:00 AM - 08:00 PM
                   </p>

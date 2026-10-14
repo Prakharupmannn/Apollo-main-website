@@ -1,9 +1,7 @@
 import { Fraunces, Manrope, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/components/Navbar";
-import Footer from "../components/components/Footer";
-import { GoogleTranslateLoader } from "../components/components/GoogleTranslate";
-import ApolloAssistChatbot from "../components/chatbot/ApolloAssistChatbot";
+import { AuthProvider } from "../context/AuthContext";
+import SiteShell from "../components/components/SiteShell";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -73,15 +71,9 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
         className="font-sans bg-[#FAF7F2] text-gray-900 antialiased selection:bg-[#C69A48] selection:text-white"
       >
-        {/* Loads Google Translate once for the whole site */}
-        <GoogleTranslateLoader />
-
-        <Navbar />
-
-        <main>{children}</main>
-
-        <Footer />
-        <ApolloAssistChatbot />
+        <AuthProvider>
+          <SiteShell>{children}</SiteShell>
+        </AuthProvider>
       </body>
     </html>
   );
