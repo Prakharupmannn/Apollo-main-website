@@ -349,7 +349,7 @@ export default function Footer({ onOpenAppointmentModal }) {
       {/* ================= Bottom legal strip ================= */}
       <div className="relative z-10 bg-[#07384B] border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-cyan-50/75 sm:px-6 md:flex-row md:text-left lg:px-8">
-          <p>© {YEAR} Apollo JBP Hospitals Jabalpur. All rights reserved.</p>
+          <p>© 2025 Apollo JBP Hospitals Jabalpur. All rights reserved.</p>
 
           <div className="flex items-center gap-4">
             <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
