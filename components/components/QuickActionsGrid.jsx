@@ -65,7 +65,7 @@ export default function QuickActionsGrid({ onOpenAppointmentModal }) {
   ];
 
   return (
-    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-8">
+    <section className="relative z-20 pt-7 max-w-7xl mx-auto px-4 sm:px-8">
       {/* Dynamic Keyframe Injection for Pure Tailwind Scroll */}
       <style>{`
         @keyframes marquee {
