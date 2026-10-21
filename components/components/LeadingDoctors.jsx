@@ -171,10 +171,12 @@ export default function LeadingDoctors() {
                 </span>
 
                 {/* Avatar */}
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#F6D98A] to-[#C8952E] p-1 shadow-xl mb-5">
-                  <div className="w-full h-full rounded-2xl bg-[#0A5F7A] flex items-center justify-center">
-                    <Stethoscope className="w-10 h-10 text-[#F6D98A]" />
-                  </div>
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#F6D98A] to-[#C8952E] p-1 shadow-xl mb-5 overflow-hidden">
+                  <img
+                    src="/images/Dr-Reddy.jpeg"
+                    alt="Dr. Prathap C. Reddy"
+                    className="w-full h-full rounded-2xl object-cover"
+                  />
                 </div>
 
                 <h3 className="text-2xl font-bold text-white">
