@@ -331,13 +331,6 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               {/* Language switcher (tablet & laptop) */}
               <LanguageSwitcher variant="light" showIcon />
 
-              <button
-                onClick={onOpenSearchModal}
-                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/15 backdrop-blur-sm transition-all cursor-pointer"
-                aria-label="Search website"
-              >
-              </button>
-
               <span className="h-3 w-0.5 bg-white/25 rounded-full" />
 
               {/* Portal Login / Logout Icon */}
