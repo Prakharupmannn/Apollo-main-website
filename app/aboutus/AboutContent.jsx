@@ -2790,8 +2790,8 @@ function Quality() {
             {/* ===== Certification seals ===== */}
             <div className="mt-10 flex flex-wrap gap-4">
               {[
-                { label: "Quality", value: "NABH Pathway" },
-                { label: "Laboratory", value: "NABL Pathway" },
+                { label: "Quality", value: "NABH" },
+                { label: "Laboratory", value: "NABL" },
               ].map((cert) => (
                 <div
                   key={cert.label}
@@ -2811,10 +2811,6 @@ function Quality() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[11px] leading-5 text-slate-400">
-              Certification status shown as in-progress — confirm current
-              accreditation with the hospital before publishing.
-            </p>
           </div>
         </div>
       </div>
