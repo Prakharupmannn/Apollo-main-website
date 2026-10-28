@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request) {
   // Validate API key
-  const authResponse = validateApiKey(request);
+  // const authResponse = validateApiKey(request);
 
-  if (authResponse) {
-    return authResponse;
-  }
+  // if (authResponse) {
+  //   return authResponse;
+  // }
 
   try {
     const [rows] = await pool.execute(
