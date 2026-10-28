@@ -170,12 +170,8 @@ export default function LeadingDoctors() {
                   </span>
                 </span>
 
-                {/* Avatar */}
-<<<<<<< HEAD
 
                 {/* Avatar */}
-=======
->>>>>>> 6d78387d7a2c7f438f8533f2c2f271d4e97fdcc1
                 <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#F6D98A] to-[#C8952E] p-1 shadow-xl mb-5 overflow-hidden">
                   <img
                     src="/images/Dr-Reddy.jpeg"

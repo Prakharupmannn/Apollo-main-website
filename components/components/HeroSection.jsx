@@ -1588,7 +1588,6 @@ export default function HeroSection({
       <p className="sr-only" aria-live="polite">
         {slide.label}
       </p>
-<<<<<<< HEAD
     </section>
   );
 }
@@ -1597,48 +1596,46 @@ export default function HeroSection({
    Optional: the story cards section below the hero.
    Use:  <HeroSection />  <StoryCards />
    ------------------------------------------------------------------ */
-const STORIES = [
-  { src: "/images/apollohero.png", label: "World-class infrastructure" },
-  { src: "/images/operation1.jpg", label: "Advanced technology" },
-  { src: "/images/centres/cardiac.jpg", label: "Compassionate patient care" },
-  { src: "/images/care.png", label: "A healing environment" },
-];
+// const STORIES = [
+//   { src: "/images/apollohero.png", label: "World-class infrastructure" },
+//   { src: "/images/operation1.jpg", label: "Advanced technology" },
+//   { src: "/images/centres/cardiac.jpg", label: "Compassionate patient care" },
+//   { src: "/images/care.png", label: "A healing environment" },
+// ];
 
-export function StoryCards() {
-  return (
-    <section
-      id="apollo-story-cards"
-      className="scroll-mt-24 bg-[#031d31] px-5 py-12 sm:px-8 lg:px-[5.7%]"
-    >
-      <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-4 lg:grid-cols-4">
-        {STORIES.map((s) => (
-          <button
-            key={s.label}
-            type="button"
-            className="group relative h-[150px] overflow-hidden rounded-2xl border border-cyan-200/30 text-left sm:h-[190px]"
-          >
-            <Image
-              src={s.src}
-              alt={s.label}
-              fill
-              sizes="(max-width: 1024px) 50vw, 25vw"
-              className="object-cover transition duration-700 group-hover:scale-[1.04]"
-            />
-            <span className="absolute inset-0 bg-gradient-to-t from-[#001c2b]/90 via-transparent to-transparent" />
-            <span className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-2 text-sm font-semibold">
-              {s.label}
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/80">
-                <Play className="ml-0.5 h-3 w-3 fill-white" />
-              </span>
-            </span>
-          </button>
-        ))}
-      </div>
-=======
->>>>>>> 6d78387d7a2c7f438f8533f2c2f271d4e97fdcc1
-    </section>
-  );
-}
+// export function StoryCards() {
+//   return (
+//     <section
+//       id="apollo-story-cards"
+//       className="scroll-mt-24 bg-[#031d31] px-5 py-12 sm:px-8 lg:px-[5.7%]"
+//     >
+//       <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-4 lg:grid-cols-4">
+//         {STORIES.map((s) => (
+//           <button
+//             key={s.label}
+//             type="button"
+//             className="group relative h-[150px] overflow-hidden rounded-2xl border border-cyan-200/30 text-left sm:h-[190px]"
+//           >
+//             <Image
+//               src={s.src}
+//               alt={s.label}
+//               fill
+//               sizes="(max-width: 1024px) 50vw, 25vw"
+//               className="object-cover transition duration-700 group-hover:scale-[1.04]"
+//             />
+//             <span className="absolute inset-0 bg-gradient-to-t from-[#001c2b]/90 via-transparent to-transparent" />
+//             <span className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-2 text-sm font-semibold">
+//               {s.label}
+//               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/80">
+//                 <Play className="ml-0.5 h-3 w-3 fill-white" />
+//               </span>
+//             </span>
+//           </button>
+//         ))}
+//       </div>
+//     </section>
+//   );
+// }
 
 /* ------------------------------------------------------------------
    Optional: the story cards section below the hero.
