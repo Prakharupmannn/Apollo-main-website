@@ -1,10 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
-import axios from "axios";
->>>>>>> 171db11cd8cfccf2afc0f2c314de107e490cfcfa
 
 export default function useSpecialties() {
   const [specialties, setSpecialties] = useState([]);
@@ -24,31 +20,20 @@ export default function useSpecialties() {
         setLoading(true);
         setError(null);
 
-<<<<<<< HEAD
         const response = await fetch("/api/specialties", {
-  method: "GET",
-  headers: {
-    "x-api-key": "apollo54321",
-  },
-  signal: controller.signal,
-  cache: "no-store",
-});
-=======
-        // Using axios directly with the base URL (if needed) and headers
-        const response = await axios.get("/api/specialties", {
-          signal: controller.signal,
+          method: "GET",
           headers: {
-            "x-api-key": "apollo54321",
+            "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "apollo54321",
           },
+          signal: controller.signal,
+          cache: "no-store",
         });
->>>>>>> 171db11cd8cfccf2afc0f2c314de107e490cfcfa
 
         if (!response.ok) {
           throw new Error("Failed to fetch specialties.");
         }
 
         const result = await response.json();
-        console.log("specialty",result.data)
 
         if (!result.success || !Array.isArray(result.data)) {
           throw new Error("Invalid specialties response.");

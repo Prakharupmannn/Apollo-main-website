@@ -33,47 +33,7 @@ const goldBorder = {
     "linear-gradient(135deg, #F6D98A 0%, #C8952E 35%, #FFF3C4 55%, #C8952E 75%, #1D82A6 100%)",
 };
 
-function slugify(text) {
-  if (!text) return "";
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
-
-async function getEventBySlug(slug) {
-  const apiKey = process.env.API_KEY || "apollo54321";
-  const apiUrl = process.env.EVENTS_API_URL || "http://localhost:3000/api/events";
-
-  try {
-    const res = await fetch(`${apiUrl}?slug=${encodeURIComponent(slug)}`, {
-      headers: {
-        "x-api-key": apiKey,
-      },
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      console.error(`Events API returned HTTP ${res.status}`);
-      return null;
-    }
-
-    const data = await res.json();
-    if (data.success && Array.isArray(data.events)) {
-      const match = data.events.find(
-        (e) => e.slug === slug || slugify(e.title) === slug || String(e.id) === slug
-      );
-      return match || (data.events.length === 1 ? data.events[0] : null);
-    }
-  } catch (error) {
-    console.error("Failed to fetch event from API:", error);
-  }
-
-  return null;
-}
+import { getEventBySlug } from '@/lib/events-service';
 
 export default async function EventDetailPage({ params }) {
   const { slug } = await params;
