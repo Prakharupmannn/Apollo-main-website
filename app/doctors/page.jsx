@@ -1,6 +1,6 @@
-
-
-
+﻿
+// Always fetch fresh data from DB - never serve a stale cached page
+export const dynamic = "force-dynamic";
 import {
   ArrowRight,ChevronRight,RotateCcw,SlidersHorizontal,X, CheckCircle2, ChevronDown, Heart,
   Search, ShieldCheck, Stethoscope, UsersRound,
@@ -12,70 +12,26 @@ import { Btn, Head, Section } from "@/components/doctors/ui";
 import Steps from "@/components/doctors/Steps";
 import Cta from "@/components/doctors/Cta";
 
-import { rawDoctors } from "@/data/doctorsPage";
+import { getDoctors } from "@/lib/doctors-service";
+import { getActiveSpecialties } from "@/lib/specialties-service";
 import { hospital } from "@/data/siteData";
 import DoctorsHero from "../../components/doctors/DoctorsHero"
 import DoctorsImageFlip from "@/components/doctors/DoctorsImageFlip";
 import DoctorGrid from "@/components/doctors/DoctorGrid";
 import DoctorFinder from "@/components/doctors/DoctorFinder";
 
-const specialties = [
-  {
-    slug: "all",
-    title: "All Specialties",
-    icon: UsersRound,
-  },
-  {
-    slug: "oncology",
-    title: "Onco Sciences",
-    icon: Heart,
-  },
-  {
-    slug: "cardiology",
-    title: "Cardiac Sciences",
-    icon: Heart,
-  },
-  {
-    slug: "gastroenterology",
-    title: "Gastro Sciences",
-    icon: Stethoscope,
-  },
-  {
-    slug: "neurology",
-    title: "Neuro Sciences",
-    icon: ShieldCheck,
-  },
-  {
-    slug: "nephrology",
-    title: "Nephro Sciences",
-    icon: Stethoscope,
-  },
-  {
-    slug: "orthopaedics",
-    title: "Ortho, Joint & Spine",
-    icon: Stethoscope,
-  },
-  {
-    slug: "critical-care",
-    title: "Critical Care",
-    icon: Heart,
-  },
-  {
-    slug: "gynaecology",
-    title: "Women Health",
-    icon: Heart,
-  },
-  {
-    slug: "paediatrics",
-    title: "Paediatrics",
-    icon: Heart,
-  },
-  {
-    slug: "urology",
-    title: "Urology",
-    icon: Stethoscope,
-  },
-];
+const specialtyIconMap = {
+  heart: Heart,
+  stethoscope: Stethoscope,
+  "shield-check": ShieldCheck,
+  "users-round": UsersRound,
+};
+
+function getSpecialtyIcon(icon) {
+  return specialtyIconMap[
+    String(icon || "").toLowerCase()
+  ] || Stethoscope;
+}
 
 const benefits = [
   {
@@ -235,6 +191,28 @@ export default async function DoctorsPage({ searchParams }) {
   const search = params?.search || "";
   const specialty = params?.specialty || "all";
 
+
+   const [rawDoctors, dbSpecialties] = await Promise.all([
+    getDoctors(),
+    getActiveSpecialties(),
+  ]);
+  console.log("rawDoctors", rawDoctors);
+  console.log("dbSpecialties", dbSpecialties);
+
+  const specialties = [
+    {
+      slug: "all",
+      title: "All Specialties",
+      icon: UsersRound,
+    },
+    ...dbSpecialties.map((item) => ({
+      slug: item.slug,
+      title: item.name,
+      icon: getSpecialtyIcon(item.icon),
+    })),
+  ];
+  //-----------------
+
   const filteredDoctors = filterDoctors(rawDoctors, search, specialty);
   const specialtyOptions = buildSpecialtyOptions(rawDoctors);
 
@@ -256,14 +234,18 @@ export default async function DoctorsPage({ searchParams }) {
   options={specialtyOptions}
   total={rawDoctors.length}
 />
-      <SpecialtyRail active={specialty} counts={counts} />
-      
+      <SpecialtyRail
+  specialties={specialties}
+  active={specialty}
+  counts={counts}
+/>
 
-      <DoctorDirectory
-        doctors={filteredDoctors}
-        search={search}
-        specialty={specialty}
-      />
+<DoctorDirectory
+  doctors={filteredDoctors}
+  search={search}
+  specialty={specialty}
+  specialties={specialties}
+/>
 
       <WhyApollo />
       <ApolloDoctorsIntro hospital={hospital} />
@@ -330,7 +312,7 @@ function ApolloDoctorsIntro() {
   );
 }
 
-function SpecialtyRail({ active, counts }) {
+function SpecialtyRail({specialties, active, counts }) {
   return (
     <section className="px-6 pt-12 lg:px-10">
       <div className="mx-auto max-w-7xl">
@@ -401,7 +383,7 @@ function SpecialtyRail({ active, counts }) {
 
 function WhyApollo() {
   return (
-    <section className="px-6 py-14 lg:px-10 lg:py-15">
+    <section className="px-6 py-8 lg:px-10 lg:py-8">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-[#E7EDF0] bg-gradient-to-r from-[#FFFDF7] via-white to-[#F4FAFC]">
         <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
           <div className="relative overflow-hidden bg-[#0E526B] px-7 py-10 text-white sm:px-10">
@@ -447,7 +429,7 @@ function WhyApollo() {
   );
 }
 
-function DoctorDirectory({ doctors, search, specialty }) {
+function DoctorDirectory({ doctors, search, specialty,specialties }) {
   const activeLabel =
     specialties.find((s) => s.slug === specialty)?.title || "All Specialties";
 
@@ -479,7 +461,7 @@ function DoctorDirectory({ doctors, search, specialty }) {
         </div>
 
         <div className="grid gap-7 lg:grid-cols-[250px_1fr]">
-          <DoctorFilters search={search} specialty={specialty} />
+          <DoctorFilters search={search} specialty={specialty} specialties={specialties} />
 
           {/* key: filter/search badalne par grid reset ho jaye (12 se dobara start) */}
           <DoctorGrid
@@ -494,7 +476,7 @@ function DoctorDirectory({ doctors, search, specialty }) {
 
 
 
-function DoctorFilters({ search, specialty }) {
+function DoctorFilters({ search, specialty,specialties  }) {
   const items = specialties.filter((s) => s.slug !== "all");
   const hasSpecialty = Boolean(specialty) && specialty !== "all";
   const activeItem = items.find((s) => s.slug === specialty);
@@ -540,20 +522,7 @@ function DoctorFilters({ search, specialty }) {
             )}
           </div>
 
-          {/* Search */}
-          {/* <form action="/doctors" method="get" className="mt-5">
-            {hasSpecialty && <input type="hidden" name="specialty" value={specialty} />}
-            <div className="group flex items-center gap-2 rounded-2xl border border-[#E2ECEF] bg-[#F7FBFD] px-3.5 py-2.5 transition focus-within:border-[#0E526B]/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#0E526B]/10">
-              <Search className="h-4 w-4 shrink-0 text-[#0E526B]/60" />
-              <input
-                type="text"
-                name="search"
-                defaultValue={search || ""}
-                placeholder="Search doctor name"
-                className="w-full bg-transparent text-xs text-[#06202B] outline-none placeholder:text-[#8FA3AB]"
-              />
-            </div>
-          </form> */}
+        
 
           {/* Active chips */}
           {activeCount > 0 && (
@@ -631,18 +600,7 @@ function DoctorFilters({ search, specialty }) {
             </div>
           </FilterGroup>
 
-          {/* Location */}
-          {/* <FilterGroup title="Location">
-            <div className="flex items-center gap-3 rounded-2xl border border-[#E2ECEF] bg-gradient-to-br from-[#F7FBFD] to-white p-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8952E]/10 text-[#C8952E]">
-                <MapPin className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-xs font-bold text-[#06202B]">Jabalpur</p>
-                <p className="text-[10px] text-[#607681]">Madhya Pradesh</p>
-              </div>
-            </div>
-          </FilterGroup> */}
+       
         </div>
       </div>
     </aside>

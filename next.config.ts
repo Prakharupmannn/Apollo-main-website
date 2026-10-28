@@ -4,15 +4,17 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   compress: true,
   allowedDevOrigins: [
-    "192.168.2.17:3000",
-    "192.168.2.17",
+    "192.168.2.16:3000",
+    "192.168.2.16",
     "localhost:3000",
     "127.0.0.1:3000",
   ],
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 2592000,
+    qualities: [60, 70, 75],
     remotePatterns: [
+      { protocol: "https", hostname: "your-image-host.com" },
       {
         protocol: "https",
         hostname: "images.unsplash.com",

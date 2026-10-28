@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   Quote,
   UserCheck,
   Stethoscope,
+  Microscope,
   Building2,
   ArrowRight,
   User,
@@ -20,18 +21,17 @@ import {
   Award,
   Sparkles,
   BadgeCheck,
-  Calendar,
   FileText,
-  ShieldCheck,
   ChevronRight,
   PhoneCall,
-  ArrowUpRight,
 } from "lucide-react";
 
-import {
-  getCaseBySlug,
-  caseStudiesData,
-} from "../../../../data/caseStudiesData";
+function CaseIcon({ icon, className }) {
+  if (icon === "Microscope") {
+    return <Microscope className={className} />;
+  }
+  return <Stethoscope className={className} />;
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -100,22 +100,165 @@ function CaseDetailGallery({ images, title }) {
 }
 
 export default function CaseStudyDetailPage({ params }) {
-  const { slug } = use(params);
+  const resolvedParams = use(params);
+  const slug = resolvedParams?.slug;
+  const currentSlug = typeof slug === "string" ? decodeURIComponent(slug) : "";
 
-  const caseData = getCaseBySlug(slug);
+  const [caseData, setCaseData] = useState(null);
+  const [allCases, setAllCases] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notFoundTriggered, setNotFoundTriggered] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  if (!caseData) notFound();
+  const refetch = () => setReloadKey((k) => k + 1);
 
-  const Icon = caseData.icon || Stethoscope;
-  const relatedCases = caseStudiesData
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchCaseAndRelated() {
+      if (!currentSlug) {
+        setNotFoundTriggered(true);
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        setNotFoundTriggered(false);
+
+        const [resDetail, resAll] = await Promise.all([
+          fetch(`/api/case-studies?slug=${encodeURIComponent(currentSlug)}`, {
+            method: "GET",
+            headers: {
+              "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "apollo54321",
+            },
+            signal: controller.signal,
+            cache: "no-store",
+          }),
+          fetch("/api/case-studies", {
+            method: "GET",
+            headers: {
+              "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "apollo54321",
+            },
+            signal: controller.signal,
+            cache: "no-store",
+          }),
+        ]);
+
+        if (!resDetail.ok) {
+          if (resDetail.status === 404) {
+            setNotFoundTriggered(true);
+            return;
+          }
+          throw new Error(`Failed to load case study (HTTP ${resDetail.status}).`);
+        }
+
+        const dataDetail = await resDetail.json();
+
+        if (
+          dataDetail.success &&
+          Array.isArray(dataDetail.caseStudies) &&
+          dataDetail.caseStudies.length > 0
+        ) {
+          const match =
+            dataDetail.caseStudies.find(
+              (c) => c.slug === currentSlug || c.slug === slug
+            ) || dataDetail.caseStudies[0];
+          setCaseData(match);
+        } else {
+          setNotFoundTriggered(true);
+          return;
+        }
+
+        if (resAll.ok) {
+          const dataAll = await resAll.json();
+          if (dataAll.success && Array.isArray(dataAll.caseStudies)) {
+            setAllCases(dataAll.caseStudies);
+          }
+        }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Error fetching case study:", err);
+          setError(err.message || "Failed to load case study.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchCaseAndRelated();
+
+    return () => controller.abort();
+  }, [currentSlug, slug, reloadKey]);
+
+  if (notFoundTriggered) {
+    notFound();
+  }
+
+  if (loading) {
+    return (
+      <main className="relative min-h-screen bg-[#F8FBFD] text-slate-900 pt-38 pb-20 overflow-hidden flex items-center justify-center">
+        <div className="text-center p-8 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-[#1D82A6]/20 border-t-[#1D82A6] rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-[#0E526B]">
+            Loading case study details...
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error && !caseData) {
+    return (
+      <main className="relative min-h-screen bg-[#F8FBFD] text-slate-900 pt-38 pb-20 overflow-hidden flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-3xl border border-rose-200 shadow-sm flex flex-col items-center gap-4 max-w-md mx-4">
+          <p className="text-rose-600 font-semibold">{error}</p>
+          <div className="flex gap-3">
+            <button
+              onClick={refetch}
+              className="px-5 py-2.5 rounded-full bg-[#0E526B] hover:bg-[#0A5F7A] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+            >
+              Retry
+            </button>
+            <Link
+              href="/patientcare/case-studies"
+              className="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+            >
+              Back to Cases
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!caseData) {
+    notFound();
+  }
+
+  const relatedCases = allCases
     .filter((c) => c.slug !== caseData.slug && c.dept === caseData.dept)
     .slice(0, 2);
-  const fallbackRelated = caseStudiesData
+  const fallbackRelated = allCases
     .filter((c) => c.slug !== caseData.slug)
     .slice(0, 2);
   const related = relatedCases.length ? relatedCases : fallbackRelated;
 
-  const patientMeta = caseData.patientInfo || {};
+  const patientMeta =
+    typeof caseData.patientInfo === "object" && caseData.patientInfo !== null
+      ? caseData.patientInfo
+      : typeof caseData.patientInfo === "string"
+      ? (() => {
+          try {
+            return JSON.parse(caseData.patientInfo);
+          } catch {
+            return {};
+          }
+        })()
+      : {};
 
   return (
     <main className="relative min-h-screen bg-[#F8FBFD] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
@@ -223,7 +366,7 @@ export default function CaseStudyDetailPage({ params }) {
           <div
             className={`relative rounded-[calc(2.2rem-1.5px)] overflow-hidden bg-gradient-to-br ${caseData.accent} p-8 sm:p-12 text-white`}
           >
-            <Icon className="absolute -right-12 -bottom-12 w-80 h-80 opacity-[0.07] pointer-events-none" />
+            <CaseIcon icon={caseData.icon} className="absolute -right-12 -bottom-12 w-80 h-80 opacity-[0.07] pointer-events-none" />
 
             {/* Verified badge top right */}
             <div className="absolute top-6 right-6 hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/25 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
@@ -429,23 +572,32 @@ export default function CaseStudyDetailPage({ params }) {
               </div>
 
               <div className="space-y-4">
-                {(caseData.procedure || caseData.details || []).map(
-                  (step, i) => (
-                    <div
-                      key={i}
-                      className="group flex items-start gap-4 p-4 rounded-2xl bg-[#F8FBFD] border border-slate-200/70 hover:border-[#1D82A6]/40 hover:shadow-md transition-all duration-300"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform">
-                        {i + 1}
-                      </div>
-                      <div className="min-w-0 flex-1 pt-0.5">
-                        <p className="text-xs sm:text-sm text-[#0B3446] font-medium leading-relaxed">
-                          {step}
-                        </p>
-                      </div>
+                {(
+                  (Array.isArray(caseData.procedures) &&
+                  caseData.procedures.length > 0
+                    ? caseData.procedures
+                    : Array.isArray(caseData.procedure) &&
+                      caseData.procedure.length > 0
+                    ? caseData.procedure
+                    : Array.isArray(caseData.details) &&
+                      caseData.details.length > 0
+                    ? caseData.details
+                    : [])
+                ).map((step, i) => (
+                  <div
+                    key={i}
+                    className="group flex items-start gap-4 p-4 rounded-2xl bg-[#F8FBFD] border border-slate-200/70 hover:border-[#1D82A6]/40 hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                      {i + 1}
                     </div>
-                  ),
-                )}
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <p className="text-xs sm:text-sm text-[#0B3446] font-medium leading-relaxed">
+                        {step}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.section>
 
@@ -543,13 +695,14 @@ export default function CaseStudyDetailPage({ params }) {
                   <div
                     className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${caseData.accent} text-white text-base font-black flex items-center justify-center shrink-0 shadow-md ring-4 ring-slate-50`}
                   >
-                    {caseData.doctor
+                    {(caseData.doctor || "Apollo Specialist")
                       .replace(/^Dr\.?\s*/i, "")
                       .split(" ")
+                      .filter(Boolean)
                       .map((w) => w[0])
                       .slice(0, 2)
                       .join("")
-                      .toUpperCase()}
+                      .toUpperCase() || "AS"}
                   </div>
                   <div className="min-w-0">
                     <span className="text-[9px] font-black uppercase tracking-wider text-[#C8952E]">
@@ -680,34 +833,31 @@ export default function CaseStudyDetailPage({ params }) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {related.map((r) => {
-                const RIcon = r.icon || Stethoscope;
-                return (
-                  <Link
-                    key={r.slug}
-                    href={`/patientcare/case-studies/${r.slug}`}
-                    className="group flex items-center gap-4 bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#1D82A6]/30 transition-all duration-300"
+              {related.map((r) => (
+                <Link
+                  key={r.slug}
+                  href={`/patientcare/case-studies/${r.slug}`}
+                  className="group flex items-center gap-4 bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#1D82A6]/30 transition-all duration-300"
+                >
+                  <div
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.accent} text-white flex items-center justify-center shrink-0 shadow-md`}
                   >
-                    <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.accent} text-white flex items-center justify-center shrink-0 shadow-md`}
-                    >
-                      <RIcon className="w-7 h-7" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#C8952E]">
-                        {r.deptLabel} • {r.patient || "Apollo Case"}
-                      </span>
-                      <h3 className="text-sm font-black text-[#0B3446] leading-snug truncate group-hover:text-[#1D82A6] transition-colors">
-                        {r.title}
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                        {r.doctor}
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-[#1D82A6] group-hover:translate-x-1 transition-all shrink-0" />
-                  </Link>
-                );
-              })}
+                    <CaseIcon icon={r.icon} className="w-7 h-7" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#C8952E]">
+                      {r.deptLabel} • {r.patient || "Apollo Case"}
+                    </span>
+                    <h3 className="text-sm font-black text-[#0B3446] leading-snug truncate group-hover:text-[#1D82A6] transition-colors">
+                      {r.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                      {r.doctor}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-[#1D82A6] group-hover:translate-x-1 transition-all shrink-0" />
+                </Link>
+              ))}
             </div>
           </motion.section>
         )}

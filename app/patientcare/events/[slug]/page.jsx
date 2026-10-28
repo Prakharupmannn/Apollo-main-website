@@ -22,7 +22,7 @@ import {
   BadgeCheck,
   HeartPulse,
 } from "lucide-react";
-import eventsData from "../../../../data/eventsData";
+export const dynamic = "force-dynamic";
 
 const goldGradient = {
   background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
@@ -33,19 +33,57 @@ const goldBorder = {
     "linear-gradient(135deg, #F6D98A 0%, #C8952E 35%, #FFF3C4 55%, #C8952E 75%, #1D82A6 100%)",
 };
 
-export async function generateStaticParams() {
-  return eventsData.map((event) => ({ slug: event.slug }));
+function slugify(text) {
+  if (!text) return "";
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
+}
+
+async function getEventBySlug(slug) {
+  const apiKey = process.env.API_KEY || "apollo54321";
+  const apiUrl = process.env.EVENTS_API_URL || "http://localhost:3000/api/events";
+
+  try {
+    const res = await fetch(`${apiUrl}?slug=${encodeURIComponent(slug)}`, {
+      headers: {
+        "x-api-key": apiKey,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error(`Events API returned HTTP ${res.status}`);
+      return null;
+    }
+
+    const data = await res.json();
+    if (data.success && Array.isArray(data.events)) {
+      const match = data.events.find(
+        (e) => e.slug === slug || slugify(e.title) === slug || String(e.id) === slug
+      );
+      return match || (data.events.length === 1 ? data.events[0] : null);
+    }
+  } catch (error) {
+    console.error("Failed to fetch event from API:", error);
+  }
+
+  return null;
 }
 
 export default async function EventDetailPage({ params }) {
   const { slug } = await params;
 
-  const event = eventsData.find((e) => e.slug === slug);
+  const event = await getEventBySlug(slug);
 
   if (!event) notFound();
 
   const isPast = String(event.status).toLowerCase() === "past";
-  const phoneNumber = event.organizer.phone.split("/")[0].trim();
+  const phoneNumber = event.organizer?.phone ? event.organizer.phone.split("/")[0].trim() : "18001236666";
 
   return (
     <main
@@ -115,7 +153,7 @@ export default async function EventDetailPage({ params }) {
         {/* ───── Hero ───── */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* LEFT: text */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 pb-27">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1D82A6]/25 text-[#0E526B] text-xs font-bold shadow-md mb-6">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1D82A6] opacity-60" />
@@ -141,14 +179,14 @@ export default async function EventDetailPage({ params }) {
             )}
 
             <div className="flex flex-wrap items-center gap-4 mb-8">
-              <a
+              {/* <a
                 href={`tel:${phoneNumber}`}
                 className="relative overflow-hidden px-7 py-3.5 rounded-full text-xs sm:text-sm font-black text-[#3A2B0A] shadow-[0_12px_32px_rgba(200,149,46,0.4)] hover:shadow-2xl hover:-translate-y-0.5 transition-all cursor-pointer flex items-center gap-2"
                 style={goldGradient}
               >
                 <Phone className="w-4 h-4" />
                 <span>Call to Register: {event.organizer.phone}</span>
-              </a>
+              </a> */}
 
               <a
                 href="https://apollojbphospitals.com/contact-us/#section-book-appointment"
@@ -258,10 +296,10 @@ export default async function EventDetailPage({ params }) {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[13px] font-black text-[#0B3446] leading-tight">
-                    {event.doctor.name}
+                    {event.doctor?.name || "Apollo Medical Team"}
                   </div>
                   <div className="text-[11px] text-slate-500 font-semibold mt-0.5">
-                    {event.doctor.specialty}
+                    {event.doctor?.specialty || event.category}
                   </div>
                 </div>
               </div>
@@ -293,7 +331,7 @@ export default async function EventDetailPage({ params }) {
               { icon: Calendar, label: "Date", value: event.date, color: "#1D82A6", bg: "#EDF6FB" },
               { icon: Clock, label: "Timing", value: event.time, color: "#C8952E", bg: "#FFF7E8" },
               { icon: Tag, label: "Consultation Fee", value: event.cost, color: "#059669", bg: "#ECFDF5" },
-              { icon: Phone, label: "Helpline", value: event.organizer.emergency, color: "#E11D48", bg: "#FFF1F2" },
+              { icon: Phone, label: "Helpline", value: event.organizer?.emergency || "1800-123-6666", color: "#E11D48", bg: "#FFF1F2" },
             ].map((m, i) => {
               const MIcon = m.icon;
               return (
@@ -491,7 +529,7 @@ export default async function EventDetailPage({ params }) {
                   style={goldGradient}
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Call: {event.organizer.phone}</span>
+                  <span>Call: {event.organizer?.phone || "1800-123-6666"}</span>
                 </a>
 
                 <a
@@ -521,12 +559,12 @@ export default async function EventDetailPage({ params }) {
                       24/7 Emergency
                     </div>
                     <div className="text-[11px] text-slate-500 font-semibold mt-1">
-                      {event.organizer.emergency}
+                      {event.organizer?.emergency || "1800-123-6666"}
                     </div>
                   </div>
                 </div>
                 <a
-                  href={`tel:${event.organizer.emergency}`}
+                  href={`tel:${event.organizer?.emergency || "18001236666"}`}
                   className="px-3.5 py-2 rounded-full bg-[#0E526B] text-white text-[11px] font-bold hover:bg-[#0A5F7A] transition-colors shrink-0"
                 >
                   Call Now
@@ -567,10 +605,10 @@ export default async function EventDetailPage({ params }) {
                   </span>
                   Organized By
                 </h3>
-                <p className="text-sm font-bold text-slate-800">{event.organizer.name}</p>
+                <p className="text-sm font-bold text-slate-800">{event.organizer?.name || "Apollo JBP Hospitals"}</p>
                 <p className="text-xs text-slate-500 flex items-center gap-2">
                   <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                  {event.organizer.email}
+                  {event.organizer?.email || "connect@ApolloJbpHospitals.com"}
                 </p>
               </div>
             </div>

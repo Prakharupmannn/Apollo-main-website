@@ -4,10 +4,10 @@ import React from "react";
 
 /** Unsplash photos (swap any URL you like). */
 export const PHOTOS = {
-  backdrop: "/images/image.png",
+  backdrop: "/images/image.webp",
   slides: [
     {
-      src: "/images/image.png",
+      src: "/images/image.webp",
       title: "Excellence in Care, Connected to You.",
       text: "Access world-class specialists and personalized health records anywhere, anytime.",
     },

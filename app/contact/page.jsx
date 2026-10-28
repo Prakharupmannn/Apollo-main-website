@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -22,6 +23,7 @@ import {
   MessageCircle,
   HeartPulse,
   Zap,
+  Loader2,
 } from "lucide-react";
 
 const fadeUp = {
@@ -197,8 +199,16 @@ const cardThemes = {
 };
 
 export default function ContactPage() {
-  
+ 
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submittedDetails, setSubmittedDetails] = useState({
+    name: "",
+    department: "",
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -360,10 +370,111 @@ export default function ContactPage() {
     },
   ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ 
+const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  if (isSubmitting) return;
+
+  const fullName = (formData.name || "").trim();
+  const phone = (formData.phone || "").trim();
+  const email = (formData.email || "").trim();
+  const message = (formData.message || "").trim();
+
+  // Validate required fields
+  if (!fullName) {
+    setSubmitError("Please enter your full name.");
+    return;
+  }
+
+  if (!phone) {
+    setSubmitError("Please enter your phone number.");
+    return;
+  }
+
+  if (!email) {
+    setSubmitError("Please enter your email address.");
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setSubmitError("Please enter a valid email address (e.g. name@example.com).");
+    return;
+  }
+
+  if (!message) {
+    setSubmitError("Please enter your message or query details.");
+    return;
+  }
+
+  setIsSubmitting(true);
+  setSubmitError("");
+
+  try {
+    const payload = {
+      full_name: fullName,
+      phone_number: phone,
+      email_address: email,
+      department: formData.department || "General Inquiry",
+      city: (formData.city || "").trim(),
+      subject: (formData.subject || "").trim(),
+      message: message,
+    };
+
+    const response = await axios.post("/api/inquiries", payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.data?.success) {
+      throw new Error(response.data?.message || "Failed to submit inquiry.");
+    }
+
+    // Keep these details visible on the success screen
+    setSubmittedDetails({
+      name: fullName,
+      department: payload.department,
+    });
+
+    // Reset form state only upon successful submission
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      department: "General Inquiry",
+      subject: "",
+      city: "",
+      message: "",
+    });
+
     setFormSubmitted(true);
-  };
+  } catch (error) {
+    const apiError =
+      error.response?.data?.message ||
+      error.message ||
+      "An unexpected error occurred. Please check your connection and try again.";
+    setSubmitError(apiError);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+const handleSendAnother = () => {
+  setFormData({
+    name: "",
+    phone: "",
+    email: "",
+    department: "General Inquiry",
+    subject: "",
+    city: "",
+    message: "",
+  });
+  setSubmitError("");
+  setFormSubmitted(false);
+};
+
 
   const activeDistrict = mpDistricts.find((d) => d.name === selectedDistrict);
 
@@ -1007,15 +1118,16 @@ export default function ContactPage() {
                       </h4>
                       <p className="text-xs text-emerald-700 max-w-md mx-auto">
                         Thank you,{" "}
-                        <span className="font-bold">{formData.name}</span>. Our
+                        <span className="font-bold">{submittedDetails.name}</span>. Our
                         patient support desk has logged your inquiry regarding{" "}
-                        <span className="font-bold">{formData.department}</span>{" "}
+                        <span className="font-bold">{submittedDetails.department}</span>{" "}
                         and will get in touch shortly.
                       </p>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.96 }}
-                        onClick={() => setFormSubmitted(false)}
+                        type="button"
+                        onClick={handleSendAnother}
                         className="px-6 py-2.5 rounded-full bg-gradient-to-tr from-[#0A5F7A] to-[#2A8FAF] text-white text-xs font-extrabold cursor-pointer"
                       >
                         Send Another Message
@@ -1030,6 +1142,15 @@ export default function ContactPage() {
                       onSubmit={handleSubmit}
                       className="space-y-4 text-xs"
                     >
+                      {submitError && (
+                        <div
+                          role="alert"
+                          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                        >
+                          {submitError}
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block font-bold text-slate-700 mb-1.5">
@@ -1099,6 +1220,7 @@ export default function ContactPage() {
                             }
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#1D82A6] text-slate-800 transition-colors"
                           >
+                            <option>General Inquiry</option>
                             <option>Gastro Sciences</option>
                             <option>Onco Sciences</option>
                             <option>Cardiac Sciences</option>
@@ -1181,10 +1303,20 @@ export default function ContactPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         type="submit"
-                        className="w-full py-4 rounded-xl text-white font-extrabold text-xs shadow-lg bg-gradient-to-r from-[#0A5F7A] to-[#2A8FAF] cursor-pointer flex items-center justify-center gap-2"
+                        disabled={isSubmitting}
+                        className="w-full py-4 rounded-xl text-white font-extrabold text-xs shadow-lg bg-gradient-to-r from-[#0A5F7A] to-[#2A8FAF] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                       >
-                        <Send className="w-4 h-4" />
-                        <span>Send Message to Hospital Admin</span>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Submitting Your Inquiry...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            <span>Send Message to Hospital Admin</span>
+                          </>
+                        )}
                       </motion.button>
                     </motion.form>
                   )}
@@ -1385,7 +1517,7 @@ export default function ContactPage() {
           </div>
         </section>
       </div>
-      
+     
     </main>
   );
 }

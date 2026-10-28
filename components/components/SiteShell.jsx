@@ -9,11 +9,16 @@ import ApolloAssistChatbot from "../chatbot/ApolloAssistChatbot";
 
 export default function SiteShell({ children }) {
   const pathname = usePathname();
-  // Check if current page is the separate login or logout page
-  const isAuthPage = pathname === "/login" || pathname === "/logout";
 
-  if (isAuthPage) {
-    // Render the complete standalone page without Navbar, Footer, or Chatbot
+  // Standalone authentication pages
+  const isAuthPage =
+    pathname === "/login" || pathname === "/logout";
+
+  // Admin pages should not display the public website layout
+  const isAdminPage = pathname.startsWith("/admin");
+
+  // Render login, logout, and admin pages without the public shell
+  if (isAuthPage || isAdminPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 
@@ -27,6 +32,7 @@ export default function SiteShell({ children }) {
       <main>{children}</main>
 
       <Footer />
+
       <ApolloAssistChatbot />
     </>
   );

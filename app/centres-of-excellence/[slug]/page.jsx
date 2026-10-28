@@ -6,7 +6,7 @@ import {
   Activity, ArrowLeft, ArrowRight, ArrowUpRight, Award, Bone, Brain, Check, ChevronDown,
   GraduationCap, HeartPulse, Microscope, ScanLine, ShieldCheck, Stethoscope,
 } from "lucide-react";
-import { centresOfExcellence, getCentreBySlug } from "@/data/centresOfExcellence";
+import { getActiveCentres } from "@/lib/centres-service";
 import { CentreIcon } from "@/components/centres/CentresJourney";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/centres/CentreMotion";
 
@@ -289,7 +289,7 @@ const SECTIONS = [
     id: "treatments", bg: "bg-[#F7FBFD]", cols: "lg:grid-cols-2", variant: "row",
     eyebrow: "Treatment Options", title: "Comprehensive treatment for", accent: "lasting relief.",
     text: "From medical management to advanced procedures, we offer a full range of treatment options tailored to each patient.",
-    aside: { href: "/treatments", label: "Explore Treatments", v: "line" },
+    // aside: { href: "/treatments", label: "Explore Treatments", v: "line" },
   },
 ];
 
@@ -345,7 +345,7 @@ function StickyBook({ hasDoctors }) {
 /* =====================================================================
    Unique sections
    ===================================================================== */
-function Hero({ c }) {
+function Hero({ c, totalCentres }) {
   const words = c.title.split(" ");
   const last = words.pop();
 
@@ -369,7 +369,7 @@ function Hero({ c }) {
           <Reveal y={20}>
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8952E]/25 bg-white/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0E526B] shadow-[0_6px_18px_rgba(200,149,46,.10)]">
               <i className="h-1.5 w-1.5 rounded-full bg-[#C8952E]" />
-              Apollo JBP Hospitals Jabalpur — Centre {c.id} / 07
+              Apollo JBP Hospitals Jabalpur — Centre {c.id} / {pad(totalCentres)}
             </span>
 
             <p className="font-serif text-xl italic text-[#C8952E]">{c.subtitle}</p>
@@ -402,7 +402,7 @@ function Hero({ c }) {
             <span aria-hidden className="absolute -bottom-4 -left-4 right-5 top-6 rounded-[32px] border border-[#C8952E]/35" />
 
             <div className="group relative aspect-[4/3.1] overflow-hidden rounded-[28px] shadow-[0_40px_90px_rgba(6,32,43,.20)] ring-1 ring-white/60 sm:aspect-[4/3]">
-              <Image src={c.image} alt={c.title} fill priority sizes="(max-width:1024px) 100vw, 50vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105 motion-reduce:transition-none" />
+              {c.image ? <Image src={c.image} alt={c.title} fill priority sizes="(max-width:1024px) 100vw, 50vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105 motion-reduce:transition-none" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#06202B]" />}
               <div className="absolute inset-0 bg-gradient-to-t from-[#06202B]/45 via-transparent to-transparent" />
               <div className="absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/20" />
             </div>
@@ -473,7 +473,7 @@ function Preventive({ c }) {
 
       <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
         <div className="group relative min-h-[220px] overflow-hidden rounded-[22px] ring-1 ring-[#C8952E]/25">
-          <Image src={c.image} alt="" fill sizes="(max-width:1024px) 100vw, 35vw" className="object-cover transition-transform duration-1000 group-hover:scale-105 motion-reduce:transition-none" />
+          {c.image ? <Image src={c.image} alt="" fill sizes="(max-width:1024px) 100vw, 35vw" className="object-cover transition-transform duration-1000 group-hover:scale-105 motion-reduce:transition-none" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#06202B]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#06202B]/80 to-transparent" />
           <div className="absolute inset-x-5 bottom-5">
             <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#F6D98A]">
@@ -731,7 +731,7 @@ function Related({ list }) {
           <Link key={r.slug} href={`/centres-of-excellence/${r.slug}`}
             className={`group overflow-hidden rounded-[20px] bg-[#062F40] shadow-[0_12px_35px_rgba(6,32,43,.10)] ring-1 ring-transparent transition-all duration-500 hover:-translate-y-1.5 hover:ring-[#C8952E]/50 hover:shadow-[0_25px_50px_rgba(6,32,43,.18)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${FOCUS}`}>
             <div className="relative h-[190px] overflow-hidden">
-              <Image src={r.image} alt={r.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105 motion-reduce:transition-none" />
+              {r.image ? <Image src={r.image} alt={r.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105 motion-reduce:transition-none" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#06202B]" />}
               <div className="absolute inset-0 bg-gradient-to-t from-[#06202B] via-[#06202B]/20 to-transparent" />
               <span className="absolute left-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 ring-1 ring-[#C8952E]/30">
                 <CentreIcon slug={r.slug} active={false} />
@@ -778,15 +778,15 @@ function Cta({ c }) {
 }
 
 /* =====================================================================
-   Route
+   Route — runtime data from the active Centres of Excellence table
    ===================================================================== */
-export function generateStaticParams() {
-  return centresOfExcellence.map((c) => ({ slug: c.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const c = getCentreBySlug(slug);
+  const centres = await getActiveCentres();
+  console.log("centres", centres);
+  const c = centres.find((centre) => centre.slug === slug);
   if (!c) return {};
   const title = `${c.title} | Apollo JBP Hospitals Jabalpur`;
   const description = c.seoDescription || c.description;
@@ -795,14 +795,15 @@ export async function generateMetadata({ params }) {
 
 export default async function CentrePage({ params }) {
   const { slug } = await params;
-  const c = getCentreBySlug(slug);
+  const centres = await getActiveCentres();
+  const c = centres.find((centre) => centre.slug === slug);
   if (!c) notFound();
 
-  const related = centresOfExcellence.filter((x) => x.slug !== c.slug).slice(0, 3);
+  const related = centres.filter((centre) => centre.slug !== c.slug).slice(0, 3);
 
   return (
     <main className="bg-white pb-20 antialiased lg:pb-0">
-      <Hero c={c} />
+      <Hero c={c} totalCentres={centres.length} />
       <Facts c={c} />
       <SectionNav c={c} />
 

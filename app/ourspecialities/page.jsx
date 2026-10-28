@@ -31,7 +31,9 @@ import {
   Users,
   Clock,
 } from "lucide-react";
-import specialitiesData from "../../data/ourSpecialities";
+
+import useSpecialties from "../../hooks/useSpecialties";
+
 import { useRouter } from "next/navigation";
 
 const iconMap = {
@@ -105,6 +107,13 @@ const css = `
 `;
 
 export default function OurSpecialitiesPage() {
+  const {
+    specialties: specialitiesData,
+    loading,
+    error,
+    refetch,
+  } = useSpecialties();
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -126,14 +135,17 @@ export default function OurSpecialitiesPage() {
         item.category.toLowerCase().includes(q);
       return okCat && okSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [specialitiesData, selectedCategory, searchQuery]);
 
   const total = filtered.length;
   const categoryCount = new Set(specialitiesData.map((s) => s.category)).size;
 
   const router = useRouter();
 
-  const [prevFilter, setPrevFilter] = useState({ selectedCategory, searchQuery });
+  const [prevFilter, setPrevFilter] = useState({
+    selectedCategory,
+    searchQuery,
+  });
   if (
     prevFilter.selectedCategory !== selectedCategory ||
     prevFilter.searchQuery !== searchQuery
@@ -210,9 +222,33 @@ export default function OurSpecialitiesPage() {
   const arrowBtn =
     "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-[#3A2B0A] shadow-[0_12px_30px_rgba(200,149,46,0.45)] hover:scale-110 active:scale-95 transition-transform";
 
+  if (loading) {
+    return (
+      <main className="min-h-screen pt-28 flex items-center justify-center">
+        <p className="text-slate-500 font-semibold">Loading specialities...</p>
+      </main>
+    );
+  }
+  
+  if (error) {
+    return (
+      <main className="min-h-screen pt-28 flex flex-col items-center justify-center gap-4">
+        <p className="text-red-500 font-semibold">
+          Failed to load specialities.
+        </p>
+        <button
+          onClick={refetch}
+          className="px-5 py-2 rounded-full bg-[#0E526B] text-white text-sm font-bold"
+        >
+          Retry
+        </button>
+      </main>
+    );
+  }
+
   return (
     <main
-      className="relative min-h-screen pt-28 pb-24 overflow-hidden text-slate-900"
+      className="relative min-h-screen pt-38 pb-24 overflow-hiddenn text-slate-900"
       style={{
         background:
           "linear-gradient(180deg, #EAF6FC 0%, #F8FBFD 25%, #FFFBF1 62%, #EAF6FC 100%)",

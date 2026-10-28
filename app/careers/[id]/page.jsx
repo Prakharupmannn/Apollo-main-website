@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import ReCAPTCHA from "react-google-recaptcha";
+import axios from "axios";
+// import ReCAPTCHA from "react-google-recaptcha";
 import {
   Briefcase,
   Building2,
@@ -33,8 +34,6 @@ import {
   Send,
   PhoneCall,
 } from "lucide-react";
-import jobsData from "../../../data/jobsData.json";
-import AppointmentModal from "../../../components/components/AppointmentModal";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -59,10 +58,12 @@ const EMPTY_FORM = {
   resumeName: "",
   resumeFile: null,
   dataConsent: false,
-  isCaptchaVerified: false,
+  captchaToken: "",
 };
 
-// Icon map helper (icon name in jobsData.json -> component)
+const LOC = "Apollo JBP Hospitals Jabalpur";
+
+// Icon map helper (icon name from API -> component)
 const iconMap = {
   Salad,
   Eye,
@@ -79,6 +80,24 @@ const iconMap = {
   TrendingUp,
   GraduationCap,
 };
+
+// fallback icon chosen by title keyword (used when API sends no icon name)
+const iconByKeyword = [
+  { match: /diet|nutrition/i, icon: Salad },
+  { match: /optom/i, icon: Eye },
+  { match: /physio/i, icon: Activity },
+  { match: /perfusion|cath/i, icon: HeartPulse },
+  { match: /cssd|ot tech|sterili/i, icon: Syringe },
+  { match: /radiolog/i, icon: ScanEye },
+  { match: /phlebo/i, icon: Droplet },
+  { match: /lab|blood/i, icon: FlaskConical },
+  { match: /pharma/i, icon: Pill },
+  { match: /infection/i, icon: ShieldCheck },
+  { match: /nurse|medical officer|mbbs/i, icon: Stethoscope },
+  { match: /trainee/i, icon: GraduationCap },
+  { match: /executive/i, icon: TrendingUp },
+  { match: /manager/i, icon: Briefcase },
+];
 
 // Per-job light-tint color themes (same colours as the careers list page)
 const jobThemes = {
@@ -246,53 +265,158 @@ const defaultTheme = {
   titleAccent: "text-[#0B3446]",
 };
 
+/* ───────────── helpers: API → UI ───────────── */
+const slugify = (s) =>
+  String(s ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+// accepts an array, or a newline / bullet separated string
+const toList = (v) => {
+  if (Array.isArray(v)) return v.map((x) => String(x)).filter(Boolean);
+  if (typeof v === "string") {
+    return v
+      .split(/\r?\n|•/)
+      .map((x) => x.replace(/^[-*\s]+/, "").trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const normalizeJob = (j) => {
+  const title = String(j.title ?? j.name ?? j.jobTitle ?? "Untitled Role");
+  const id = j.id ?? j.slug ?? j._id ?? slugify(title);
+  const slug = j.slug ?? j.id ?? j._id ?? slugify(title);
+  const keywordIcon = iconByKeyword.find((k) => k.match.test(title))?.icon;
+
+  return {
+    id: String(id),
+    slug: String(slug),
+    title,
+    dept: String(j.dept ?? j.department ?? ""),
+    type: j.type ?? j.jobType ?? j.employmentType ?? "Full Time",
+    location: j.location ?? LOC,
+    overview: j.overview ?? j.description ?? "",
+    responsibilities: toList(j.responsibilities),
+    requirements: toList(j.requirements),
+    whyJoin: toList(j.whyJoin ?? j.why_join),
+    icon: iconMap[j.icon] || keywordIcon || Briefcase,
+  };
+};
+
+const matchesParam = (j, param) => {
+  const p = String(param ?? "").toLowerCase();
+  if (!p) return false;
+  const candidates = [
+    j.id,
+    j.slug,
+    j._id,
+    slugify(j.title ?? j.name ?? j.jobTitle),
+  ];
+  return candidates.some((c) => c != null && String(c).toLowerCase() === p);
+};
+
 export default function JobDetailPage() {
   const params = useParams();
-  const jobId = params?.id;
+  const jobParam = params?.id ?? params?.slug;
 
-  const job =
-    jobsData.find(
-      (j) =>
-        j.id === jobId ||
-        j.slug === jobId ||
-        j.id.toLowerCase() === String(jobId).toLowerCase(),
-    ) || jobsData[0]; // fallback to first job if not found
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const theme = jobThemes[job.id] || defaultTheme;
-  const JIcon = iconMap[job.icon] || Briefcase;
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [appSubmitted, setAppSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [appForm, setAppForm] = useState(EMPTY_FORM);
+  // const recaptchaRef = useRef(null);
+
+  /* ───── API fetch ───── */
+  const JobData = async (signal) => {
+    try {
+      setLoading(true);
+      setError(false);
+
+      const res = await axios.get("/api/career", {
+        headers: { "x-api-key": "apollo54321" },
+        signal,
+      });
+
+      // supports: [..] | { data: [..] } | { jobs: [..] } | { careers: [..] }
+      const payload = res.data;
+      const list = Array.isArray(payload)
+        ? payload
+        : payload?.data || payload?.jobs || payload?.careers || [];
+
+      setData(Array.isArray(list) ? list : []);
+    } catch (err) {
+      if (axios.isCancel(err) || err?.code === "ERR_CANCELED") return;
+      console.log("Error fetching career data:", err);
+      setError(true);
+    } finally {
+      if (!signal?.aborted) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    JobData(controller.signal);
+    return () => controller.abort();
+  }, []);
+
+  // find the job that matches the URL
+  const job = useMemo(() => {
+    const found = data.find((j) => matchesParam(j, jobParam));
+    return found ? normalizeJob(found) : null;
+  }, [data, jobParam]);
 
   const handleAppSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !appForm.dataConsent ||
-      !appForm.isCaptchaVerified ||
-      !appForm.resumeFile
-    )
+
+    if (!job) {
+      alert("Job details are not available. Please try again.");
       return;
+    }
+
+    if (!appForm.dataConsent) {
+      alert("Please accept the data consent.");
+      return;
+    }
+
+    if (!appForm.resumeFile) {
+      alert("Please attach your resume.");
+      return;
+    }
 
     setSubmitting(true);
+
     try {
-      // TODO: send to your backend. Right now nothing is sent anywhere.
-      // const fd = new FormData();
-      // fd.append("jobId", job.id);
-      // fd.append("jobTitle", job.title);
-      // fd.append("name", appForm.name);
-      // fd.append("email", appForm.email);
-      // fd.append("phone", appForm.phone);
-      // fd.append("exp", appForm.exp);
-      // fd.append("notes", appForm.notes);
-      // fd.append("resume", appForm.resumeFile);
-      // const res = await fetch("/api/apply", { method: "POST", body: fd });
-      // if (!res.ok) throw new Error("Failed");
+      const fd = new FormData();
+
+      fd.append("jobId", String(job.id));
+      fd.append("jobTitle", String(job.title));
+      fd.append("name", appForm.name.trim());
+      fd.append("email", appForm.email.trim());
+      fd.append("phone", appForm.phone.trim());
+      fd.append("exp", appForm.exp);
+      fd.append("notes", appForm.notes.trim());
+      fd.append("resume", appForm.resumeFile); // Transmit actual File object
+      fd.append("dataConsent", String(appForm.dataConsent));
+
+      const res = await axios.post("/api/career-applications", fd, {
+        headers: { "x-api-key": "apollo54321" },
+      });
+
       setAppSubmitted(true);
-    } catch {
+      console.log("Application saved:", res.data.applicationId);
+    } catch (err) {
+      console.error("Application submission failed:", err);
       alert(
-        "Could not submit your application. Please try again or email your CV.",
+        (err.response?.data?.message || "Could not submit your application.") +
+          (err.response?.data?.debug
+            ? `\n\nDetails: ${err.response.data.debug}`
+            : ""),
       );
     } finally {
       setSubmitting(false);
@@ -303,6 +427,60 @@ export default function JobDetailPage() {
     setAppForm(EMPTY_FORM);
     setAppSubmitted(false);
   };
+
+  /* ───── loading / error / not-found states ───── */
+  if (loading || error || !job) {
+    return (
+      <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-36 pb-20 overflow-hidden">
+        <div className="relative z-10 max-w-xl mx-auto px-4">
+          <div className="text-center py-14 bg-white rounded-3xl border border-[#1D82A6]/15 shadow-sm">
+            {loading ? (
+              <>
+                <div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-[#1D82A6]/30 border-t-[#1D82A6] animate-spin" />
+                <p className="text-sm font-bold text-[#0B3446]">
+                  Loading job details...
+                </p>
+              </>
+            ) : error ? (
+              <>
+                <ShieldAlert className="w-8 h-8 text-rose-400 mx-auto mb-3" />
+                <p className="text-sm font-bold text-[#0B3446]">
+                  Could not load job details.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => JobData()}
+                  className="mt-3 text-xs font-extrabold text-[#1D82A6] hover:text-[#C8952E] cursor-pointer"
+                >
+                  Try again
+                </button>
+              </>
+            ) : (
+              <>
+                <Briefcase className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm font-bold text-[#0B3446]">
+                  This job opening was not found.
+                </p>
+                <Link
+                  href="/careers"
+                  className="mt-3 inline-block text-xs font-extrabold text-[#1D82A6] hover:text-[#C8952E]"
+                >
+                  Back to All Careers
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const theme =
+    jobThemes[job.id] ||
+    jobThemes[job.slug] ||
+    jobThemes[slugify(job.title)] ||
+    defaultTheme;
+  const JIcon = job.icon || Briefcase;
 
   return (
     <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-36 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
@@ -350,9 +528,11 @@ export default function JobDetailPage() {
                 >
                   {job.type}
                 </span>
-                <span className="text-xs font-bold text-slate-500 bg-white/70 px-3 py-1 rounded-full border border-slate-200">
-                  {job.dept}
-                </span>
+                {job.dept && (
+                  <span className="text-xs font-bold text-slate-500 bg-white/70 px-3 py-1 rounded-full border border-slate-200">
+                    {job.dept}
+                  </span>
+                )}
               </div>
 
               <h1
@@ -406,106 +586,114 @@ export default function JobDetailPage() {
             className="lg:col-span-7 space-y-8"
           >
             {/* Job Overview */}
-            <motion.div
-              variants={fadeUp}
-              className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
-            >
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-5 h-5" />
+            {job.overview && (
+              <motion.div
+                variants={fadeUp}
+                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
+              >
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
+                    Job Overview
+                  </h2>
                 </div>
-                <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
-                  Job Overview
-                </h2>
-              </div>
-              <p className="text-slate-700 text-sm leading-relaxed font-medium">
-                {job.overview}
-              </p>
-            </motion.div>
+                <p className="text-slate-700 text-sm leading-relaxed font-medium">
+                  {job.overview}
+                </p>
+              </motion.div>
+            )}
 
             {/* Key Responsibilities */}
-            <motion.div
-              variants={fadeUp}
-              className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
-            >
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
-                  <CheckCircle2 className="w-5 h-5" />
+            {job.responsibilities.length > 0 && (
+              <motion.div
+                variants={fadeUp}
+                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
+              >
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
+                    Key Responsibilities
+                  </h2>
                 </div>
-                <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
-                  Key Responsibilities
-                </h2>
-              </div>
-              <ul className="space-y-3 pt-2">
-                {job.responsibilities.map((resp, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
-                  >
-                    <span className="w-5 h-5 rounded-full bg-[#1D82A6]/10 text-[#1D82A6] flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
-                      ✓
-                    </span>
-                    <span>{resp}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+                <ul className="space-y-3 pt-2">
+                  {job.responsibilities.map((resp, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
+                    >
+                      <span className="w-5 h-5 rounded-full bg-[#1D82A6]/10 text-[#1D82A6] flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
+                        ✓
+                      </span>
+                      <span>{resp}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
 
             {/* Required Skills & Qualifications */}
-            <motion.div
-              variants={fadeUp}
-              className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
-            >
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
-                  <GraduationCap className="w-5 h-5" />
+            {job.requirements.length > 0 && (
+              <motion.div
+                variants={fadeUp}
+                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
+              >
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
+                    Required Skills & Qualifications
+                  </h2>
                 </div>
-                <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
-                  Required Skills & Qualifications
-                </h2>
-              </div>
-              <ul className="space-y-3 pt-2">
-                {job.requirements.map((req, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
-                  >
-                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
-                      ★
-                    </span>
-                    <span>{req}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+                <ul className="space-y-3 pt-2">
+                  {job.requirements.map((req, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
+                    >
+                      <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
+                        ★
+                      </span>
+                      <span>{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
 
             {/* Why Join */}
-            <motion.div
-              variants={fadeUp}
-              className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
-            >
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
-                  <Award className="w-5 h-5" />
+            {job.whyJoin.length > 0 && (
+              <motion.div
+                variants={fadeUp}
+                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-[#1D82A6]/15 space-y-4"
+              >
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A5F7A] to-[#2A8FAF] text-[#F6D98A] flex items-center justify-center shadow-sm">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
+                    Why Join Apollo JBP Hospitals Jabalpur?
+                  </h2>
                 </div>
-                <h2 className="font-serif-apollo text-xl sm:text-2xl font-black text-[#0B3446]">
-                  Why Join Apollo JBP Hospitals Jabalpur?
-                </h2>
-              </div>
-              <ul className="space-y-3 pt-2">
-                {job.whyJoin.map((wj, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
-                  >
-                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
-                      ✦
-                    </span>
-                    <span>{wj}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+                <ul className="space-y-3 pt-2">
+                  {job.whyJoin.map((wj, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium leading-relaxed"
+                    >
+                      <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 font-black text-[10px]">
+                        ✦
+                      </span>
+                      <span>{wj}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* RIGHT: Inline Application Form */}
@@ -526,8 +714,8 @@ export default function JobDetailPage() {
                     Apply For {job.title}
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Fill out the form below to submit your CV directly to Apollo JBP
-                    Hospitals HR team.
+                    Fill out the form below to submit your CV directly to Apollo
+                    JBP Hospitals HR team.
                   </p>
                 </div>
 
@@ -595,9 +783,8 @@ export default function JobDetailPage() {
                         }
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#1D82A6] focus:outline-none bg-slate-50 focus:bg-white transition-colors font-semibold"
                       >
-                        <option value="Fresher / <1 Year">
-                          Fresher / &lt;1 Year
-                        </option>
+                        <option value="Fresher">Fresher</option>
+                        <option value="<1 Year">Less than 1 Year</option>
                         <option value="1-3 Years">1-3 Years</option>
                         <option value="3-5 Years">3-5 Years</option>
                         <option value="5+ Years">5+ Years</option>
@@ -721,22 +908,23 @@ export default function JobDetailPage() {
                       </label>
 
                       {/* Google reCAPTCHA */}
-                      <div className="pt-1">
-                        <ReCAPTCHA
-                          sitekey={
-                            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
-                            "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-                          }
-                          onChange={(token) =>
-                            setAppForm({
-                              ...appForm,
-                              isCaptchaVerified: !!token,
-                            })
-                          }
-                        />
-                      </div>
+                      {/* <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                        onChange={(token) =>
+                          setAppForm((prev) => ({
+                            ...prev,
+                            captchaToken: token || "",
+                          }))
+                        }
+                        onExpired={() =>
+                          setAppForm((prev) => ({
+                            ...prev,
+                            captchaToken: "",
+                          }))
+                        }
+                      /> */}
                     </div>
-
                     <button
                       type="submit"
                       disabled={submitting}
@@ -821,17 +1009,12 @@ export default function JobDetailPage() {
         >
           <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
           <span>
-            Notice: Apollo JBP Hospitals Jabalpur never asks for monetary payments,
-            processing fees, or bank transfers during any stage of recruitment.
-            Beware of fraudulent agencies.
+            Notice: Apollo JBP Hospitals Jabalpur never asks for monetary
+            payments, processing fees, or bank transfers during any stage of
+            recruitment. Beware of fraudulent agencies.
           </span>
         </motion.div>
       </div>
-
-      <AppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </main>
   );
 }

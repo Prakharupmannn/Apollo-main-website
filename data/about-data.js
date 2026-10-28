@@ -9,8 +9,8 @@ export const brand = {
 };
 
 export const images = {
-  hero: "/images/image.png",
-  quality: "/images/quality.png",
+  hero: "/images/image.webp",
+  quality: "/images/quality.webp",
 };
 
 export const storyBeats = [

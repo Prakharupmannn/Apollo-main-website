@@ -8,7 +8,7 @@ import {
   BadgeCheck, HeartPulse, CalendarCheck, ClipboardList, Zap, MapPin, Clock, Users,
 } from "lucide-react";
 import specialitiesData from "../../../data/ourSpecialities";
-import { getDoctorsBySpeciality } from "../../../data/doctors";
+import { getDoctorsForSpeciality } from "@/lib/doctors-service";
 import { ScrollProgress, Reveal, Counter, Tilt, FaqAccordion, DoctorCard, NoDoctors } from "./Effects";
 
 const iconMap = {
@@ -62,7 +62,7 @@ export default async function SpecialityDetailPage({ params }) {
   if (!s) notFound();
 
   const Icon = iconMap[s.icon] || Activity;
-  const doctors = getDoctorsBySpeciality(s.slug);
+  const doctors = await getDoctorsForSpeciality(s.slug);
 
   const sameCategory = specialitiesData.filter((x) => x.slug !== s.slug && x.category === s.category);
   const rest = specialitiesData.filter((x) => x.slug !== s.slug && x.category !== s.category);

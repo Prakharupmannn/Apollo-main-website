@@ -29,7 +29,7 @@ import {
 
 const METRICS = [
   { icon: Clock, value: "40+", label: "Years of Medical Leadership" },
-  { icon: Stethoscope, value: "10,000+", label: "Specialist Doctors" },
+  { icon: Stethoscope, value: "13,000+", label: "Specialist Doctors" },
   { icon: Award, value: "NABH & JCI", label: "Accredited" },
 ];
 
@@ -230,10 +230,11 @@ export default function Footer({ onOpenAppointmentModal }) {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Image
-                src="/images/apollologo.png"
+                src="/images/apollologo.webp"
                 alt="Apollo JBP Hospitals logo"
                 width={160}
                 height={40}
+                style={{ width: "auto" }}
                 className="h-10 w-auto rounded-xl bg-white p-1.5 object-contain shadow-md"
               />
               <span className="font-serif-apollo text-lg font-bold leading-tight">
@@ -309,7 +310,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                 className="flex items-center gap-2 rounded-xl border border-emerald-300/60 bg-emerald-400/20 p-3 text-xs font-semibold text-emerald-100"
               >
                 <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-300" />
-                You're subscribed. Thank you!
+                You&apos;re subscribed. Thank you!
               </p>
             ) : (
               <form

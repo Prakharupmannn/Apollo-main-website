@@ -50,7 +50,7 @@ export default function PatientTestimonials() {
       procedure: "Total Hip Replacement",
       rating: 5,
       quote:
-        "Traveled from the Indore for orthopedic surgery at Apollo JBP Hospitals. The international patient care desk managed everything seamlessly, from flight pickup to top surgeon consultations.",
+        "Traveled from Indore to Apollo JBP Hospital for a total hip replacement. The expert orthopedic team provided excellent care, ensuring a smooth surgical experience and a comfortable recovery with personalized support throughout the treatment journey.",
       avatar: "AR",
       recoveredIn: "18 Days",
       hospitalBranch: "Apollo JBP Hospital",

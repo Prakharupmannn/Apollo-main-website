@@ -331,14 +331,6 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               {/* Language switcher (tablet & laptop) */}
               <LanguageSwitcher variant="light" showIcon />
 
-              <button
-                onClick={onOpenSearchModal}
-                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/15 backdrop-blur-sm transition-all cursor-pointer"
-                aria-label="Search website"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-
               <span className="h-3 w-0.5 bg-white/25 rounded-full" />
 
               {/* Portal Login / Logout Icon */}
@@ -379,11 +371,12 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
           <div className="flex items-center justify-between gap-3 px-3 sm:px-5 xl:px-6 py-2 sm:py-2.5">
             <Link href="/" className="flex items-center shrink-0 group">
               <Image
-                src="/images/apollologo.png"
+                src="/images/apollologo.webp"
                 alt="Apollo JBP Hospitals Jabalpur"
                 width={180}
                 height={48}
                 priority
+                style={{ width: "auto" }}
                 className="h-9 sm:h-11 xl:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.03]"
               />
             </Link>
@@ -785,10 +778,11 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
           <div className="flex items-center gap-3 pr-10">
             <div className="p-1.5 sm:p-2 bg-white rounded-xl shadow-md shrink-0">
               <Image
-                src="/images/apollologo.png"
+                src="/images/apollologo.webp"
                 alt="Apollo JBP Hospitals"
                 width={140}
                 height={40}
+                style={{ width: "auto" }}
                 className="h-8 sm:h-10 w-auto object-contain"
               />
             </div>

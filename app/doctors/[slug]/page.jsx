@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import  PodcastPlayer  from "../../../components/podcast/PodcastPlayer"
+import PodcastPlayer from "../../../components/podcast/PodcastPlayer";
 import {
   ArrowLeft,
   ArrowRight,
@@ -34,11 +34,18 @@ import {
   MessageCircle,
 } from "lucide-react";
 
-import { rawDoctors } from "@/data/doctorsPage";
+import { getDoctors, getDoctorBySlug } from "@/lib/doctors-service";
 import { hospital } from "@/data/siteData";
 import MobileBookingBar from "@/components/MobileBookingBar";
+export const dynamic = "force-dynamic";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function safeImage(src) {
+  if (typeof src !== "string") return "";
+  const s = src.trim();
+  return /^https?:\/\//i.test(s) || s.startsWith("/") ? s : "";
+}
 
 /* ---------------- helpers ---------------- */
 
@@ -75,10 +82,6 @@ function getTone(slug = "") {
     return { ink: "#D27A29", soft: "#FFF5EA" };
   if (v.includes("critical")) return { ink: "#2674D8", soft: "#EEF5FF" };
   return { ink: "#0E526B", soft: "#EDF7FA" };
-}
-
-function findDoctor(slug) {
-  return rawDoctors.find((d) => d.slug === slug);
 }
 
 function getAbout(doctor) {
@@ -314,9 +317,9 @@ function Hero({ doctor, tone, education, languages, highlights }) {
                   }}
                 />
 
-                {doctor.image ? (
+                {safeImage(doctor.image) ? (
                   <Image
-                    src={doctor.image}
+                    src={safeImage(doctor.image)}
                     alt={doctor.name}
                     width={500}
                     height={600}
@@ -665,7 +668,13 @@ function About({
   const researchDetailsL = aboutClean(researchDetails);
   const publicationsL = aboutClean(publications);
   const faqL = (Array.isArray(faqs) ? faqs : []).filter((f) => f?.question);
-  const stats = Array.isArray(highlights) ? highlights : [];
+  const stats = (Array.isArray(highlights) ? highlights : [])
+    .map((h) => {
+      if (!h) return null;
+      if (typeof h === "string") return { value: h, label: "" };
+      return { value: h.value ?? "", label: h.label ?? "" };
+    })
+    .filter((h) => h && (h.value || h.label));
 
   const hasMore =
     Boolean(tagline) ||
@@ -761,9 +770,9 @@ function About({
       {/* ---------- Highlights (above the fold, never pushed away) ---------- */}
       {stats.length > 0 && (
         <div className={`mt-7 grid gap-2.5 sm:gap-3 ${statsGrid}`}>
-          {stats.map((h) => (
+          {stats.map((h, i) => (
             <div
-              key={h.label}
+              key={`${h.label}-${i}`}
               className="group relative min-w-0 overflow-hidden rounded-2xl bg-gradient-to-br from-[#F4FAFC] via-white to-[#FFF6DF] p-3.5 ring-1 ring-inset ring-[#E3EEF2] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-16px_rgba(14,82,107,.4)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-4"
             >
               <p className="bg-gradient-to-br from-[#0E526B] to-[#1D82A6] bg-clip-text font-serif text-[26px] leading-none text-transparent sm:text-[32px]">
@@ -1100,9 +1109,9 @@ function Expertise({ items }) {
     <Card>
       <SectionTitle eyebrow="Focus Areas" title="Areas of" accent="expertise" />
       <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
+        {items.map((item, i) => (
           <span
-            key={item}
+            key={`${item}-${i}`}
             className="group inline-flex items-center gap-2 rounded-xl border border-[#E3EEF2] bg-[#F8FBFD] px-3 py-2 text-[12px] font-semibold leading-4 text-[#06202B] transition duration-300 hover:-translate-y-0.5 hover:border-[#C8952E]/50 hover:bg-white hover:shadow-[0_10px_24px_rgba(14,82,107,.10)]"
           >
             <span className="h-1.5 w-1.5 shrink-0 rotate-45 bg-[#C8952E]" />
@@ -1334,9 +1343,9 @@ function Related({ doctors }) {
                     color: tone.ink,
                   }}
                 >
-                  {d.image ? (
+                  {safeImage(d.image) ? (
                     <Image
-                      src={d.image}
+                      src={safeImage(d.image)}
                       alt={d.name}
                       width={120}
                       height={120}
@@ -1466,19 +1475,19 @@ function BottomCta({ doctor }) {
 
 /* ---------------- ROUTE ---------------- */
 
-export async function generateStaticParams() {
-  return rawDoctors.filter((d) => d.slug).map((d) => ({ slug: d.slug }));
-}
-
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const doctor = findDoctor(slug);
-  if (!doctor) return { title: "Doctor not found" };
+  const doctor = await getDoctorBySlug(slug);
+
+  if (!doctor) {
+    return { title: "Doctor not found" };
+  }
 
   return {
-    title: `${doctor.name} - ${doctor.speciality || "Specialist"} | ${
-      hospital?.name || "Apollo JBP Hospitals"
-    }`,
+    title: `${doctor.name} - ${
+      doctor.speciality || "Specialist"
+    } | ${hospital?.name || "Apollo JBP Hospitals"}`,
+
     description:
       doctor.summary ||
       doctor.designation ||
@@ -1490,18 +1499,29 @@ export async function generateMetadata({ params }) {
 
 export default async function DoctorProfilePage({ params }) {
   const { slug } = await params;
-  const doctor = findDoctor(slug);
+
+  const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) notFound();
 
+  const doctors = await getDoctors();
+
   const tone = getTone(doctor.specialitySlug || doctor.speciality);
   const education = toEducation(doctor.qualifications || doctor.qualification);
-  const expertise = toList(doctor.expertise);
-  const languages = toList(doctor.languages);
+  const expertise = toList(doctor.expertise).map(aboutGetText).filter(Boolean);
+const languages = toList(doctor.languages).map(aboutGetText).filter(Boolean);
+const podcasts = Array.isArray(doctor.podcasts)
+  ? doctor.podcasts.filter((p) => p && typeof p === "object")
+  : [];
   const about = getAbout(doctor);
-  const highlights = Array.isArray(doctor.highlights)
-    ? doctor.highlights.slice(0, 3)
-    : [];
+  const highlights = (Array.isArray(doctor.highlights) ? doctor.highlights : [])
+    .map((h) => {
+      if (!h) return null;
+      if (typeof h === "string") return { value: h, label: "" };
+      return { value: h.value ?? "", label: h.label ?? "" };
+    })
+    .filter((h) => h && (h.value || h.label))
+    .slice(0, 3);
 
   const specialtyKeywords = {
     oncology: ["onco", "cancer"],
@@ -1539,7 +1559,7 @@ export default async function DoctorProfilePage({ params }) {
 
   const currentSpecialty = getSpecialtyKey(doctor);
 
-  const related = rawDoctors
+  const related = doctors
     .filter((d) => {
       if (d.slug === doctor.slug) return false;
 
@@ -1614,10 +1634,10 @@ export default async function DoctorProfilePage({ params }) {
       </section>
 
       <Related doctors={related} />
-      {doctor.podcasts?.length ? (
-        <div className="my-12">
-          <PodcastPlayer
-            podcasts={doctor.podcasts}
+      {podcasts.length ? (
+  <div className="my-12">
+    <PodcastPlayer
+      podcasts={podcasts}
             title={`Hear from ${doctor.name}`}
           />
         </div>

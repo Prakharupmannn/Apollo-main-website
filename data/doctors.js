@@ -1,3 +1,6 @@
+import { getDoctorsForSpeciality } from "@/lib/doctors-service";
+
+export { getDoctorsForSpeciality, getDoctorsForSpeciality as getDoctorsBySpeciality };
 
 export const doctorsData = [
   {
@@ -133,9 +136,5 @@ export const doctorsData = [
     specialities: ["critical-care-medicine", "anaesthesiologist"],
   },
 ];
-
-export function getDoctorsBySpeciality(slug) {
-  return doctorsData.filter((d) => d.specialities.includes(slug));
-}
 
 export default doctorsData;

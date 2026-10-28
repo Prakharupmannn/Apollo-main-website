@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import {
   Briefcase,
   Building2,
@@ -38,7 +39,7 @@ import {
   ShieldAlert,
   PhoneCall,
 } from "lucide-react";
-import AppointmentModal from "../../components/components/AppointmentModal";
+//import AppointmentModal from "../../components/components/AppointmentModal";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -310,208 +311,98 @@ const defaultTheme = {
   linkHover: "hover:text-[#C8952E]",
 };
 
-/* ───────────── All 22 job openings ───────────── */
+/* ───────────── Default location (used only if API sends none) ───────────── */
 const LOC = "Apollo JBP Hospitals Jabalpur";
-const jobsList = [
+
+/* ───────────── API → UI normalizer ───────────── */
+const categoryIconMap = Object.fromEntries(
+  categories.map((c) => [c.key, c.icon]),
+);
+
+// nicer icons per role, chosen by title keyword
+const iconByKeyword = [
+  { match: /diet|nutrition/i, icon: Salad },
+  { match: /optom/i, icon: Eye },
+  { match: /physio/i, icon: Activity },
+  { match: /perfusion|cath/i, icon: HeartPulse },
+  { match: /cssd|ot tech|sterili/i, icon: Syringe },
+  { match: /radiolog/i, icon: ScanEye },
+  { match: /phlebo/i, icon: Droplet },
+  { match: /lab|blood/i, icon: FlaskConical },
+  { match: /pharma/i, icon: Pill },
+  { match: /infection/i, icon: ShieldCheck },
+  { match: /nurse|medical officer|mbbs/i, icon: Stethoscope },
+  { match: /trainee/i, icon: GraduationCap },
+  { match: /executive/i, icon: TrendingUp },
+  { match: /manager/i, icon: Briefcase },
+];
+
+// if the API category doesn't match a key, guess it from title / department
+const categoryByKeyword = [
   {
-    id: "dietician",
-    title: "Dietician",
-    category: "nutrition-rehab",
-    dept: "Dietetics & Nutrition",
-    type: "Full Time",
-    location: LOC,
-    icon: Salad,
+    match: /diet|nutrition|optom|ophthal|physio|rehab/i,
+    key: "nutrition-rehab",
+  },
+  { match: /perfusion|cardio|cath/i, key: "cardiac-perfusion" },
+  { match: /cssd|steril|\bot\b|operation theatre|surgery/i, key: "sterile-ot" },
+  {
+    match: /radiolog|phlebo|patholog|lab|blood|pharma/i,
+    key: "diagnostics-lab",
   },
   {
-    id: "optometrist",
-    title: "Optometrist",
-    category: "nutrition-rehab",
-    dept: "Ophthalmology",
-    type: "Full Time",
-    location: LOC,
-    icon: Eye,
+    match: /nurse|nursing|medical officer|mbbs|clinical/i,
+    key: "nursing-clinical",
   },
   {
-    id: "physiotherapist",
-    title: "Physiotherapist",
-    category: "nutrition-rehab",
-    dept: "Physiotherapy & Rehabilitation",
-    type: "Full Time",
-    location: LOC,
-    icon: Activity,
-  },
-  {
-    id: "perfusionist",
-    title: "Perfusionist",
-    category: "cardiac-perfusion",
-    dept: "Cardiology & Cardiothoracic Surgery",
-    type: "Full Time",
-    location: LOC,
-    icon: HeartPulse,
-  },
-  {
-    id: "cath-lab-tech",
-    title: "Cath Lab Technician",
-    category: "cardiac-perfusion",
-    dept: "Cardiology & Cath Labs",
-    type: "Full Time",
-    location: LOC,
-    icon: HeartPulse,
-  },
-  {
-    id: "cssd-tech",
-    title: "CSSD Technician",
-    category: "sterile-ot",
-    dept: "Sterilization & Infection Control",
-    type: "Full Time",
-    location: LOC,
-    icon: Syringe,
-  },
-  {
-    id: "cssd-incharge",
-    title: "CSSD Incharge",
-    category: "sterile-ot",
-    dept: "Sterilization & Infection Control",
-    type: "Full Time",
-    location: LOC,
-    icon: Syringe,
-  },
-  {
-    id: "ot-tech",
-    title: "OT Technician",
-    category: "sterile-ot",
-    dept: "Surgery & Operation Theatre (OT)",
-    type: "Full Time",
-    location: LOC,
-    icon: Syringe,
-  },
-  {
-    id: "radiology-tech",
-    title: "Radiology Technician",
-    category: "diagnostics-lab",
-    dept: "Radiology",
-    type: "Full Time",
-    location: LOC,
-    icon: ScanEye,
-  },
-  {
-    id: "phlebotomist",
-    title: "Phlebotomist",
-    category: "diagnostics-lab",
-    dept: "Pathology",
-    type: "Full Time",
-    location: LOC,
-    icon: Droplet,
-  },
-  {
-    id: "lab-blood-bank-tech",
-    title: "Lab & Blood Bank Technician",
-    category: "diagnostics-lab",
-    dept: "Pathology & Blood Bank",
-    type: "Full Time",
-    location: LOC,
-    icon: FlaskConical,
-  },
-  {
-    id: "pharmacist",
-    title: "Pharmacist",
-    category: "diagnostics-lab",
-    dept: "Clinical, Pharmacy",
-    type: "Full Time",
-    location: LOC,
-    icon: Pill,
-  },
-  {
-    id: "staff-nurse",
-    title: "Staff Nurse – Ward, ICU, Oncology, ER",
-    category: "nursing-clinical",
-    dept: "Clinical, Nursing",
-    type: "Full Time",
-    location: LOC,
-    icon: Stethoscope,
-  },
-  {
-    id: "infection-control-nurse",
-    title: "Infection Control Nurse",
-    category: "nursing-clinical",
-    dept: "Clinical, Nursing",
-    type: "Full Time",
-    location: LOC,
-    icon: ShieldCheck,
-  },
-  {
-    id: "assistant-nursing-superintendent",
-    title: "Assistant Nursing Superintendent",
-    category: "nursing-clinical",
-    dept: "Clinical",
-    type: "Full Time",
-    location: LOC,
-    icon: Stethoscope,
-  },
-  {
-    id: "medical-officer-mbbs",
-    title: "Medical Officer (MBBS) Job in Jabalpur",
-    category: "nursing-clinical",
-    dept: "Clinical",
-    type: "Full Time",
-    location: LOC,
-    icon: Stethoscope,
-  },
-  {
-    id: "senior-manager",
-    title: "Senior Manager",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: Briefcase,
-  },
-  {
-    id: "manager",
-    title: "Manager",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: Briefcase,
-  },
-  {
-    id: "deputy-manager",
-    title: "Deputy Manager",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: Briefcase,
-  },
-  {
-    id: "assistant-manager",
-    title: "Assistant Manager",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: Briefcase,
-  },
-  {
-    id: "executive",
-    title: "Executive",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: TrendingUp,
-  },
-  {
-    id: "trainee",
-    title: "Trainee",
-    category: "corporate-sales",
-    dept: "Marketing & Sales",
-    type: "Full Time",
-    location: LOC,
-    icon: GraduationCap,
+    match: /manager|executive|trainee|sales|marketing/i,
+    key: "corporate-sales",
   },
 ];
+
+const slugify = (s) =>
+  String(s ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const resolveCategory = (raw, text) => {
+  const slug = slugify(raw);
+  if (slug) {
+    const direct = categories.find(
+      (c) => c.key === slug || slugify(c.label) === slug,
+    );
+    if (direct) return direct.key;
+  }
+  const guessed = categoryByKeyword.find((k) =>
+    k.match.test(`${raw ?? ""} ${text}`),
+  );
+  return guessed ? guessed.key : categories[0].key;
+};
+
+const normalizeJob = (j) => {
+  const title = String(j.title ?? j.name ?? j.jobTitle ?? "Untitled Role");
+  const dept = String(j.dept ?? j.department ?? "");
+  const id = j.id ?? j.slug ?? j._id ?? slugify(title);
+  const slug = j.slug ?? j.id ?? j._id ?? slugify(title);
+  const category = resolveCategory(
+    j.category ?? j.categoryKey ?? j.department_category,
+    `${title} ${dept}`,
+  );
+  const keywordIcon = iconByKeyword.find((k) => k.match.test(title))?.icon;
+
+  return {
+    id,
+    slug,
+    title,
+    category,
+    dept,
+    type: j.type ?? j.jobType ?? j.employmentType ?? "Full Time",
+    location: j.location ?? LOC,
+    icon: keywordIcon ?? categoryIconMap[category] ?? Briefcase,
+  };
+};
 
 /* ───────────── Circular orbit category selector ───────────── */
 function CareerOrbitSelector({ activeCategory, setActiveCategory, counts }) {
@@ -616,7 +507,12 @@ function CareerOrbitSelector({ activeCategory, setActiveCategory, counts }) {
 }
 
 export default function CareersPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
   const [selectedJob, setSelectedJob] = useState(null);
   const [appSubmitted, setAppSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -627,7 +523,6 @@ export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const jobsScrollRef = useRef(null);
 
-  // Smooth hand-off between the job-cards box and the page scroll
   // Smooth hand-off between the job-cards box and the page scroll
   useEffect(() => {
     const el = jobsScrollRef.current;
@@ -740,25 +635,65 @@ export default function CareersPage() {
     };
   }, [selectedJob]);
 
+  /* ───── API fetch (must stay ABOVE jobs / counts / filteredJobs) ───── */
+  const JobData = async (signal) => {
+    try {
+      setLoading(true);
+      setError(false);
+
+      const res = await axios.get("/api/career", {
+        headers: { "x-api-key": "apollo54321" },
+        signal,
+      });
+
+      // supports: [..] | { data: [..] } | { jobs: [..] } | { careers: [..] }
+      const payload = res.data;
+      const list = Array.isArray(payload)
+        ? payload
+        : payload?.data || payload?.jobs || payload?.careers || [];
+
+      setData(Array.isArray(list) ? list : []);
+    } catch (err) {
+      if (axios.isCancel(err) || err?.code === "ERR_CANCELED") return;
+      console.log("Error fetching career data:", err);
+      setError(true);
+    } finally {
+      if (!signal?.aborted) setLoading(false);
+    }
+  };
+
+  // fetch once on mount
+  useEffect(() => {
+    const controller = new AbortController();
+    JobData(controller.signal);
+    return () => controller.abort();
+  }, []);
+
+  // jobs come ONLY from the API
+  const jobs = useMemo(
+    () => (Array.isArray(data) ? data.map(normalizeJob) : []),
+    [data],
+  );
+
   const counts = useMemo(() => {
     const c = {};
     categories.forEach((cat) => {
-      c[cat.key] = jobsList.filter((j) => j.category === cat.key).length;
+      c[cat.key] = jobs.filter((j) => j.category === cat.key).length;
     });
     return c;
-  }, []);
+  }, [jobs]);
 
   const filteredJobs = useMemo(() => {
-    return jobsList.filter((j) => {
+    const q = searchQuery.toLowerCase();
+    return jobs.filter((j) => {
       const matchesCategory = j.category === activeCategory;
-      const q = searchQuery.toLowerCase();
       const matchesSearch =
         !q ||
         j.title.toLowerCase().includes(q) ||
         j.dept.toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [jobs, activeCategory, searchQuery]);
 
   const groupStats = [
     { value: "50+", label: "Hospitals across India & abroad", icon: Building2 },
@@ -813,26 +748,6 @@ export default function CareersPage() {
     const next = (idx + 1) % categories.length;
     setActiveCategory(categories[next].key);
   };
-
-  // const handleJobsWheel = (e) => {
-  //   const container = jobsScrollRef.current;
-
-  //   if (!container) return;
-
-  //   // Only control scrolling when the container
-  //   // actually has vertical overflow.
-  //   const hasVerticalScroll = container.scrollHeight > container.clientHeight;
-
-  //   if (!hasVerticalScroll) return;
-
-  //   // Move the scroll container instead of allowing
-  //   // the child card to consume the wheel movement.
-  //   container.scrollTop += e.deltaY;
-
-  //   // Prevent the page from scrolling while cursor
-  //   // is inside the job cards area.
-  //   e.preventDefault();
-  // };
 
   return (
     <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
@@ -993,7 +908,8 @@ export default function CareersPage() {
                 </span>
                 <Sparkles className="w-3.5 h-3.5 text-[#C8952E]" />
                 <span>
-                  Work With Asia&apos;s Healthcare Leader • Apollo JBP Hospitals Jabalpur
+                  Work With Asia&apos;s Healthcare Leader • Apollo JBP Hospitals
+                  Jabalpur
                 </span>
               </motion.div>
 
@@ -1031,7 +947,10 @@ export default function CareersPage() {
 
               <div className="flex flex-wrap items-center gap-3">
                 {[
-                  { value: `${jobsList.length}`, label: "Open Roles" },
+                  {
+                    value: loading ? "…" : `${jobs.length}`,
+                    label: "Open Roles",
+                  },
                   { value: "50+", label: "Hospitals" },
                   { value: "20,000+", label: "Clinical Staff" },
                 ].map((s, i) => (
@@ -1059,7 +978,7 @@ export default function CareersPage() {
                 className="relative rounded-[2rem] overflow-hidden shadow-[0_30px_70px_rgba(10,95,122,0.25)] border-4 border-white"
               >
                 <Image
-                  src="/images/careers/careers.png"
+                  src="/images/careers/careers.webp"
                   alt="Apollo JBP Hospitals Jabalpur careers"
                   width={800}
                   height={460}
@@ -1268,6 +1187,7 @@ export default function CareersPage() {
 
         {/* ───── Current Job Openings ───── */}
         <motion.section
+          id="job-openings"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.05 }}
@@ -1403,13 +1323,38 @@ export default function CareersPage() {
                     transition={{ duration: 0.25 }}
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5"
                   >
-                    {filteredJobs.length > 0 ? (
+                    {loading ? (
+                      <div className="col-span-full text-center py-14 bg-white rounded-3xl border border-[#1D82A6]/15 shadow-sm">
+                        <div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-[#1D82A6]/30 border-t-[#1D82A6] animate-spin" />
+                        <p className="text-sm font-bold text-[#0B3446]">
+                          Loading job openings...
+                        </p>
+                      </div>
+                    ) : error ? (
+                      <div className="col-span-full text-center py-14 bg-white rounded-3xl border border-rose-200 shadow-sm">
+                        <ShieldAlert className="w-8 h-8 text-rose-400 mx-auto mb-3" />
+                        <p className="text-sm font-bold text-[#0B3446]">
+                          Could not load job openings.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => JobData()}
+                          className="mt-3 text-xs font-extrabold text-[#1D82A6] hover:text-[#C8952E] cursor-pointer"
+                        >
+                          Try again
+                        </button>
+                      </div>
+                    ) : filteredJobs.length > 0 ? (
                       filteredJobs.map((job, idx) => {
                         const JIcon = job.icon || Briefcase;
-                        const theme = jobThemes[job.id] || defaultTheme;
+                        const theme =
+                          jobThemes[job.id] ||
+                          jobThemes[job.slug] ||
+                          jobThemes[slugify(job.title)] ||
+                          defaultTheme;
                         return (
                           <motion.div
-                            key={job.id}
+                            key={`${job.id}-${idx}`}
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.35, delay: idx * 0.03 }}
@@ -1452,21 +1397,12 @@ export default function CareersPage() {
 
                               <div className="mt-4 flex items-center justify-between gap-2">
                                 <Link
-                                  href={`/careers/${job.id}`}
+                                  href={`/careers/${job.slug}`}
                                   className={`inline-flex items-center gap-1 text-[11px] font-extrabold text-[#0B3446] ${theme.linkHover} transition-colors cursor-pointer`}
                                 >
                                   More Details
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </Link>
-
-                                {/* <button
-                                  type="button"
-                                  onClick={() => openApply(job)}
-                                  className="px-3.5 py-1.5 rounded-full text-[11px] font-extrabold text-[#3A2B0A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-                                  style={goldGradient}
-                                >
-                                  Apply Now
-                                </button> */}
                               </div>
                             </div>
                           </motion.div>
@@ -1531,10 +1467,10 @@ export default function CareersPage() {
         </motion.section>
       </div>
 
-      <AppointmentModal
+      {/* <AppointmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-      />
+      /> */}
 
       {/* ───── Job Application Modal (rendered in a portal on <body>) ───── */}
       {mounted &&
@@ -1769,7 +1705,7 @@ export default function CareersPage() {
                           </span>
                         </label>
 
-                        {/* Mock reCAPTCHA (see note below the code for the real one) */}
+                        {/* Mock reCAPTCHA */}
                         <div className="p-3 bg-[#F9F9F9] border border-[#D3D3D3] rounded-md max-w-[280px] flex items-center justify-between shadow-sm">
                           <label className="flex items-center gap-3 cursor-pointer select-none">
                             <input

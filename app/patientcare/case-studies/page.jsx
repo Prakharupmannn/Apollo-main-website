@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Award,
   Sparkles,
   CheckCircle2,
   UserCheck,
@@ -15,11 +14,18 @@ import {
   Star,
   PhoneCall,
   ShieldCheck,
-  Users,
   BadgeCheck,
   Stethoscope,
+  Microscope,
 } from "lucide-react";
-import { caseStudiesData, departments } from "../../../data/caseStudiesData";
+import { departments } from "../../../data/caseStudiesData";
+
+function CaseIcon({ icon, className }) {
+  if (icon === "Microscope") {
+    return <Microscope className={className} />;
+  }
+  return <Stethoscope className={className} />;
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -47,21 +53,26 @@ const goldGradient = {
 
 /* ───────────────────────── Instagram-style progress-bar carousel with slow Ken Burns zoom ───────────────────────── */
 function CardImageCarousel({ images, alt, duration = 3800 }) {
+  const safeImages =
+    Array.isArray(images) && images.length > 0
+      ? images
+      : ["/images/case-studies/Case-Studies.webp"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    if (safeImages.length <= 1) return;
     const t = setInterval(
-      () => setIndex((i) => (i + 1) % images.length),
+      () => setIndex((i) => (i + 1) % safeImages.length),
       duration,
     );
     return () => clearInterval(t);
-  }, [images.length, duration]);
+  }, [safeImages.length, duration]);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
       <AnimatePresence mode="sync">
         <motion.div
-          key={images[index]}
+          key={safeImages[index]}
           className="absolute inset-0 overflow-hidden"
           initial={{ opacity: 0, scale: 1.15 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -69,7 +80,7 @@ function CardImageCarousel({ images, alt, duration = 3800 }) {
           transition={{ duration: 1, ease: "easeInOut" }}
         >
           <motion.img
-            src={images[index]}
+            src={safeImages[index]}
             alt={alt}
             initial={{ scale: 1 }}
             animate={{ scale: 1.14 }}
@@ -80,25 +91,27 @@ function CardImageCarousel({ images, alt, duration = 3800 }) {
       </AnimatePresence>
 
       {/* Story-style progress segments */}
-      <div className="absolute top-3 sm:top-4 left-4 right-4 sm:left-5 sm:right-5 flex gap-1.5 z-20">
-        {images.map((_, i) => (
-          <div
-            key={i}
-            className="flex-1 h-[3px] rounded-full bg-white/25 overflow-hidden"
-          >
-            {i === index && (
-              <motion.div
-                key={index}
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: duration / 1000, ease: "linear" }}
-                className="h-full bg-gradient-to-r from-[#F6D98A] to-white"
-              />
-            )}
-            {i < index && <div className="h-full w-full bg-white" />}
-          </div>
-        ))}
-      </div>
+      {safeImages.length > 1 && (
+        <div className="absolute top-3 sm:top-4 left-4 right-4 sm:left-5 sm:right-5 flex gap-1.5 z-20">
+          {safeImages.map((_, i) => (
+            <div
+              key={i}
+              className="flex-1 h-[3px] rounded-full bg-white/25 overflow-hidden"
+            >
+              {i === index && (
+                <motion.div
+                  key={index}
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: duration / 1000, ease: "linear" }}
+                  className="h-full bg-gradient-to-r from-[#F6D98A] to-white"
+                />
+              )}
+              {i < index && <div className="h-full w-full bg-white" />}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -106,15 +119,14 @@ function CardImageCarousel({ images, alt, duration = 3800 }) {
 /* ───────────────────────── Premium glass case study card ───────────────────────── */
 
 function CaseCard({ c, index }) {
-  const Icon = c.icon;
-  const initials = c.doctor
+  const initials = (c.doctor || "Apollo Doctor")
     .replace(/^Dr\.?\s*/i, "")
     .split(" ")
     .filter(Boolean)
     .map((w) => w[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase();
+    .toUpperCase() || "AD";
 
   const patientName = c.patientInfo?.name || c.patient;
   const patientCity = c.patientInfo?.city;
@@ -236,7 +248,7 @@ function CaseCard({ c, index }) {
             <div
               className={`absolute -top-6 sm:-top-7 right-4 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${c.accent} text-white flex items-center justify-center shadow-xl ring-4 ring-white group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300 z-40`}
             >
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+              <CaseIcon icon={c.icon} className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
 
             {/* patient + city */}
@@ -320,21 +332,75 @@ function CaseCard({ c, index }) {
 export default function CaseStudiesPage() {
   const [selectedDept, setSelectedDept] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [caseStudies, setCaseStudies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const filteredCases = caseStudiesData.filter((c) => {
+  const refetch = () => setReloadKey((k) => k + 1);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchCaseStudies() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch("/api/case-studies", {
+          method: "GET",
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "apollo54321",
+          },
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch case studies (HTTP ${res.status}).`);
+        }
+
+        const data = await res.json();
+
+        if (!data.success || !Array.isArray(data.caseStudies)) {
+          throw new Error(data.message || "Invalid case studies API response.");
+        }
+
+        setCaseStudies(data.caseStudies);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Case studies API error:", err);
+          setError(err.message || "Unable to load case studies.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchCaseStudies();
+
+    return () => controller.abort();
+  }, [reloadKey]);
+
+  const filteredCases = caseStudies.filter((c) => {
     const matchesDept = selectedDept === "all" || c.dept === selectedDept;
     const q = searchQuery.trim().toLowerCase();
     const matchesQuery =
       !q ||
-      c.title.toLowerCase().includes(q) ||
-      c.summary.toLowerCase().includes(q) ||
-      c.deptLabel.toLowerCase().includes(q) ||
-      c.doctor.toLowerCase().includes(q);
+      (c.title && c.title.toLowerCase().includes(q)) ||
+      (c.summary && c.summary.toLowerCase().includes(q)) ||
+      (c.deptLabel && c.deptLabel.toLowerCase().includes(q)) ||
+      (c.doctor && c.doctor.toLowerCase().includes(q));
     return matchesDept && matchesQuery;
   });
 
   const stats = [
-    { value: `${caseStudiesData.length}+`, label: "Documented Saves" },
+    {
+      value: `${loading ? "..." : caseStudies.length}+`,
+      label: "Documented Saves",
+    },
     { value: "40+", label: "Years of Trust" },
     { value: "18+", label: "Clinical Units" },
   ];
@@ -603,7 +669,7 @@ export default function CaseStudiesPage() {
                 className="relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-[0_30px_70px_rgba(10,95,122,0.25)] border-4 border-white"
               >
                 <img
-                  src="/images/case-studies/Case-Studies.png"
+                  src="/images/case-studies/Case-Studies.webp"
                   alt="Apollo JBP Hospitals clinical team"
                   className="w-full h-[300px] sm:h-[420px] lg:h-[460px] object-cover"
                 />
@@ -730,14 +796,39 @@ export default function CaseStudiesPage() {
 
         {/* ───── Case Studies Grid ───── */}
         <motion.section
-          key={selectedDept + searchQuery}
+          key={selectedDept + searchQuery + (loading ? "-loading" : "")}
           initial="hidden"
           animate="show"
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-14 sm:mb-16"
         >
           <AnimatePresence mode="wait">
-            {filteredCases.length > 0 ? (
+            {loading ? (
+              <motion.div
+                key="loading"
+                variants={fadeUp}
+                className="text-center py-20 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center gap-3"
+              >
+                <div className="w-10 h-10 border-3 border-[#1D82A6]/20 border-t-[#1D82A6] rounded-full animate-spin" />
+                <p className="text-sm font-semibold text-[#0E526B]">
+                  Loading verified clinical case studies...
+                </p>
+              </motion.div>
+            ) : error ? (
+              <motion.div
+                key="error"
+                variants={fadeUp}
+                className="text-center py-16 bg-white rounded-3xl border border-rose-200 shadow-sm flex flex-col items-center justify-center gap-4"
+              >
+                <p className="text-rose-600 font-semibold">{error}</p>
+                <button
+                  onClick={refetch}
+                  className="px-5 py-2.5 rounded-full bg-[#0E526B] hover:bg-[#0A5F7A] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                >
+                  Retry Loading
+                </button>
+              </motion.div>
+            ) : filteredCases.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 lg:gap-x-7 gap-y-8 sm:gap-y-10 items-stretch w-full max-w-xl mx-auto md:max-w-none">
                 {filteredCases.map((c, i) => (
                   <CaseCard key={c.slug} c={c} index={i} />
@@ -745,6 +836,7 @@ export default function CaseStudiesPage() {
               </div>
             ) : (
               <motion.div
+                key="empty"
                 variants={fadeUp}
                 className="text-center py-16 bg-white rounded-3xl border border-slate-200"
               >

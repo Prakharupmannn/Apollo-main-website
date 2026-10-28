@@ -2,7 +2,7 @@ import AboutContent from "./AboutContent";
 import { brand } from "../../data/about-data";
 
 // Update this to the real production domain before deploying.
-const SITE_URL = "https://apollojbphospitals.com";
+const SITE_URL = "https://apollo-main-website.vercel.app";
 
 export const metadata = {
   title: "About Us | Apollo JBP Hospitals, Jabalpur",

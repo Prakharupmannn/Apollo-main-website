@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ShieldAlert,
   Heart,
@@ -19,8 +20,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export default function CentresOfExcellence({ onOpenAppointmentModal }) {
+export default function CentresOfExcellence() {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const router = useRouter();
 
   const centres = [
     {
@@ -394,10 +397,7 @@ export default function CentresOfExcellence({ onOpenAppointmentModal }) {
                     </div>
 
                     <button
-                      onClick={() =>
-                        onOpenAppointmentModal &&
-                        onOpenAppointmentModal(item.title)
-                      }
+                      onClick={() => router.push("/patientcare/appointment")}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-7 rounded-xl text-xs font-extrabold text-[#3A2B0A] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
                       style={{
                         background:

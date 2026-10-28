@@ -8,7 +8,7 @@ export const specialitiesData = [
     badge: "CoE • Cardiac Sciences",
     stat: "99.2%",
     statLabel: "Surgical Success Rate",
-    image: "/images/Our-Specialities/heart.png",
+    image: "/images/Our-Specialities/heart.webp",
     
     intro: "Comprehensive heart care including advanced interventional cardiology, electrophysiology, heart failure management, and preventive cardiac wellness.",
     services: ["Coronary Angioplasty & Stenting", "Heart Failure Clinic", "24/7 STEMI Emergency Care", "Electrophysiology & Pacemaker"]

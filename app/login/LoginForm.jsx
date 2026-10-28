@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,25 +22,13 @@ import {
   CalendarCheck,
   Stethoscope,
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 import PremiumBackground, { GlowFrame, PHOTOS } from "./PremiumBackground";
 
-const TABS = [
-  { key: "patient", label: "Patient Portal" },
-  { key: "staff", label: "Doctor & Staff" },
-];
-
+// Single login copy (used by everyone: patients, doctors & staff)
 const COPY = {
-  patient: {
-    placeholder: "Enter Email or UHID",
-    sub: "Access your reports, appointments and lifelong clinical history from one secure place.",
-    empty: "Please enter your registered email address or UHID.",
-  },
-  staff: {
-    placeholder: "Enter Employee ID or Official Email",
-    sub: "Sign in with your official hospital credentials to access staff and clinical services.",
-    empty: "Please enter your Employee ID or official email.",
-  },
+  placeholder: "Enter Email, UHID or Employee ID",
+  sub: "Patients, doctors and staff can sign in here to access reports, appointments, clinical history and hospital services from one secure place.",
+  empty: "Please enter your registered email, UHID or Employee ID.",
 };
 
 const CHIPS = [
@@ -90,7 +79,7 @@ function PhotoSlider() {
         style={{ "--i": 0 }}
       >
         <Image
-          src="/images/apollologo.png"
+          src="/images/apollologo.webp"
           alt="Apollo JBP Hospitals"
           width={360}
           height={100}
@@ -137,14 +126,15 @@ function PhotoSlider() {
 }
 
 export default function LoginForm() {
-  const { login } = useAuth();
+  const router = useRouter();
+
+  // const { login } = useAuth();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("patient");
   const [capsLock, setCapsLock] = useState(false);
 
   const [error, setError] = useState("");
@@ -152,7 +142,7 @@ export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const copy = COPY[activeTab];
+  const copy = COPY;
 
   useEffect(() => {
     if (!showHelpModal) return;
@@ -170,18 +160,49 @@ export default function LoginForm() {
     e.preventDefault();
     setError("");
 
-    if (!identifier.trim()) return fail(copy.empty);
-    if (!password) return fail("Please enter your password.");
+    if (!identifier.trim()) {
+      return fail(copy.empty);
+    }
+
+    if (!password) {
+      return fail("Please enter your password.");
+    }
 
     setIsSubmitting(true);
+
     try {
-      await new Promise((r) => setTimeout(r, 700));
-      await login({ identifier: identifier.trim(), password, rememberMe });
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          login: identifier.trim(),
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Invalid login credentials."
+        );
+      }
+
       setIsSuccess(true);
-    } catch {
+
+      router.replace("/admin");
+      router.refresh();
+    } catch (error) {
       setIsSuccess(false);
+      fail(
+        error.message ||
+          "We could not sign you in. Please try again."
+      );
+    } finally {
       setIsSubmitting(false);
-      fail("We could not sign you in. Please check your credentials and try again.");
     }
   };
 
@@ -213,7 +234,7 @@ export default function LoginForm() {
                 <div className="absolute inset-x-0 bottom-3 flex justify-center">
                   <span className="rounded-xl bg-white px-4 py-2 shadow-xl">
                     <Image
-                      src="/images/apollologo.png"
+                      src="/images/apollologo.webp"
                       alt="Apollo JBP Hospitals"
                       width={360}
                       height={100}
@@ -239,32 +260,6 @@ export default function LoginForm() {
                   <p className="apx-stagger mt-3 min-h-[3.75rem] text-sm leading-7 text-slate-500" style={{ "--i": 2 }}>
                     {copy.sub}
                   </p>
-
-                  {/* Underline tabs */}
-                  <div className="apx-stagger relative mt-4 grid grid-cols-2 border-b border-slate-200" role="tablist" aria-label="Sign in role" style={{ "--i": 3 }}>
-                    {TABS.map((t) => (
-                      <button
-                        key={t.key}
-                        type="button"
-                        role="tab"
-                        aria-selected={activeTab === t.key}
-                        onClick={() => {
-                          setActiveTab(t.key);
-                          setError("");
-                        }}
-                        className={`cursor-pointer pb-3 pt-1 text-sm font-semibold transition-colors focus:outline-none focus-visible:text-[#0A5F7A] ${
-                          activeTab === t.key ? "text-[#0A5F7A]" : "text-slate-400 hover:text-slate-700"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                    <span
-                      className={`absolute -bottom-px h-[3px] w-1/2 rounded-full bg-gradient-to-r from-[#0A5F7A] via-[#2AB3D6] to-[#C8952E] transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] ${
-                        activeTab === "patient" ? "left-0" : "left-1/2"
-                      }`}
-                    />
-                  </div>
 
                   {/* Banners */}
                   {error && (

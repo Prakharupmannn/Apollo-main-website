@@ -11,24 +11,20 @@ import {
   useTransform,
 } from "framer-motion";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { centresOfExcellence } from "@/data/centresOfExcellence";
-
-const TOTAL = centresOfExcellence.length;
-const STEP = 30; // degrees between centres on the ring
 const RADIUS = 215;
 const EASE = [0.22, 1, 0.36, 1];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const pad = (n) => String(n).padStart(2, "0");
 
-// Ring positions never change -> compute once, not on every render
-const RING_POSITIONS = centresOfExcellence.map((_, index) => {
-  const radians = ((-90 + index * STEP) * Math.PI) / 180;
+// Calculate ring positions from the number of centres returned by the database.
+function getRingPosition(index, total) {
+  const radians = ((-90 + index * (360 / Math.max(total, 1))) * Math.PI) / 180;
   return {
     left: `${((250 + Math.cos(radians) * RADIUS) / 500) * 100}%`,
     top: `${((250 + Math.sin(radians) * RADIUS) / 500) * 100}%`,
   };
-});
+}
 
 /* Mount only the layout that matches the screen (both render once on the
    server / first paint so there is no hydration mismatch or layout jump). */
@@ -46,26 +42,31 @@ function useIsDesktop() {
   return isDesktop;
 }
 
-export default function CentresJourney() {
+export default function CentresJourney({ centres = [] }) {
   const isDesktop = useIsDesktop();
+
+  if (!Array.isArray(centres) || centres.length === 0) return null;
 
   if (isDesktop === null) {
     return (
       <>
-        <CentresJourneyDesktop />
-        <CentresJourneyMobile />
+        <CentresJourneyDesktop centres={centres} />
+        <CentresJourneyMobile centres={centres} />
       </>
     );
   }
 
-  return isDesktop ? <CentresJourneyDesktop /> : <CentresJourneyMobile />;
+  return isDesktop
+    ? <CentresJourneyDesktop centres={centres} />
+    : <CentresJourneyMobile centres={centres} />;
 }
 
 /* ================================================== */
 /* DESKTOP — sticky scroll-scrub experience (lg and up) */
 /* ================================================== */
 
-function CentresJourneyDesktop() {
+function CentresJourneyDesktop({ centres }) {
+  const total = centres.length;
   const sectionRef = useRef(null);
   const activeRef = useRef(0);
   const reduceMotion = useReducedMotion();
@@ -86,19 +87,20 @@ function CentresJourneyDesktop() {
   const progress = reduceMotion ? scrollYProgress : spring;
 
   // Active centre sits in the middle of its scroll "bin"
+  const step = 360 / Math.max(total, 1);
   const ringRotate = useTransform(
     progress,
-    (v) => -clamp(v * TOTAL - 0.5, 0, TOTAL - 1) * STEP
+    (v) => -clamp(v * total - 0.5, 0, total - 1) * step
   );
   const counterRotate = useTransform(ringRotate, (v) => -v);
 
   const syncIndex = useCallback((latest) => {
-    const index = clamp(Math.floor(latest * TOTAL), 0, TOTAL - 1);
+    const index = clamp(Math.floor(latest * total), 0, total - 1);
     if (index !== activeRef.current) {
       activeRef.current = index;
       setActiveIndex(index);
     }
-  }, []);
+  }, [total]);
 
   useMotionValueEvent(scrollYProgress, "change", syncIndex);
 
@@ -114,21 +116,22 @@ function CentresJourneyDesktop() {
     const sectionTop = section.getBoundingClientRect().top + window.scrollY;
     const scrollable = section.offsetHeight - window.innerHeight;
     // aim at the centre of the centre's bin so it never lands on a boundary
-    const progressTarget = (index + 0.5) / TOTAL;
+    const progressTarget = (index + 0.5) / total;
 
     window.scrollTo({
       top: sectionTop + scrollable * progressTarget,
       behavior: reduceMotion ? "auto" : "smooth",
     });
-  }, [reduceMotion]);
+  }, [reduceMotion, total]);
 
-  const activeCentre = centresOfExcellence[activeIndex];
+  const safeActiveIndex = clamp(activeIndex, 0, total - 1);
+  const activeCentre = centres[safeActiveIndex];
 
   return (
     <section
       ref={sectionRef}
       className="relative hidden bg-[#EDF6FB] lg:block"
-      style={{ height: `${TOTAL * 75 + 25}vh` }}
+      style={{ height: `${total * 75 + 25}vh` }}
       aria-label="Centres of Excellence"
     >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
@@ -204,12 +207,13 @@ function CentresJourneyDesktop() {
                       <circle cx="250" cy="250" r="145" fill="none" stroke="#d5e6ec" strokeWidth="1" strokeDasharray="2 7" />
                     </svg>
 
-                    {centresOfExcellence.map((centre, index) => (
+                    {centres.map((centre, index) => (
                       <RingItem
-                        key={centre.slug}
+                        key={centre.slug || centre.id || index}
                         centre={centre}
                         index={index}
-                        isActive={index === activeIndex}
+                        total={total}
+                        isActive={index === safeActiveIndex}
                         counterRotate={counterRotate}
                         onSelect={goToCentre}
                       />
@@ -270,21 +274,21 @@ function CentresJourneyDesktop() {
                 >
                   {/* All images stacked once -> cross-fade, never a blank/stale frame */}
                   <div className="absolute inset-0 bg-[#dcecf3]">
-                    {centresOfExcellence.map((centre, index) => (
+                    {centres.map((centre, index) => centre.image ? (
                       <Image
-                        key={centre.slug}
+                        key={centre.slug || centre.id || index}
                         src={centre.image}
-                        alt={index === activeIndex ? centre.title : ""}
-                        aria-hidden={index !== activeIndex}
+                        alt={index === safeActiveIndex ? centre.title : ""}
+                        aria-hidden={index !== safeActiveIndex}
                         fill
                         sizes="(min-width: 1024px) 60vw, 100vw"
                         quality={75}
                         priority={index === 0}
                         className={`object-cover transition-opacity duration-700 ease-out ${
-                          index === activeIndex ? "opacity-100" : "opacity-0"
+                          index === safeActiveIndex ? "opacity-100" : "opacity-0"
                         }`}
                       />
-                    ))}
+                    ) : null)}
                   </div>
 
                   {/* Solid on the left (text), clear on the right (image) */}
@@ -297,7 +301,7 @@ function CentresJourneyDesktop() {
                   {/* Text — remounts per centre so it always matches the active one */}
                   <div className="relative z-10 flex h-full flex-col justify-center p-6 lg:p-9">
                     <motion.div
-                      key={activeCentre.slug}
+                      key={activeCentre.slug || activeCentre.id || safeActiveIndex}
                       initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: EASE }}
@@ -307,7 +311,7 @@ function CentresJourneyDesktop() {
                         <span className="font-serif text-2xl italic text-[#C8952E]">
                           {activeCentre.id}
                         </span>
-                        <span className="text-[13px] text-slate-400">/ {pad(TOTAL)}</span>
+                        <span className="text-[13px] text-slate-400">/ {pad(total)}</span>
                         <span className="h-px w-8 bg-[#1D82A6]/20" />
                       </div>
 
@@ -329,7 +333,7 @@ function CentresJourneyDesktop() {
                       </p>
 
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {activeCentre.capabilities.map((capability) => (
+                        {(Array.isArray(activeCentre.capabilities) ? activeCentre.capabilities : []).map((capability) => (
                           <span
                             key={capability}
                             className="inline-flex items-center gap-1.5 rounded-full border border-[#1D82A6]/15 bg-[#EDF6FB]/70 px-3 py-1.5 text-[10px] font-semibold text-[#0B3446]"
@@ -376,21 +380,21 @@ function CentresJourneyDesktop() {
           {/* BOTTOM PROGRESS */}
           <div className="flex shrink-0 items-center gap-7 pt-3">
             <div className="w-[130px] text-[8px] uppercase tracking-[0.2em] text-[#0E526B]/70">
-              <span className="text-[#C8952E]">{pad(activeIndex + 1)}</span> / {pad(TOTAL)} Centres
+              <span className="text-[#C8952E]">{pad(activeIndex + 1)}</span> / {pad(total)} Centres
             </div>
 
             <div className="flex flex-1 items-center">
-              {centresOfExcellence.map((centre, index) => {
-                const active = index === activeIndex;
+              {centres.map((centre, index) => {
+                const active = index === safeActiveIndex;
                 return (
                   <button
-                    key={centre.slug}
+                    key={centre.slug || centre.id || index}
                     type="button"
                     onClick={() => goToCentre(index)}
                     aria-label={`Go to ${centre.title}`}
                     className="group flex flex-1 items-center"
                   >
-                    <span className={`h-[2px] flex-1 transition-colors duration-500 ${index <= activeIndex ? "bg-[#C8952E]" : "bg-[#1D82A6]/15"}`} />
+                    <span className={`h-[2px] flex-1 transition-colors duration-500 ${index <= safeActiveIndex ? "bg-[#C8952E]" : "bg-[#1D82A6]/15"}`} />
                     <span
                       className={`mx-2 flex h-5 min-w-5 items-center justify-center rounded-full border text-[8px] transition-colors duration-300 ${
                         active
@@ -428,11 +432,12 @@ function CentresJourneyDesktop() {
 const RingItem = memo(function RingItem({
   centre,
   index,
+  total,
   isActive,
   counterRotate,
   onSelect,
 }) {
-  const pos = RING_POSITIONS[index];
+  const pos = getRingPosition(index, total);
 
   return (
     <div
@@ -452,7 +457,7 @@ const RingItem = memo(function RingItem({
         >
           {/* label sits to the left of the icon, out of the pivot calculation */}
           <span
-            className={`pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 text-right transition-opacity duration-500 ${
+            className={`pointer-events-none absolute bottom-full left-1/2 mb-3 -translate-x-1/2 text-center transition-opacity duration-500 ${
               isActive ? "opacity-100" : "opacity-65"
             }`}
           >
@@ -483,7 +488,8 @@ const RingItem = memo(function RingItem({
 /* MOBILE / TABLET — normal-flow swipe carousel (below lg) */
 /* ================================================== */
 
-function CentresJourneyMobile() {
+function CentresJourneyMobile({ centres }) {
+  const total = centres.length;
   const trackRef = useRef(null);
   const rafRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -509,12 +515,12 @@ function CentresJourneyMobile() {
       const step = track.children[1].offsetLeft - track.children[0].offsetLeft;
       const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
       const index = atEnd
-        ? TOTAL - 1
-        : clamp(Math.round(track.scrollLeft / step), 0, TOTAL - 1);
+        ? total - 1
+        : clamp(Math.round(track.scrollLeft / step), 0, total - 1);
 
       setActiveIndex((prev) => (prev === index ? prev : index));
     });
-  }, []);
+  }, [total]);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
@@ -542,21 +548,25 @@ function CentresJourneyMobile() {
         onScroll={handleScroll}
         className="relative -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {centresOfExcellence.map((centre, index) => (
+        {centres.map((centre, index) => (
           <article
-            key={centre.slug}
+            key={centre.slug || centre.id || index}
             className="w-[86%] shrink-0 snap-start overflow-hidden rounded-[26px] border border-[#1D82A6]/15 bg-white shadow-[0_16px_40px_rgba(6,32,43,.10)] sm:w-[60%] md:w-[48%]"
           >
             <div className="relative h-48 w-full sm:h-52">
-              <Image
-                src={centre.image}
-                alt={centre.title}
-                fill
-                sizes="(min-width: 768px) 48vw, (min-width: 640px) 60vw, 86vw"
-                quality={70}
-                priority={index === 0}
-                className="object-cover"
-              />
+              {centre.image ? (
+                <Image
+                  src={centre.image}
+                  alt={centre.title}
+                  fill
+                  sizes="(min-width: 768px) 48vw, (min-width: 640px) 60vw, 86vw"
+                  quality={70}
+                  priority={index === 0}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#1D82A6]" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#06202B]/70 via-[#06202B]/10 to-transparent" />
 
               <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-white/90">
@@ -570,7 +580,7 @@ function CentresJourneyMobile() {
 
             <div className="p-5 sm:p-6">
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#C8952E]">
-                {centre.id} <span className="text-slate-400">/ {pad(TOTAL)}</span>
+                {centre.id} <span className="text-slate-400">/ {pad(total)}</span>
               </div>
 
               <h3 className="font-serif text-2xl leading-tight text-[#06202B]">
@@ -586,7 +596,7 @@ function CentresJourneyMobile() {
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
-                {centre.capabilities.slice(0, 3).map((capability) => (
+                {(Array.isArray(centre.capabilities) ? centre.capabilities : []).slice(0, 3).map((capability) => (
                   <span
                     key={capability}
                     className="rounded-full border border-[#1D82A6]/15 bg-[#EDF6FB]/60 px-3 py-1.5 text-[10px] font-semibold text-[#0B3446]"
@@ -611,9 +621,9 @@ function CentresJourneyMobile() {
 
       {/* Dots */}
       <div className="mt-5 flex items-center justify-center gap-2">
-        {centresOfExcellence.map((centre, index) => (
+        {centres.map((centre, index) => (
           <button
-            key={centre.slug}
+            key={centre.slug || centre.id || index}
             type="button"
             onClick={() => scrollToIndex(index)}
             aria-label={`Go to centre ${index + 1}`}

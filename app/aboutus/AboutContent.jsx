@@ -64,7 +64,7 @@ const values = [
 Our nursing and support teams are trained to treat every person with warmth and dignity, whether they're walking in for a routine check-up or facing a difficult diagnosis. Families are kept informed and involved, never left waiting in the dark.
 
 From the moment you enter our doors to the day you're discharged, our goal is simple: make sure you feel seen, heard and cared for — not just treated.`,
-    image: "/images/care.png",
+    image: "/images/care.webp",
     icon: Heart,
   },
   {
@@ -77,7 +77,7 @@ From the moment you enter our doors to the day you're discharged, our goal is si
 We invest in advanced diagnostic and surgical technology across our departments, allowing for more accurate diagnoses, less invasive procedures and faster recoveries wherever possible.
 
 Every treatment plan at Apollo JBP is built around evidence — reviewed, discussed and tailored to the individual patient, rather than a one-size-fits-all approach. Excellence, for us, means getting the details right every single time.`,
-    image: "/images/excellence.png",
+    image: "/images/excellence.webp",
     icon: ShieldCheck,
   },
   {
@@ -90,7 +90,7 @@ Every treatment plan at Apollo JBP is built around evidence — reviewed, discus
 We never recommend a procedure or test that isn't medically necessary. If a second opinion would help you feel confident in a decision, we encourage it.
 
 Billing at Apollo JBP is transparent from the start — no hidden charges, no surprises. Trust isn't something we ask for; it's something we earn through consistent, honest care.`,
-    image: "/images/trust.png",
+    image: "/images/trust.webp",
     icon: Star,
   },
   {
@@ -103,7 +103,7 @@ Billing at Apollo JBP is transparent from the start — no hidden charges, no su
 We work closely with local schools and community organisations to educate people on preventive health — because catching a problem early, or avoiding it altogether, changes lives far more than treating it later.
 
 Our goal is to be more than a hospital people visit when they're unwell — we want to be a partner in helping our community stay healthy, informed and cared for, every day of the year.`,
-    image: "/images/community.png",
+    image: "/images/community.webp",
     icon: Users,
   },
 ];
@@ -716,7 +716,7 @@ function AboutHero({ onOpenAppointmentModal, onFindDoctor }) {
               {/* Image frame */}
               <div className="relative overflow-hidden rounded-[2rem] border-[5px] border-white bg-white shadow-[0_25px_60px_-18px_rgba(15,52,72,0.30)]">
                 <motion.img
-                  src="/images/image.png"
+                  src="/images/image.webp"
                   alt="Apollo JBP Hospitals"
                   className="h-[430px] w-full object-cover sm:h-[500px]"
                   initial={{ scale: 1.08 }}
@@ -2672,7 +2672,7 @@ function Quality() {
 
               <div className="relative overflow-hidden rounded-[1.5rem]">
                 <Image
-                  src="/images/quality.png"
+                  src="/images/quality.webp"
                   alt="Apollo JBP Hospitals quality and patient care"
                   width={800}
                   height={480}
@@ -2790,8 +2790,8 @@ function Quality() {
             {/* ===== Certification seals ===== */}
             <div className="mt-10 flex flex-wrap gap-4">
               {[
-                { label: "Quality", value: "NABH Pathway" },
-                { label: "Laboratory", value: "NABL Pathway" },
+                { label: "Quality", value: "NABH" },
+                { label: "Laboratory", value: "NABL" },
               ].map((cert) => (
                 <div
                   key={cert.label}
@@ -2811,10 +2811,6 @@ function Quality() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[11px] leading-5 text-slate-400">
-              Certification status shown as in-progress — confirm current
-              accreditation with the hospital before publishing.
-            </p>
           </div>
         </div>
       </div>

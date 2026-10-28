@@ -20,14 +20,14 @@ import {
   HeartPulse,
 } from "lucide-react";
 
-import healthData from "../healthLibraryData.json";
+import { getHealthCareArticleBySlug, getHealthCareArticles } from "@/lib/health-care";
 import ShareButton from "./ShareButton";
+
+export const dynamic = "force-dynamic";
 
 const goldStyle = {
   background: "linear-gradient(180deg, #F6D98A 0%, #C8952E 100%)",
 };
-
-const articles = healthData.articles;
 
 const slugify = (t) =>
   t
@@ -35,8 +35,9 @@ const slugify = (t) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const renderInline = (text) =>
-  text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+const renderInline = (text) => {
+  if (typeof text !== "string") return text;
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
     part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
       <strong key={i} className="font-bold text-[#0B3446]">
         {part.slice(2, -2)}
@@ -45,40 +46,80 @@ const renderInline = (text) =>
       <span key={i}>{part}</span>
     ),
   );
+};
 
 function buildBlocks(lines) {
+  if (!Array.isArray(lines)) {
+    if (typeof lines === "string") {
+      lines = lines.split("\n");
+    } else {
+      return [];
+    }
+  }
+
   const blocks = [];
   let list = null;
+
   lines.forEach((l) => {
-    if (l.startsWith("- ")) {
+    if (typeof l !== "string") {
+      if (typeof l === "object" && l !== null) {
+        list = null;
+        blocks.push(l);
+      }
+      return;
+    }
+
+    const trimmed = l.trim();
+    if (!trimmed) return;
+
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       if (!list) {
         list = { type: "list", items: [] };
         blocks.push(list);
       }
-      list.items.push(l.slice(2));
+      list.items.push(trimmed.slice(2));
       return;
     }
+
     list = null;
-    if (l.startsWith("### ")) blocks.push({ type: "h", text: l.slice(4) });
-    else {
-      const m = l.match(/^(\d+)\.\s+(.*)$/);
-      if (m) blocks.push({ type: "num", n: m[1], text: m[2] });
-      else blocks.push({ type: "p", text: l });
+
+    if (trimmed.startsWith("### ")) {
+      blocks.push({ type: "h", text: trimmed.slice(4) });
+    } else if (trimmed.startsWith("## ")) {
+      blocks.push({ type: "h", text: trimmed.slice(3) });
+    } else if (trimmed.startsWith("# ")) {
+      blocks.push({ type: "h", text: trimmed.slice(2) });
+    } else {
+      const m = trimmed.match(/^(\d+)\.\s+(.*)$/);
+      if (m) {
+        blocks.push({ type: "num", n: m[1], text: m[2] });
+      } else {
+        blocks.push({ type: "p", text: trimmed });
+      }
     }
   });
+
   return blocks;
 }
 
 /* ───────── routes ───────── */
 
 export async function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }));
+  try {
+    const { articles } = await getHealthCareArticles();
+    return (articles || []).map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const art = articles.find((a) => a.slug === slug);
-  if (!art) return { title: "Article not found" };
+  if (!slug) return { title: "Article not found | Apollo JBP Hospitals" };
+
+  const art = await getHealthCareArticleBySlug(slug);
+  if (!art) return { title: "Article not found | Apollo JBP Hospitals" };
+
   return {
     title: `${art.title} | Apollo JBP Hospitals`,
     description: art.metaDescription || art.excerpt,
@@ -92,21 +133,28 @@ export async function generateMetadata({ params }) {
 
 export default async function HealthArticlePage({ params }) {
   const { slug } = await params;
-  const art = articles.find((a) => a.slug === slug);
+  if (!slug) notFound();
+
+  const [art, allData] = await Promise.all([
+    getHealthCareArticleBySlug(slug),
+    getHealthCareArticles(),
+  ]);
+
   if (!art) notFound();
 
   const isNews = art.type === "news";
   const blocks = buildBlocks(art.content || []);
   const headings = blocks.filter((b) => b.type === "h");
-  const myCats = art.categories || [art.category];
+  const myCats = art.categories || (art.category ? [art.category] : []);
+  const allArticles = allData.articles || [];
 
-  const related = articles
+  const related = allArticles
     .filter(
       (a) =>
         a.slug !== art.slug &&
         (a.categories || [a.category]).some((c) => myCats.includes(c)),
     )
-    .concat(articles.filter((a) => a.slug !== art.slug))
+    .concat(allArticles.filter((a) => a.slug !== art.slug))
     .filter((a, i, arr) => arr.findIndex((x) => x.slug === a.slug) === i)
     .slice(0, 3);
 

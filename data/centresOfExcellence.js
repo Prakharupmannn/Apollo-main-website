@@ -14,7 +14,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Comprehensive care for digestive, liver, pancreatic and gastrointestinal conditions with advanced diagnostic, endoscopic and surgical treatment options.",
 
-  image: "/images/centres/gastro.png",
+  image: "/images/centres/gastro.webp",
 
   capabilities: [
     "Gastroenterology",
@@ -243,7 +243,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Advanced cancer care covering screening, diagnosis, medical oncology, surgical oncology, radiation oncology, targeted therapy, immunotherapy, palliative care and rehabilitation, supported by advanced PET-CT and LINAC technology.",
 
-  image: "/images/centres/onco.png",
+  image: "/images/centres/onco.webp",
 
   capabilities: [
     "Medical Oncology",
@@ -446,7 +446,7 @@ export const centresOfExcellence = [
         "Brachytherapy",
         "Precision Radiation Therapy",
       ],
-      image: "/images/doctors/shreyas.png",
+      image: "/images/doctors/shreyas.webp",
     },
 
     {
@@ -462,7 +462,7 @@ export const centresOfExcellence = [
         "Minimally Invasive Cancer Surgery",
         "Advanced Surgical Oncology",
       ],
-      image: "/images/doctors/karunakarreddy.png",
+      image: "/images/doctors/karunakarreddy.webp",
     },
 
     {
@@ -820,7 +820,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Expert neurological and neurosurgical care in Mahakoshal, Madhya Pradesh, combining advanced diagnostics, minimally invasive procedures, neurointervention, rehabilitation and long-term neurological management.",
 
-  image: "/images/centres/neuro1.png",
+  image: "/images/centres/neuro1.webp",
 
   capabilities: [
     "Neurology",
@@ -1086,7 +1086,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Specialist kidney care spanning prevention, diagnosis, medical management, advanced dialysis, kidney transplantation, post-transplant care and long-term renal support.",
 
-  image: "/images/centres/nephro.png",
+  image: "/images/centres/nephro.webp",
 
   capabilities: [
     "Nephrology",
@@ -1340,7 +1340,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Comprehensive orthopaedic care for bones, joints and spine with a focus on joint replacement, robotic surgery, arthroscopy, sports injury management, trauma care, minimally invasive spine procedures and rehabilitation.",
 
-  image: "/images/centres/ortho.png",
+  image: "/images/centres/ortho.webp",
 
   capabilities: [
     "Joint Replacement",
@@ -1633,7 +1633,7 @@ export const centresOfExcellence = [
   descriptionn:
     "Focused critical care supported by multidisciplinary expertise, continuous monitoring, advanced life-support systems and coordinated clinical response for critically ill patients.",
 
-  image: "/images/centres/critical-care.png",
+  image: "/images/centres/critical-care.webp",
 
   capabilities: [
     "Intensive Care",

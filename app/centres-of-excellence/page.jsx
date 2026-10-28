@@ -1,8 +1,8 @@
 import Link from "next/link";
 import CentresHero from "@/components/centres/CentresHero";
 import CentresJourney, { CentreIcon } from "@/components/centres/CentresJourney";
-import { centresOfExcellence } from "@/data/centresOfExcellence";
-
+// import { centresOfExcellence } from "@/data/centresOfExcellence";
+import { getActiveCentres } from "@/lib/centres-service";
 export const metadata = {
   title: "Centres of Excellence | Apollo JBP Hospitals Jabalpur",
   description:
@@ -11,7 +11,8 @@ export const metadata = {
 
 const pad = (n) => String(n).padStart(2, "0");
 
-export default function CentresOfExcellencePage() {
+export default async function CentresOfExcellencePage() {
+  const centresOfExcellence = await getActiveCentres();
   return (
     <main className="bg-[#EDF6FB]">
       {/* HERO */}
@@ -19,8 +20,8 @@ export default function CentresOfExcellencePage() {
 
       {/* INTERACTIVE JOURNEY — id + scroll-mt so the hero button lands below the sticky navbar */}
       <div id="centres-journey" className="scroll-mt-[88px]">
-        <CentresJourney />
-      </div>
+  <CentresJourney centres={centresOfExcellence} />
+</div>
 
       {/* BOTTOM CTA */}
       <section className="relative overflow-hidden bg-[#EDF6FB] px-6 pb-20 pt-6 sm:px-10 lg:px-16 lg:pb-28">

@@ -5475,7 +5475,7 @@ export const rawDoctors = [
   specialitySlug: "neurosurgery",
   department: "neuro",
 
-  image: "/images/doctors/karthikayan.png",
+  image: "/images/doctors/karthikayan.webp",
 
   profileUrl:
     "https://apollojbphospitals.com/doctor/expert-neurosurgeon-in-jabalpur/",
@@ -6985,7 +6985,7 @@ export const rawDoctors = [
   specialitySlug: "surgical-oncology",
   department: "onco",
 
-  image: "/images/doctors/karunakarreddy.png",
+  image: "/images/doctors/karunakarreddy.webp",
 
   profileUrl:
     "https://apollojbphospitals.com/doctor/surgical-oncologist-in-jabalpur/",
@@ -8316,7 +8316,7 @@ export const rawDoctors = [
   specialitySlug: "radiation-oncology",
   department: "onco",
 
-  image: "/images/doctors/shreyas.png",
+  image: "/images/doctors/shreyas.webp",
 
   profileUrl:
     "https://apollojbphospitals.com/doctor/cancer-doctor-in-jabalpur/",

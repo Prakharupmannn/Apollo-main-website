@@ -48,7 +48,6 @@ export default function OurSpecialitiesPage() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSpecialtyModal, setActiveSpecialtyModal] = useState(null);
 
   const specialities = [
     {

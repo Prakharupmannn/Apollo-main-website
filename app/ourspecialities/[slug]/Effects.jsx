@@ -179,12 +179,20 @@ export function FaqAccordion({ faqs }) {
 /* Doctor card */
 export function DoctorCard({ doctor }) {
   const [broken, setBroken] = useState(false);
-  const initials = doctor.name
+  const initials = String(doctor?.name || "Dr")
     .replace(/^Dr\.?\s*/i, "")
     .split(" ")
     .map((w) => w[0])
     .slice(0, 2)
-    .join("");
+    .join("") || "DR";
+
+  const languagesList = Array.isArray(doctor?.languages)
+    ? doctor.languages
+    : typeof doctor?.languages === "string" && doctor.languages.trim()
+    ? doctor.languages.split(",").map((l) => l.trim())
+    : ["English", "Hindi"];
+
+  const hasValidImage = Boolean(doctor?.image && String(doctor.image).trim());
 
   return (
     <Tilt className="h-full">
@@ -198,7 +206,7 @@ export function DoctorCard({ doctor }) {
         <div className="bg-white rounded-[calc(1.75rem-2px)] overflow-hidden h-full flex flex-col">
           {/* photo */}
           <div className="relative overflow-hidden bg-gradient-to-br from-[#EAF6FC] to-[#FFF7E8]">
-            {broken ? (
+            {broken || !hasValidImage ? (
               <div className="w-full h-64 flex items-center justify-center">
                 <span
                   className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-black text-[#F6D98A] shadow-xl"
@@ -221,7 +229,7 @@ export function DoctorCard({ doctor }) {
               className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 rounded-full text-[#3A2B0A] shadow-md"
               style={gold}
             >
-              <BadgeCheck className="w-3.5 h-3.5" /> {doctor.experience} Experience
+              <BadgeCheck className="w-3.5 h-3.5" /> {doctor.experience || "10+ Yrs"} Experience
             </span>
           </div>
 
@@ -232,13 +240,13 @@ export function DoctorCard({ doctor }) {
 
             <div className="space-y-2 text-[12px] text-slate-600 mb-4">
               <p className="flex items-start gap-2">
-                <GraduationCap className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {doctor.qualification}
+                <GraduationCap className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {doctor.qualification || "MBBS, Specialist"}
               </p>
               <p className="flex items-start gap-2">
-                <Clock className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {doctor.timings}
+                <Clock className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {doctor.timings || "Mon - Sat • 10:00 AM – 5:00 PM"}
               </p>
               <p className="flex items-start gap-2">
-                <Languages className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {doctor.languages.join(", ")}
+                <Languages className="w-4 h-4 text-[#1D82A6] shrink-0 mt-0.5" /> {languagesList.join(", ")}
               </p>
             </div>
 
