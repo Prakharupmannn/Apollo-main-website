@@ -19,8 +19,7 @@ export default function useSpecialties() {
       try {
         setLoading(true);
         setError(null);
-
-<<<<<<< HEAD
+        
         const response = await fetch("/api/specialties", {
           method: "GET",
           headers: {
@@ -29,9 +28,9 @@ export default function useSpecialties() {
           signal: controller.signal,
           cache: "no-store",
         });
-=======
+
         const apiUrl = "/api/specialties";
->>>>>>> 06342905fca5f645c90d2ebf79d1c1eaab352ee9
+
 
         console.log("[Specialties] Request started:", {
           url: apiUrl,
@@ -66,12 +65,12 @@ export default function useSpecialties() {
           );
         }
 
-<<<<<<< HEAD
+
         const result = await response.json();
-=======
+
         // Read response body once, even for non-2xx responses.
         const responseText = await response.text();
->>>>>>> 06342905fca5f645c90d2ebf79d1c1eaab352ee9
+
 
         let result = null;
 
