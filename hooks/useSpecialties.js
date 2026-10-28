@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import apiClient from "@/lib/api-client";
 
 export default function useSpecialties() {
   const [specialties, setSpecialties] = useState([]);
@@ -21,25 +20,31 @@ export default function useSpecialties() {
         setLoading(true);
         setError(null);
 
-        const response = await apiClient.get("/api/specialties", {
-          signal: controller.signal,
-        });
+        const response = await fetch("/api/specialties", {
+  method: "GET",
+  headers: {
+    "x-api-key": "apollo54321",
+  },
+  signal: controller.signal,
+  cache: "no-store",
+});
 
-        const result = response.data;
+        if (!response.ok) {
+          throw new Error("Failed to fetch specialties.");
+        }
+
+        const result = await response.json();
+        console.log("specialty",result.data)
 
         if (!result.success || !Array.isArray(result.data)) {
-          throw new Error(result.message || "Invalid specialties response.");
+          throw new Error("Invalid specialties response.");
         }
 
         setSpecialties(result.data);
       } catch (err) {
-        if (!controller.signal.aborted) {
+        if (err.name !== "AbortError") {
           console.error("Specialties API error:", err);
-          setError(
-            err.response?.data?.message ||
-              err.message ||
-              "Unable to load specialties."
-          );
+          setError(err.message || "Unable to load specialties.");
         }
       } finally {
         if (!controller.signal.aborted) {
