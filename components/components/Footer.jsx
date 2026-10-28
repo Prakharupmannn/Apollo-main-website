@@ -62,19 +62,23 @@ const LEGAL_LINKS = [
   { label: "Terms of Use", href: "/terms-of-service" },
 ];
 
-const YEAR = new Date().getFullYear();
-
+/* Full-width on phones, auto width from sm+, stays one line on xl pill */
 const BOOK_BTN =
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-xs font-bold text-slate-950 " +
+  "inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-xs font-bold text-slate-950 sm:w-auto sm:flex-1 xl:flex-none " +
   "bg-gradient-to-b from-[#F7D26B] to-[#D9A02B] shadow-[0_4px_14px_rgba(217,160,43,0.4)] " +
   "transition hover:-translate-y-px hover:brightness-110 active:translate-y-0 " +
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+
+const EMERGENCY_BTN =
+  "inline-flex w-full shrink-0 items-center justify-center gap-2.5 whitespace-nowrap rounded-full bg-gradient-to-b from-[#FF6B6B] to-[#E5383B] px-5 py-3 text-xs font-bold text-white " +
+  "shadow-[0_4px_18px_rgba(255,80,80,0.55)] transition hover:brightness-110 sm:w-auto sm:flex-1 xl:flex-none " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
 /* ---------- Small reusable pieces ---------- */
 
 const FooterLinkList = memo(function FooterLinkList({ title, links }) {
   return (
-    <nav aria-label={title}>
+    <nav aria-label={title} className="min-w-0">
       <h4 className="font-serif-apollo text-sm font-bold tracking-wide text-white">
         {title}
       </h4>
@@ -84,7 +88,7 @@ const FooterLinkList = memo(function FooterLinkList({ title, links }) {
           <li key={l.label}>
             <Link
               href={l.href}
-              className="group inline-flex items-center gap-1.5 transition-colors hover:text-white"
+              className="group inline-flex items-center gap-1.5 py-0.5 transition-colors hover:text-white"
             >
               <ChevronRight
                 aria-hidden="true"
@@ -121,7 +125,7 @@ export default function Footer({ onOpenAppointmentModal }) {
   return (
     <footer
       id="footer"
-      className="relative overflow-hidden bg-gradient-to-br from-[#0E526B] via-[#087F9C] to-[#16A6C5] text-white"
+      className="relative w-full overflow-hidden bg-gradient-to-br from-[#0E526B] via-[#087F9C] to-[#16A6C5] text-white"
     >
       {/* ---- Background layers: all GPU-cheap (gradients only, no big blurs) ---- */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -158,7 +162,7 @@ export default function Footer({ onOpenAppointmentModal }) {
             src="/images/apollo-hospital-image.webp"
             alt=""
             fill
-            sizes="42vw"
+            sizes="(min-width: 1024px) 42vw, 0px"
             quality={60}
             loading="lazy"
             className="object-cover object-right opacity-30 mix-blend-luminosity"
@@ -166,27 +170,28 @@ export default function Footer({ onOpenAppointmentModal }) {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8">
         {/* ================= Floating action banner ================= */}
+        {/* Stacks on phone + tablet + small laptop, becomes a single pill at xl */}
         <section
           aria-label="Hospital highlights"
-          className="rounded-3xl border border-white/30 bg-white/15 p-4 shadow-[0_20px_50px_-12px_rgba(3,30,45,0.55)] backdrop-blur-md sm:p-5 lg:rounded-full lg:py-3 lg:pl-6 lg:pr-3"
+          className="rounded-3xl border border-white/30 bg-white/20 p-4 shadow-[0_20px_50px_-12px_rgba(3,30,45,0.55)] sm:bg-white/15 sm:p-5 sm:backdrop-blur-md xl:rounded-full xl:py-3 xl:pl-6 xl:pr-3"
         >
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between xl:gap-6">
             {/* Slogan */}
             <div className="flex items-center gap-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#16A6C5]/25 ring-1 ring-[#16A6C5]/60">
                 <HeartPulse aria-hidden="true" className="h-5 w-5 text-[#7FE3F5]" />
               </span>
-              <p className="font-serif-apollo text-lg font-bold leading-snug sm:text-xl lg:max-w-[16rem] lg:text-[17px]">
+              <p className="font-serif-apollo text-base font-bold leading-snug min-[400px]:text-lg sm:text-xl xl:max-w-[16rem] xl:text-[17px]">
                 Touching Lives, Healing Hearts, Creating Hope
               </p>
             </div>
 
             {/* Metrics */}
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:flex lg:gap-5">
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:flex xl:gap-5">
               {METRICS.map(({ icon: Icon, value, label }) => (
-                <li key={label} className="flex items-center gap-2.5">
+                <li key={label} className="flex min-w-0 items-center gap-2.5">
                   <Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#7FE3F5]" />
                   <span className="text-[11px] leading-tight text-cyan-50/90">
                     <b className="block text-sm text-white">{value}</b>
@@ -197,11 +202,8 @@ export default function Footer({ onOpenAppointmentModal }) {
             </ul>
 
             {/* CTAs */}
-            <div className="flex flex-row flex-nowrap items-center gap-2">
-              <a
-                href="tel:1800-123-6666"
-                className="inline-flex shrink-0 items-center justify-center gap-2.5 whitespace-nowrap rounded-full bg-gradient-to-b from-[#FF6B6B] to-[#E5383B] px-5 py-3 text-xs font-bold text-white shadow-[0_4px_18px_rgba(255,80,80,0.55)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >
+            <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center xl:w-auto">
+              <a href="tel:1800-123-6666" className={EMERGENCY_BTN}>
                 <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75 motion-reduce:animate-none" />
                   <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
@@ -224,10 +226,10 @@ export default function Footer({ onOpenAppointmentModal }) {
           </div>
         </section>
 
-        {/* ================= Main 4-column grid ================= */}
-        <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        {/* ================= Main grid: 1 col phone / 2 col tablet / 4 col desktop ================= */}
+        <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-10 sm:py-12 lg:grid-cols-4 lg:gap-8">
           {/* 1. Brand */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3">
               <Image
                 src="/images/apollologo.webp"
@@ -235,9 +237,9 @@ export default function Footer({ onOpenAppointmentModal }) {
                 width={160}
                 height={40}
                 style={{ width: "auto" }}
-                className="h-10 w-auto rounded-xl bg-white p-1.5 object-contain shadow-md"
+                className="h-10 w-auto shrink-0 rounded-xl bg-white p-1.5 object-contain shadow-md"
               />
-              <span className="font-serif-apollo text-lg font-bold leading-tight">
+              <span className="font-serif-apollo text-base font-bold leading-tight min-[400px]:text-lg">
                 Apollo JBP Hospitals
                 <small className="block text-[10px] font-semibold tracking-widest text-[#7FE3F5]">
                   JABALPUR
@@ -245,7 +247,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </span>
             </div>
 
-            <p className="max-w-xs text-[13px] leading-relaxed text-cyan-50/85">
+            <p className="max-w-xs text-[13px] leading-relaxed text-cyan-50/85 sm:max-w-md lg:max-w-xs">
               A multi-specialty tertiary care centre offering advanced cardiac,
               oncology, robotic joint replacement and neuro-trauma care.
             </p>
@@ -253,7 +255,9 @@ export default function Footer({ onOpenAppointmentModal }) {
             <address className="space-y-2.5 text-[13px] not-italic text-cyan-50/90">
               <p className="flex items-start gap-2.5">
                 <MapPin aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#7FE3F5]" />
-                Global Square, Patan Road, Karmeta, Jabalpur, MP 482002
+                <span className="min-w-0">
+                  Global Square, Patan Road, Karmeta, Jabalpur, MP 482002
+                </span>
               </p>
               <p className="flex items-center gap-2.5">
                 <PhoneCall aria-hidden="true" className="h-4 w-4 shrink-0 text-[#7FE3F5]" />
@@ -261,9 +265,12 @@ export default function Footer({ onOpenAppointmentModal }) {
                   +91 7566 123666
                 </a>
               </p>
-              <p className="flex items-center gap-2.5 break-all">
+              <p className="flex items-center gap-2.5">
                 <Mail aria-hidden="true" className="h-4 w-4 shrink-0 text-[#7FE3F5]" />
-                <a href="mailto:Connect@apollojbphospitals.com" className="hover:text-white">
+                <a
+                  href="mailto:Connect@apollojbphospitals.com"
+                  className="min-w-0 break-all hover:text-white"
+                >
                   Connect@apollojbphospitals.com
                 </a>
               </p>
@@ -277,7 +284,7 @@ export default function Footer({ onOpenAppointmentModal }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className={`grid h-9 w-9 place-items-center rounded-full text-white shadow-md ring-1 ring-white/30 transition hover:-translate-y-0.5 hover:scale-105 ${bg}`}
+                    className={`grid h-10 w-10 place-items-center rounded-full text-white shadow-md ring-1 ring-white/30 transition hover:-translate-y-0.5 hover:scale-105 sm:h-9 sm:w-9 ${bg}`}
                   >
                     <Icon aria-hidden="true" className="h-4 w-4" />
                   </a>
@@ -293,7 +300,7 @@ export default function Footer({ onOpenAppointmentModal }) {
           <FooterLinkList title="Key Services" links={SERVICE_LINKS} />
 
           {/* 4. Newsletter + accreditation */}
-          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+          <div className="min-w-0 space-y-4 sm:col-span-2 lg:col-span-1">
             <div>
               <h4 className="font-serif-apollo text-sm font-bold tracking-wide">
                 Health Newsletter
@@ -315,7 +322,7 @@ export default function Footer({ onOpenAppointmentModal }) {
             ) : (
               <form
                 onSubmit={handleSubscribe}
-                className="flex items-center rounded-full border border-white/30 bg-white/15 p-1 backdrop-blur-md focus-within:border-white/70"
+                className="flex w-full max-w-md items-center rounded-full border border-white/30 bg-white/15 p-1 focus-within:border-white/70 sm:backdrop-blur-md lg:max-w-none"
               >
                 <input
                   type="email"
@@ -325,7 +332,8 @@ export default function Footer({ onOpenAppointmentModal }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email address"
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-white placeholder-cyan-50/60 focus:outline-none"
+                  /* 16px on mobile prevents iOS auto-zoom on focus */
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-white placeholder-cyan-50/60 focus:outline-none sm:text-xs"
                 />
                 <button
                   type="submit"
@@ -336,7 +344,7 @@ export default function Footer({ onOpenAppointmentModal }) {
               </form>
             )}
 
-            <div className="flex items-center gap-3 rounded-2xl border border-emerald-300/40 bg-emerald-500/15 p-3 shadow-[0_0_24px_rgba(52,211,153,0.35)]">
+            <div className="flex max-w-md items-center gap-3 rounded-2xl border border-emerald-300/40 bg-emerald-500/15 p-3 shadow-[0_0_24px_rgba(52,211,153,0.35)] lg:max-w-none">
               <ShieldCheck aria-hidden="true" className="h-8 w-8 shrink-0 text-emerald-300" />
               <p className="text-[11px] leading-snug text-emerald-50/90">
                 <b className="block text-[13px] text-white">NABH &amp; NABL Accredited</b>
@@ -348,7 +356,7 @@ export default function Footer({ onOpenAppointmentModal }) {
       </div>
 
       {/* ================= Bottom legal strip ================= */}
-      <div className="relative z-10 bg-[#07384B] border-t border-white/10">
+      <div className="relative z-10 border-t border-white/10 bg-[#07384B] pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-cyan-50/75 sm:px-6 md:flex-row md:text-left lg:px-8">
           <p>© 2025 Apollo JBP Hospitals Jabalpur. All rights reserved.</p>
 
