@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { validateApiKey } from "../../../lib/api-auth.js";
@@ -5,13 +6,15 @@ import { validateApiKey } from "../../../lib/api-auth.js";
 export const dynamic = "force-dynamic";
 
 export async function GET(request) {
-  const authError = validateApiKey(request);
-
-  if (authError) {
-    return authError;
-  }
-
   try {
+    // Validate API key
+    const authError = validateApiKey(request);
+
+    if (authError) {
+      return authError;
+    }
+
+    // Read query parameters
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
 
@@ -36,8 +39,10 @@ export async function GET(request) {
         faqs
       FROM events
     `;
+
     const params = [];
 
+    // Fetch a specific event by slug
     if (slug) {
       query += ` WHERE slug = ?`;
       params.push(slug);
@@ -45,8 +50,10 @@ export async function GET(request) {
 
     query += ` ORDER BY id DESC`;
 
+    // Execute database query
     const [rows] = await pool.execute(query, params);
 
+    // Parse JSON fields safely
     const events = rows.map((event) => ({
       ...event,
       doctor: parseJson(event.doctor),
@@ -56,24 +63,30 @@ export async function GET(request) {
       faqs: parseJson(event.faqs),
     }));
 
-    return NextResponse.json({
-      success: true,
-      count: events.length,
-      events,
-    });
+    // Return successful response
+    return NextResponse.json(
+      {
+        success: true,
+        count: events.length,
+        events,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("GET /api/events error:", error);
 
+    // Handle unexpected errors
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to fetch events.",
+        message: "Failed to fetch events. Please try again later.",
       },
       { status: 500 }
     );
   }
 }
 
+// Safely parse JSON values
 function parseJson(value) {
   if (value == null) return value;
 
@@ -81,7 +94,8 @@ function parseJson(value) {
 
   try {
     return JSON.parse(value);
-  } catch {
+  } catch (error) {
+    console.error("Failed to parse event JSON field:", error);
     return value;
   }
 }
