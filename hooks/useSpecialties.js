@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import apiClient from "@/lib/api-client";
+import axios from "axios";
 
 export default function useSpecialties() {
   const [specialties, setSpecialties] = useState([]);
@@ -21,8 +21,8 @@ export default function useSpecialties() {
         setLoading(true);
         setError(null);
 
-        // Added headers here
-        const response = await apiClient.get("/api/specialties", {
+        // Using axios directly with the base URL (if needed) and headers
+        const response = await axios.get("/api/specialties", {
           signal: controller.signal,
           headers: {
             "x-api-key": "apollo54321",
