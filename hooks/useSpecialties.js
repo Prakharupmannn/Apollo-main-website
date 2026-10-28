@@ -21,8 +21,12 @@ export default function useSpecialties() {
         setLoading(true);
         setError(null);
 
+        // Added headers here
         const response = await apiClient.get("/api/specialties", {
           signal: controller.signal,
+          headers: {
+            "x-api-key": "apollo54321",
+          },
         });
 
         const result = response.data;
