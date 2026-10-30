@@ -1567,14 +1567,6 @@ export default function HeroSection({
           ))}
           <Link
             href="/patientcare/appointment"
-            onClick={
-              onOpenAppointmentModal
-                ? (e) => {
-                    e.preventDefault();
-                    onOpenAppointmentModal();
-                  }
-                : undefined
-            }
             className="group flex min-h-[50px] sm:min-h-[58px] items-center justify-center gap-2.5 sm:gap-3 rounded-xl bg-gradient-to-r from-[#f6c453] to-[#e9a92b] px-5 sm:px-7 text-[13px] sm:text-sm font-semibold text-[#3a2600] shadow-[0_8px_24px_rgba(233,169,43,.35)] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:col-span-3 lg:col-span-1"
           >
             <CalendarDays className="h-4 w-4" />
