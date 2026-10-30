@@ -265,7 +265,7 @@ function HeroLive({
     "M0 100 H180 l20 -10 l20 10 H330 l15 20 l25 -90 l25 130 l20 -60 H520 l20 -12 l30 12 H720 l15 20 l25 -90 l25 130 l20 -60 H900 l20 -10 l20 10 H1200";
 
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white mt-6 pb-28 sm:pb-32">
+    <section className="relative isolate overflow-hidden bg-gradient-to-tr from-[#0A5F7A] via-[#2A8FAF] to-[#17627D] text-white mt-2 pb-28 sm:pb-32">
       {/* ambient light */}
       <div className="absolute -top-32 right-[8%] w-[34rem] h-[34rem] rounded-full bg-[#F6D98A]/25 blur-3xl hx-breathe pointer-events-none" />
       <div className="absolute -bottom-40 -left-32 w-[34rem] h-[34rem] rounded-full bg-[#0B3446]/50 blur-3xl pointer-events-none" />
@@ -1229,7 +1229,7 @@ export default function HealthLibraryContent({
   };
 
   return (
-    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-38 pb-20 selection:bg-[#1D82A6] selection:text-white">
+    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-30 pb-20 selection:bg-[#1D82A6] selection:text-white">
       {/* ───── Scoped animations ───── */}
       <style jsx>{`
         @keyframes hlMarquee {
@@ -1379,7 +1379,7 @@ export default function HealthLibraryContent({
 
       <div className="relative z-10">
         {/* ───── Top Live Ticker Banner ───── */}
-        <div className="bg-gradient-to-r from-[#0B3446] via-[#0E526B] to-[#0B3446] text-white py-2.5 px-4 overflow-hidden border-b border-[#C8952E]/50 shadow-lg">
+        <div className="bg-gradient-to-r from-[#0B3446] via-[#0E526B] to-[#0B3446] text-white py-2 px-4 overflow-hidden border-b border-[#C8952E]/50 shadow-lg">
           <div className="max-w-7xl mx-auto flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 text-white font-black text-[10px] tracking-wider uppercase shrink-0 shadow-[0_0_18px_rgba(244,63,94,0.55)]">
               <Radio className="w-3 h-3 animate-pulse" />
