@@ -221,14 +221,7 @@ export default function OurSpecialitiesPage() {
 
   const arrowBtn =
     "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-[#3A2B0A] shadow-[0_12px_30px_rgba(200,149,46,0.45)] hover:scale-110 active:scale-95 transition-transform";
-
-  if (loading) {
-    return (
-      <main className="min-h-screen pt-28 flex items-center justify-center">
-        <p className="text-slate-500 font-semibold">Loading specialities...</p>
-      </main>
-    );
-  }
+  
   
   if (error) {
     return (
