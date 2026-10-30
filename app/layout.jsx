@@ -1,6 +1,8 @@
 import { Fraunces, Manrope, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import { Suspense } from "react";
+import NavigationLoader from "../components/NavigationLoader";
 import SiteShell from "../components/components/SiteShell";
 
 const fraunces = Fraunces({
@@ -72,6 +74,9 @@ export default function RootLayout({ children }) {
         className="font-sans bg-[#FAF7F2] text-gray-900 antialiased selection:bg-[#C69A48] selection:text-white"
       >
         <AuthProvider>
+          <Suspense fallback={null}>
+            <NavigationLoader />
+          </Suspense>
           <SiteShell>{children}</SiteShell>
         </AuthProvider>
       </body>
