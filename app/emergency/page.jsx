@@ -160,7 +160,7 @@ export default function EmergencyPage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-28 pb-20 selection:bg-rose-500 selection:text-white overflow-hidden">
+    <main className="relative min-h-screen bg-[#EDF6FB] text-slate-900 pt-30 pb-20 selection:bg-rose-500 selection:text-white overflow-hidden">
       {/* ───── Scoped ambient styling ───── */}
       <style jsx>{`
         .ep-orb {
