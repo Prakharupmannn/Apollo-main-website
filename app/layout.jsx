@@ -27,7 +27,7 @@ const deva = Noto_Sans_Devanagari({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://apollojbphospitals.com"),
+  metadataBase: new URL("https://www.apollohospitalsjbp.com"),
   title: "Apollo Hospitals | Expert Care for a Healthier Tomorrow",
   description:
     "Apollo Hospitals - Advanced Healthcare, Trusted by Millions, For Every Stage of Life. Book Appointments, Find Doctors, Emergency 24/7 Care & Centres of Excellence.",
@@ -40,6 +40,14 @@ export const metadata = {
     "Emergency Care 1066",
     "Health Checkup",
   ],
+  icons: {
+    icon: [
+      { url: "/apollologo.webp", type: "image/webp" },
+      { url: "/images/apollologo.webp", type: "image/webp" },
+    ],
+    shortcut: "/apollologo.webp",
+    apple: "/apollologo.webp",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -51,6 +59,9 @@ export default function RootLayout({ children }) {
       className={`${fraunces.variable} ${manrope.variable} ${deva.variable} scroll-smooth`}
     >
       <head>
+        <link rel="icon" href="/apollologo.webp" type="image/webp" />
+        <link rel="shortcut icon" href="/apollologo.webp" type="image/webp" />
+        <link rel="apple-touch-icon" href="/apollologo.webp" />
         <link
           rel="preconnect"
           href="https://images.unsplash.com"
