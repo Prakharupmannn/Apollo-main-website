@@ -196,8 +196,6 @@ export default async function DoctorsPage({ searchParams }) {
     getDoctors(),
     getActiveSpecialties(),
   ]);
-  console.log("rawDoctors", rawDoctors);
-  console.log("dbSpecialties", dbSpecialties);
 
   const specialties = [
     {
