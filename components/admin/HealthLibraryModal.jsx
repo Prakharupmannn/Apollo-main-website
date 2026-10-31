@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Plus, Trash2, ImageIcon } from "lucide-react";
+import { X, Plus, Trash2, ImageIcon, Upload } from "lucide-react";
+import FileUpload from "./FileUpload";
 
 /* ───────── helpers ───────── */
 
@@ -314,31 +315,17 @@ export default function HealthLibraryModal({
           <Section n="1" title="Basic Information">
             <div className="grid gap-5 md:grid-cols-[170px_1fr]">
               <div>
-                <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#BFD6DF] bg-[#F4FAFC]">
-                  {f.image && imgOk ? (
-                    <img
-                      src={f.image}
-                      alt=""
-                      onError={() => setImgOk(false)}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-center text-[#71858E]">
-                      <ImageIcon className="mx-auto h-7 w-7 text-[#0E526B]" />
-                      <p className="mt-2 text-[11px] font-semibold">
-                        Image preview
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <Field label="Image URL" className="mt-3">
-                  <input
-                    {...text("image")}
-                    onInput={() => setImgOk(true)}
-                    placeholder="https://… or /images/…"
-                    className={inputCls}
-                  />
-                </Field>
+                <FileUpload
+                  value={f.image}
+                  onChange={(url) => {
+                    setF((p) => ({ ...p, image: url }));
+                    setImgOk(true);
+                  }}
+                  folder="health-library"
+                  label="Article Image"
+                  placeholder="https://... or upload image"
+                  aspectRatio="aspect-[4/5]"
+                />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

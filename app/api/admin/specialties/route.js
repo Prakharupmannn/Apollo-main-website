@@ -1,3 +1,4 @@
+import { deleteFromBlob } from "@/lib/blob";
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
@@ -206,6 +207,16 @@ export async function DELETE(request) {
           },
           { status: 409 }
         );
+    }
+
+    // Clean up associated Vercel Blob image if any
+    try {
+      const [existing] = await pool.execute("SELECT image FROM specialties WHERE id = ? LIMIT 1", [dbId]);
+      if (existing.length > 0 && existing[0].image) {
+        await deleteFromBlob(existing[0].image).catch(() => {});
+      }
+    } catch (e) {
+      console.warn("Error cleaning up specialty blob:", e.message);
     }
 
     await pool.execute("DELETE FROM specialties WHERE id = ?", [dbId]);

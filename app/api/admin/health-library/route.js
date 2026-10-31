@@ -1,3 +1,4 @@
+import { deleteFromBlob } from "@/lib/blob";
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
@@ -262,6 +263,22 @@ export async function DELETE(request) {
         { success: false, message: "Article ID is required." },
         { status: 400 },
       );
+
+    // Clean up associated Vercel Blob assets if any
+    try {
+      const [existing] = await pool.execute("SELECT image, documents FROM `health-care` WHERE id = ? LIMIT 1", [dbId]);
+      if (existing.length > 0) {
+        if (existing[0].image) await deleteFromBlob(existing[0].image).catch(() => {});
+        const docs = parseJson(existing[0].documents);
+        if (Array.isArray(docs)) {
+          for (const doc of docs) {
+            if (doc?.url) await deleteFromBlob(doc.url).catch(() => {});
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Error cleaning up article blobs:", e.message);
+    }
 
     await pool.execute("DELETE FROM `health-care` WHERE id = ?", [dbId]);
 

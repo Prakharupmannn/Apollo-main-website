@@ -472,6 +472,15 @@ export default function ResourcePage({
                     placeholder={f.placeholder}
                     className={inputCls}
                   />
+                ) : f.name === "image" || f.type === "image" ? (
+                  <FileUpload
+                    value={editing.form[f.name] ?? ""}
+                    onChange={(url) => setField(f.name, url)}
+                    folder={String(config.singular || "banners").toLowerCase().replace(/\s+/g, "-")}
+                    label={`Upload ${f.label || "Image"}`}
+                    placeholder={f.placeholder || "https://… or upload image"}
+                    aspectRatio="aspect-video"
+                  />
                 ) : (
                   <input
                     id={`f-${f.name}`}

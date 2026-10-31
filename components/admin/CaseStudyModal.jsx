@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Plus, Trash2, ImageIcon } from "lucide-react";
+import { X, Plus, Trash2, ImageIcon, Upload, Loader2 } from "lucide-react";
+import FileUpload from "./FileUpload";
 
 /* ───────── helpers ───────── */
 
@@ -394,7 +395,7 @@ export default function CaseStudyModal({
         onClick={onClose}
       />
 
-      <div className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_40px_100px_-20px_rgba(6,32,43,.55)]">
+     <div className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_40px_100px_-20px_rgba(6,32,43,.55)]">
         <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-[#0E526B] via-[#3C93AE] to-[#E1B54A]" />
 
         {/* header */}
@@ -423,24 +424,22 @@ export default function CaseStudyModal({
         {/* body */}
         <div className="flex-1 space-y-5 overflow-y-auto bg-[#F4F9FB] px-7 py-5 [scrollbar-color:#C9D9DF_transparent] [scrollbar-width:thin]">
           {/* 1 */}
-          <Section n="1" title="Basic Information">
+          <Section n="1" title="Case Study Information">
             <div className="grid gap-5 md:grid-cols-[170px_1fr]">
-              <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#BFD6DF] bg-[#F4FAFC]">
-                {cover && !badImg ? (
-                  <img
-                    src={cover}
-                    alt=""
-                    onError={() => setBadImg(true)}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center text-[#71858E]">
-                    <ImageIcon className="mx-auto h-7 w-7 text-[#0E526B]" />
-                    <p className="mt-2 text-[11px] font-semibold">
-                      Cover preview
-                    </p>
-                  </div>
-                )}
+              <div>
+                <FileUpload
+                  value={f.images[0] || ""}
+                  onChange={(url) => {
+                    setF((p) => {
+                      const rest = p.images.slice(1);
+                      return { ...p, images: url ? [url, ...rest] : rest };
+                    });
+                  }}
+                  folder="case-studies"
+                  label="Cover Photo"
+                  placeholder="https://... or upload cover"
+                  aspectRatio="aspect-[4/5]"
+                />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -656,15 +655,45 @@ export default function CaseStudyModal({
               <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#0E526B]">
                 Gallery
               </h4>
-              <button
-                type="button"
-                onClick={() =>
-                  setF((p) => ({ ...p, images: [...p.images, ""] }))
-                }
-                className={addBtn}
-              >
-                <Plus className="h-3.5 w-3.5" /> Add Image
-              </button>
+              <div className="flex items-center gap-2">
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#0E526B] px-3 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0B4258]">
+                  <Upload className="h-3.5 w-3.5" /> Upload to Blob
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (!files.length) return;
+                      for (const file of files) {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        fd.append("folder", "case-studies");
+                        try {
+                          const res = await fetch("/api/admin/uploads", { method: "POST", body: fd });
+                          const data = await res.json();
+                          if (data.success && data.data?.url) {
+                            setF((p) => ({ ...p, images: [...p.images.filter(Boolean), data.data.url] }));
+                          }
+                        } catch (err) {
+                          console.error("Gallery upload error:", err);
+                        }
+                      }
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setF((p) => ({ ...p, images: [...p.images, ""] }))
+                  }
+                  className={addBtn}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add URL
+                </button>
+              </div>
             </div>
             {f.images.length === 0 ? (
               <p className={emptyCls}>No images added yet.</p>

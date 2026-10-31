@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile, unlink } from "node:fs/promises";
+import { uploadToBlob, deleteFromBlob } from "@/lib/blob";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 const experiences = new Set([
   "Fresher",
@@ -27,12 +26,10 @@ const mimeTypes = {
   ],
 };
 
-const uploadDir = path.join(process.cwd(), "private-uploads", "resumes");
-
 const bad = (message, status = 400) =>
   NextResponse.json({ message }, { status });
 
-// 📥 1. GET Request: Fetches all applications for your frontend dashboard
+// 📥 1. GET Request: Fetches all applications for the admin dashboard
 export async function GET(request) {
   try {
     const apiKey = request.headers.get("x-api-key");
@@ -59,14 +56,18 @@ export async function GET(request) {
   }
 }
 
+// 📤 2. POST Request: Submit candidate application with Vercel Blob Storage
 export async function POST(request) {
-  let savedPath;
+  let uploadedBlobUrl = null;
 
   try {
     // 🔒 API Key Authentication Check
     const apiKey = request.headers.get("x-api-key");
     if (apiKey !== "apollo54321") {
-      return NextResponse.json({ message: "Unauthorized: Invalid or missing API key." }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized: Invalid or missing API key." },
+        { status: 401 }
+      );
     }
 
     const data = await request.formData();
@@ -81,8 +82,9 @@ export async function POST(request) {
     const consent = data.get("dataConsent");
     const resume = data.get("resume");
 
-    if (!jobId || !jobTitle || !name || !email || !phone || !exp)
+    if (!jobId || !jobTitle || !name || !email || !phone || !exp) {
       return bad("Please complete all required fields.");
+    }
 
     if (
       jobId.length > 100 ||
@@ -91,57 +93,77 @@ export async function POST(request) {
       email.length > 255 ||
       phone.length > 20 ||
       notes.length > 10000
-    )
+    ) {
       return bad("One or more fields are too long.");
+    }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return bad("Please enter a valid email address.");
+    }
 
-    if (!/^[0-9+\-()\s]{7,20}$/.test(phone))
+    if (!/^[0-9+\-()\s]{7,20}$/.test(phone)) {
       return bad("Please enter a valid phone number.");
+    }
 
-    if (!experiences.has(exp))
+    if (!experiences.has(exp)) {
       return bad("Please select a valid experience level.");
+    }
 
-    if (consent !== "true") return bad("Please accept the data consent.");
+    if (consent !== "true") {
+      return bad("Please accept the data consent.");
+    }
 
     if (
       !resume ||
       typeof resume === "string" ||
       typeof resume.arrayBuffer !== "function" ||
       resume.size === 0
-    )
+    ) {
       return bad("Please attach your resume.");
+    }
 
-    if (resume.size > MAX_FILE_SIZE)
-      return bad("Resume must not exceed 5 MB.");
+    if (resume.size > MAX_FILE_SIZE) {
+      return bad("Resume must not exceed 10 MB.");
+    }
 
-    const originalName = path.basename(resume.name || "");
+    const originalName = path.basename(resume.name || "resume.pdf");
     const extension = path.extname(originalName).toLowerCase();
 
     if (
       !Object.prototype.hasOwnProperty.call(mimeTypes, extension) ||
       !mimeTypes[extension].includes(resume.type || "")
-    )
+    ) {
       return bad("Upload a valid PDF, DOC or DOCX resume.");
+    }
 
     const buffer = Buffer.from(await resume.arrayBuffer());
 
-    if (extension === ".pdf" && buffer.subarray(0, 5).toString() !== "%PDF-")
+    if (extension === ".pdf" && buffer.subarray(0, 5).toString() !== "%PDF-") {
       return bad("The uploaded PDF file is invalid.");
+    }
 
-    await mkdir(uploadDir, { recursive: true });
+    // ☁️ Upload resume to Vercel Blob Storage
+    try {
+      const uploadedFile = await uploadToBlob(resume, {
+        folder: "resumes",
+        filename: originalName,
+        contentType: resume.type || (extension === ".pdf" ? "application/pdf" : "application/octet-stream"),
+        access: "public",
+        maxSize: MAX_FILE_SIZE,
+      });
 
-    const storedName = `${randomUUID()}${extension}`;
-    savedPath = path.join(uploadDir, storedName);
-    await writeFile(savedPath, buffer);
+      uploadedBlobUrl = uploadedFile.url;
+    } catch (uploadError) {
+      console.error("Vercel Blob resume upload error:", uploadError);
+      return NextResponse.json(
+        {
+          message: "Failed to upload resume to storage. " + (uploadError.message || ""),
+        },
+        { status: 500 }
+      );
+    }
 
-    const relativePath = path.posix.join(
-      "private-uploads",
-      "resumes",
-      storedName
-    );
-
+    // 💾 Save application into MySQL database
     try {
       const [result] = await pool.execute(
         `INSERT INTO career_applications
@@ -156,7 +178,7 @@ export async function POST(request) {
           phone,
           exp,
           notes || null,
-          relativePath,
+          uploadedBlobUrl,
           originalName,
         ]
       );
@@ -165,23 +187,23 @@ export async function POST(request) {
         {
           message: "Your application has been submitted successfully.",
           applicationId: result.insertId,
+          resumeUrl: uploadedBlobUrl,
         },
         { status: 201 }
       );
     } catch (dbError) {
-      if (savedPath) await unlink(savedPath).catch(() => {});
+      // Clean up uploaded blob if database insert fails
+      if (uploadedBlobUrl) {
+        await deleteFromBlob(uploadedBlobUrl).catch(() => {});
+      }
       throw dbError;
     }
   } catch (error) {
-    if (savedPath) await unlink(savedPath).catch(() => {});
+    if (uploadedBlobUrl) {
+      await deleteFromBlob(uploadedBlobUrl).catch(() => {});
+    }
 
-    console.error("Career application API error:", {
-      message: error?.message,
-      code: error?.code,
-      errno: error?.errno,
-      sqlMessage: error?.sqlMessage,
-      sqlState: error?.sqlState,
-    });
+    console.error("Career application API error:", error);
 
     return NextResponse.json(
       {

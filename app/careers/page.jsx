@@ -717,22 +717,31 @@ export default function CareersPage() {
 
     setSubmitting(true);
     try {
-      // TODO: send to your backend. Right now nothing is sent anywhere.
-      // const fd = new FormData();
-      // fd.append("jobId", selectedJob.id);
-      // fd.append("jobTitle", selectedJob.title);
-      // fd.append("name", appForm.name);
-      // fd.append("email", appForm.email);
-      // fd.append("phone", appForm.phone);
-      // fd.append("exp", appForm.exp);
-      // fd.append("resume", appForm.resumeFile);
-      // const res = await fetch("/api/apply", { method: "POST", body: fd });
-      // if (!res.ok) throw new Error("Failed");
+      const fd = new FormData();
+      fd.append("jobId", String(selectedJob?.id || "general"));
+      fd.append("jobTitle", String(selectedJob?.title || "General Application"));
+      fd.append("name", appForm.name.trim());
+      fd.append("email", appForm.email.trim());
+      fd.append("phone", appForm.phone.trim());
+      fd.append("exp", appForm.exp);
+      fd.append("notes", appForm.notes ? appForm.notes.trim() : "");
+      fd.append("resume", appForm.resumeFile);
+      fd.append("dataConsent", String(appForm.dataConsent));
+
+      const res = await fetch("/api/career-applications", {
+        method: "POST",
+        headers: { "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "apollo54321" },
+        body: fd,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to submit application");
+      }
+
       setAppSubmitted(true);
-    } catch {
-      alert(
-        "Could not submit your application. Please try again or email your CV.",
-      );
+    } catch (err) {
+      alert(err.message || "Could not submit your application. Please try again or email your CV.");
     } finally {
       setSubmitting(false);
     }

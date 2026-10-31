@@ -1,3 +1,4 @@
+import { deleteFromBlob } from "@/lib/blob";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import pool from "@/lib/db";
@@ -211,6 +212,16 @@ export async function DELETE(request) {
         { success: false, message: "Event ID is required." },
         { status: 400 }
       );
+    }
+
+    // Clean up associated Vercel Blob image if any
+    try {
+      const [existing] = await pool.execute("SELECT image FROM events WHERE id = ? LIMIT 1", [id]);
+      if (existing.length > 0 && existing[0].image) {
+        await deleteFromBlob(existing[0].image).catch(() => {});
+      }
+    } catch (e) {
+      console.warn("Error cleaning up event blob:", e.message);
     }
 
     await pool.execute("DELETE FROM events WHERE id = ?", [id]);

@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Briefcase,
+  FileText,
   Users,
   Layers,
   Plus,
@@ -181,6 +182,8 @@ const normalizeApplication = (a, i) => {
     phone: String(a.phone ?? a.mobile ?? a.contact ?? ""),
     applied: appliedRaw ? String(appliedRaw).slice(0, 10) : "",
     status,
+    resumePath: a.resumePath ?? a.resume_path ?? "",
+    resumeOriginalName: a.resumeOriginalName ?? a.resume_original_name ?? "Resume",
   };
 };
 
@@ -1302,7 +1305,19 @@ export default function CareersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    {a.resumePath && (
+                      <a
+                        href={a.resumePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-[#0A5F7A] shadow-sm hover:bg-[#EDF7FA] transition"
+                        title={a.resumeOriginalName || "View Resume"}
+                      >
+                        <FileText className="h-3.5 w-3.5 text-[#0A5F7A]" />
+                        <span className="hidden sm:inline">Resume</span>
+                      </a>
+                    )}
                     <Pill className={APP_BADGE[a.status]}>{a.status}</Pill>
                     <select
                       aria-label={`Change status for ${a.name}`}

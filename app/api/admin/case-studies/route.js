@@ -1,3 +1,4 @@
+import { deleteFromBlob } from "@/lib/blob";
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
@@ -394,6 +395,21 @@ export async function DELETE(request) {
         { success: false, message: "Valid numeric Case study ID (dbId) is required." },
         { status: 400 }
       );
+    }
+
+    // Clean up associated Vercel Blob images if any
+    try {
+      const [existing] = await pool.execute("SELECT images FROM case_studies WHERE id = ? LIMIT 1", [dbId]);
+      if (existing.length > 0) {
+        const imgs = parseJson(existing[0].images);
+        if (Array.isArray(imgs)) {
+          for (const img of imgs) {
+            if (img) await deleteFromBlob(img).catch(() => {});
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Error cleaning up case study blobs:", e.message);
     }
 
     const [result] = await pool.execute(
