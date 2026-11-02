@@ -522,7 +522,7 @@ export default function HealthLibraryModal({
                       <input
                         value={d.url}
                         onChange={(e) => setDoc(i, "url", e.target.value)}
-                        placeholder="https://… or /files/…pdf"
+                        placeholder="https://…"
                         className={inputCls}
                       />
                     </div>
