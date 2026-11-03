@@ -121,7 +121,7 @@ export async function GET(request) {
 
       FROM doctors
       WHERE status = 1
-      ORDER BY display_order ASC, name ASC
+      ORDER BY display_order ASC
     `);
 
     const jsonFields = [

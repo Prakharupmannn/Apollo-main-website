@@ -422,11 +422,11 @@ export default async function HealthArticlePage({ params }) {
                   Critical care, trauma & ambulance service always on standby.
                 </p>
                 <a
-                  href="tel:1800-123-6666"
+                  href="tel:+91 8031320388"
                   className="mt-4 inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-red-500/25 hover:bg-red-600 border border-red-300/40 text-red-100 hover:text-white text-xs font-extrabold transition-all"
                 >
                   <Phone className="w-4 h-4" />
-                  Call 1800-123-6666
+                  Call +91 8031320388
                 </a>
               </div>
             </div>

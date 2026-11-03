@@ -614,7 +614,7 @@ export default function AdminShell({ children, initialUser }) {
           {children}
         </main>
         <footer className="border-t border-slate-200/80 bg-white/60 px-4 py-4 text-center text-xs text-slate-500 sm:px-8 sm:text-left">
-          © 2026 Apollo JBP Hospitals Jabalpur. Enterprise Healthcare
+          © 2025 Apollo JBP Hospitals Jabalpur. Enterprise Healthcare
           Administration Console.
         </footer>
       </div>

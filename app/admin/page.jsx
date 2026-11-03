@@ -41,6 +41,7 @@ import {
 } from "@/lib/admin-data";
 import useDashboardStats from "@/hooks/useDashboardStats";
 import useDoctors from "@/hooks/useDoctors";
+import useAppointments from "@/hooks/useAppointments";
 
 /* ─────────────────────────────────────────────────────
    LOGGED-IN USER HELPERS (shows the FULL NAME)
@@ -225,46 +226,122 @@ function useCountUp(target, ms = 1000) {
   return v;
 }
 
+/* ── Shared premium style tokens (design only) ────── */
+const PREMIUM_CARD =
+  "relative overflow-hidden rounded-3xl border border-white/70 bg-white/80 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_20px_50px_-24px_rgba(6,46,60,0.28)] ring-1 ring-slate-900/[0.04] backdrop-blur-xl transition-shadow duration-300 hover:shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_28px_60px_-24px_rgba(6,46,60,0.35)]";
+
+const DOT_PATTERN = {
+  backgroundImage:
+    "radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)",
+  backgroundSize: "22px 22px",
+};
+
+/* Small gold→teal accent bar used beside section titles */
+function TitleAccent() {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block h-6 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-[#F59E0B] via-[#14A6C9] to-[#0A5F7A] shadow-[0_0_12px_rgba(245,158,11,0.45)]"
+    />
+  );
+}
+
+/* Soft decorative glow in a card corner */
+function CornerGlow({ color = "#0A5F7A", className = "" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute rounded-full blur-3xl ${className}`}
+      style={{ backgroundColor: color, opacity: 0.12 }}
+    />
+  );
+}
+
 /* ── KPI stat card ────────────────────────────────── */
 function StatCard({ icon, label, stat, tone, color, href }) {
   const n = useCountUp(stat.value);
-  const pct = Math.round(
-    (stat.spark[stat.spark.length - 1] / Math.max(...stat.spark)) * 100,
-  );
+  const maxSpark = Math.max(...(stat.spark || [1]));
+  const lastSpark = stat.spark ? stat.spark[stat.spark.length - 1] : 1;
+  const pct = maxSpark > 0 ? Math.round((lastSpark / maxSpark) * 100) : 0;
 
   return (
-    <SpotlightCard className="relative p-5.5">
-      <Link
-        href={href}
-        aria-label={`Open ${label}`}
-        className="absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-[#0A5F7A]/20"
-      />
-      <div className="flex items-start justify-between">
-        <IconTile icon={icon} tone={tone} size="lg" />
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-          <TrendingUp className="h-3.5 w-3.5" /> {stat.delta}
-        </span>
-      </div>
-
-      <p className="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">
-        {label}
-      </p>
-      <div className="mt-1 flex items-end justify-between gap-3">
-        <p
-          className={`${numFont.className} text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl`}
-        >
-          {n}
-        </p>
-        <Sparkline data={stat.spark} color={color} />
-      </div>
-
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, backgroundColor: color }}
+      <SpotlightCard
+        className={`group relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-b from-white to-slate-50/80 p-5.5 shadow-[0_1px_0_0_rgba(255,255,255,0.95)_inset,0_18px_40px_-22px_rgba(6,46,60,0.3)] ring-1 ring-slate-900/[0.04] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_1px_0_0_rgba(255,255,255,0.95)_inset,0_26px_50px_-20px_rgba(6,46,60,0.4)] cursor-pointer`}
+      >
+        {/* top accent line */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-1"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+            opacity: 0.85,
+          }}
         />
-      </div>
-    </SpotlightCard>
+        {/* corner glow */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full blur-3xl transition-opacity duration-500 group-hover:opacity-30"
+          style={{ backgroundColor: color, opacity: 0.14 }}
+        />
+
+        <Link
+          href={href}
+          aria-label={`Open ${label}`}
+          className="absolute inset-0 z-20 cursor-pointer rounded-3xl focus:outline-none focus-visible:ring-4 focus-visible:ring-[#0A5F7A]/20"
+        />
+        <div className="pointer-events-none relative flex items-start justify-between">
+          <span
+            className="rounded-2xl p-1 shadow-sm ring-1 ring-inset ring-white/60"
+            style={{
+              background: `linear-gradient(135deg, ${color}1F, ${color}0A)`,
+            }}
+          >
+            <IconTile icon={icon} tone={tone} size="lg" />
+          </span>
+          {stat.error ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 shadow-sm ring-1 ring-inset ring-rose-600/20"
+              title={stat.error}
+            >
+              {stat.delta || "Offline"}
+            </span>
+          ) : stat.loading ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200 animate-pulse">
+              Loading…
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 shadow-sm ring-1 ring-inset ring-emerald-600/20">
+              <TrendingUp className="h-3.5 w-3.5" /> {stat.delta}
+            </span>
+          )}
+        </div>
+
+        <p className="pointer-events-none relative mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
+          {label}
+        </p>
+        <div className="pointer-events-none relative mt-1.5 flex items-end justify-between gap-3">
+          {stat.loading ? (
+            <div className="my-1.5 h-10 w-24 animate-pulse rounded-lg bg-slate-200" />
+          ) : (
+            <p
+  className={`${numFont.className} bg-gradient-to-b from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl`}          >
+              {n}
+            </p>
+          )}
+          <Sparkline data={stat.spark} color={color} />
+        </div>
+
+        <div className="pointer-events-none relative mt-5 h-2 overflow-hidden rounded-full bg-slate-100 shadow-inner">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${pct}%`,
+              background: `linear-gradient(90deg, ${color}99, ${color})`,
+              boxShadow: `0 0 12px ${color}66`,
+            }}
+          />
+        </div>
+      </SpotlightCard>
   );
 }
 
@@ -369,8 +446,13 @@ export default function DashboardPage({ initialUser }) {
   const [userName, setUserName] = useState("");
 
   // Live stats from API
-  const { stats } = useDashboardStats();
+  const { stats, loading: statsLoading, error: statsError } = useDashboardStats();
   const { doctors: liveDoctors } = useDoctors();
+  const {
+    appointments: liveAppointments,
+    loading: appointmentsLoading,
+    error: appointmentsError,
+  } = useAppointments();
 
   useEffect(() => {
     setNow(new Date());
@@ -448,13 +530,50 @@ export default function DashboardPage({ initialUser }) {
 
   // Build stat for each KPI key — overlay real count when available
   const buildStat = (key) => {
+    if (key === "appointments") {
+      const liveCount =
+        liveAppointments && Array.isArray(liveAppointments)
+          ? liveAppointments.length
+          : stats?.appointments;
+
+      const base = STATS[key] || {
+        delta: "Live",
+        spark: [1, 1, 1, 1, 1, 1, 1],
+      };
+      const hasLiveCount = liveCount !== undefined;
+
+      return {
+        value: hasLiveCount
+          ? liveCount
+          : appointmentsLoading
+            ? 0
+            : (base.value ?? 0),
+        delta: appointmentsError
+          ? "API Offline"
+          : appointmentsLoading
+            ? "Loading…"
+            : "Live",
+        spark: base.spark ?? [1, 1, 1, 1, 1, 1, 1],
+        loading: appointmentsLoading && !hasLiveCount,
+        error: appointmentsError,
+      };
+    }
+
     const liveCount = stats?.[key];
     const base = STATS[key] ||
       STAT_FALLBACK[key] || { delta: "Live", spark: [1, 1, 1, 1, 1, 1, 1] };
+    const hasLiveCount = liveCount !== undefined;
+
     return {
-      value: liveCount !== undefined ? liveCount : (base.value ?? 0),
-      delta: base.delta ?? "Live",
+      value: hasLiveCount ? liveCount : 0,
+      delta: statsError
+        ? "Offline"
+        : statsLoading && !hasLiveCount
+          ? "Loading…"
+          : (base.delta ?? "Live"),
       spark: base.spark ?? [1, 1, 1, 1, 1, 1, 1],
+      loading: statsLoading && !hasLiveCount,
+      error: statsError,
     };
   };
 
@@ -491,24 +610,43 @@ export default function DashboardPage({ initialUser }) {
     },
   ];
 
-  const h2 = `${displayFont.className} text-2xl font-bold text-slate-900`;
+  const h2 = `${displayFont.className} text-2xl font-bold tracking-tight text-slate-900`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {/* EXECUTIVE WELCOME HERO */}
-      <section className="relative overflow-hidden rounded-3xl border border-[#0A5F7A]/20 bg-gradient-to-br from-[#062E3C] via-[#0A4D62] to-[#0A5F7A] p-6 text-white shadow-xl sm:p-8">
-        <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#041F29] via-[#08485E] to-[#0A6A88] p-6 text-white shadow-[0_30px_70px_-25px_rgba(6,46,60,0.7)] sm:p-9">
+        {/* decorative layers */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={DOT_PATTERN}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-amber-400/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"
+        />
+
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-gradient-to-r from-amber-400/20 to-amber-300/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-amber-200 shadow-[0_0_24px_-6px_rgba(251,191,36,0.5)] backdrop-blur-sm">
               <Sparkles className="h-3.5 w-3.5" />
               <span>Apollo Jabalpur · Executive Administration</span>
             </div>
             <h1
-              className={`${displayFont.className} mt-3 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl`}
+              className={`${displayFont.className} mt-4 bg-gradient-to-r from-white via-white to-teal-100 bg-clip-text text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-6xl`}
             >
               {greet}, {userName || "Admin"}
             </h1>
-            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-teal-50/90 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-teal-50/90 sm:text-base">
               You currently have{" "}
               <strong className="font-bold text-amber-300">
                 {pending} appointments
@@ -533,73 +671,90 @@ export default function DashboardPage({ initialUser }) {
                 </>
               )}
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href={`${ADMIN_BASE}/appointments`}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] hover:brightness-105 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-md transition hover:-translate-y-0.5"
+                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] px-6 py-3 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-10px_rgba(245,158,11,0.8)] ring-1 ring-inset ring-white/40 transition hover:-translate-y-0.5 hover:brightness-110"
               >
                 Review appointments <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href={`${ADMIN_BASE}/doctors`}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15 px-5 py-2.5 text-sm font-semibold text-white shadow-xs backdrop-blur-xs transition"
+                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white shadow-xs backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
               >
                 <Plus className="h-4 w-4" /> Add doctor
               </Link>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-white/10 p-5 text-center backdrop-blur-md lg:min-w-[210px] shadow-sm">
+          <div className="relative rounded-3xl border border-white/20 bg-gradient-to-b from-white/20 to-white/5 p-6 text-center shadow-[0_20px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:min-w-[230px]">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"
+            />
             <p
-              className={`${numFont.className} text-4xl sm:text-5xl font-bold tracking-tight text-white`}
+              className={`${numFont.className} text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)] sm:text-5xl`}
             >
               {timeStr}
             </p>
-            <p className="mt-1.5 text-xs font-medium text-teal-100">
+            <p className="mt-2 text-xs font-medium text-teal-100">
               {dateStr || "\u00A0"}
             </p>
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-slate-950/30 px-3 py-1 text-[11px] font-semibold text-amber-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />{" "}
+            <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-950/40 px-3.5 py-1.5 text-[11px] font-semibold text-amber-200 ring-1 ring-inset ring-white/10">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              </span>{" "}
               Jabalpur · IST
             </p>
           </div>
         </div>
       </section>
 
-      {/* KPI METRICS */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {KPIS.map((k) => (
-          <StatCard
+      {/* KPI METRICS - 2 rows on desktop (5 + 4, last card stretches to fill) */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        {KPIS.map((k, i) => (
+          <div
             key={k.key}
-            icon={k.icon}
-            label={k.label}
-            stat={buildStat(k.key)}
-            tone={k.tone}
-            color={k.color}
-            href={k.href}
-          />
+            className={`flex [&>*]:w-full ${
+              i === KPIS.length - 1 ? "lg:col-span-1" : ""
+            }`}
+          >
+            <StatCard
+              icon={k.icon}
+              label={k.label}
+              stat={buildStat(k.key)}
+              tone={k.tone}
+              color={k.color}
+              href={k.href}
+            />
+          </div>
         ))}
       </div>
 
       {/* CHARTS ROW */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Area chart card */}
-        <Card className="p-6 xl:col-span-2">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+        <Card className={`${PREMIUM_CARD} p-6 sm:p-7 xl:col-span-2`}>
+          <CornerGlow color="#0A5F7A" className="-right-16 -top-16 h-56 w-56" />
+          <div className="relative flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className={h2}>Appointments overview</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <div className="flex items-center gap-2.5">
+                <TitleAccent />
+                <h2 className={h2}>Appointments overview</h2>
+              </div>
+              <p className="mt-1 pl-4 text-xs text-slate-500">
                 Patient volume trajectory and consultation trends.
               </p>
             </div>
-            <div className="flex rounded-xl bg-slate-100 p-1">
+            <div className="flex rounded-2xl bg-slate-100/80 p-1 shadow-inner ring-1 ring-slate-200/60">
               {["Monthly", "Weekly"].map((r) => (
                 <button
                   key={r}
                   onClick={() => setRange(r)}
-                  className={`cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${
+                  className={`cursor-pointer rounded-xl px-4 py-1.5 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${
                     range === r
-                      ? "bg-white text-slate-900 shadow-xs"
+                      ? "bg-white text-[#0A5F7A] shadow-[0_4px_12px_-4px_rgba(10,95,122,0.35)] ring-1 ring-slate-200/70"
                       : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
@@ -609,7 +764,7 @@ export default function DashboardPage({ initialUser }) {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="relative mt-6 grid grid-cols-3 gap-3">
             {[
               { l: "Total Visits", v: chartTotal },
               { l: "Peak Day/Month", v: chartPeak },
@@ -617,11 +772,17 @@ export default function DashboardPage({ initialUser }) {
             ].map((s) => (
               <div
                 key={s.l}
-                className="rounded-xl border border-slate-100 bg-slate-50/70 px-4 py-3"
+                className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50 px-4 py-3.5 shadow-sm"
               >
-                <p className="text-xs font-semibold text-slate-500">{s.l}</p>
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-gradient-to-b from-[#F59E0B] to-[#0A5F7A]"
+                />
+                <p className="pl-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  {s.l}
+                </p>
                 <p
-                  className={`${numFont.className} mt-0.5 text-2xl font-bold text-slate-900`}
+                  className={`${numFont.className} mt-0.5 pl-2 text-2xl font-bold text-slate-900`}
                 >
                   {s.v}
                 </p>
@@ -629,47 +790,65 @@ export default function DashboardPage({ initialUser }) {
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="relative mt-5 rounded-2xl border border-slate-100 bg-gradient-to-b from-slate-50/60 to-white p-2">
             <AreaChart key={range} data={chart} />
           </div>
         </Card>
 
         {/* Donut chart card */}
-        <Card className="p-6">
-          <h2 className={h2}>Appointments by status</h2>
-          <p className="mb-4 mt-0.5 text-xs text-slate-500">
-            Real-time status breakdown.
-          </p>
-          <DonutChart segments={segments} centerLabel="Appointments" />
+        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
+          <CornerGlow
+            color="#D97706"
+            className="-left-16 -bottom-16 h-56 w-56"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2.5">
+              <TitleAccent />
+              <h2 className={h2}>Appointments by status</h2>
+            </div>
+            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
+              Real-time status breakdown.
+            </p>
+            <DonutChart segments={segments} centerLabel="Appointments" />
+          </div>
         </Card>
       </div>
 
       {/* RECENT RECORDS & UPCOMING EVENTS */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Recent appointments */}
-        <Card className="overflow-hidden xl:col-span-2">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <Card className={`${PREMIUM_CARD} xl:col-span-2`}>
+          <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-white px-6 py-5">
             <div>
-              <h2 className={h2}>Recent appointments</h2>
-              <p className="text-xs text-slate-500">
+              <div className="flex items-center gap-2.5">
+                <TitleAccent />
+                <h2 className={h2}>Recent appointments</h2>
+              </div>
+              <p className="mt-1 pl-4 text-xs text-slate-500">
                 Latest patients scheduled for consultation
               </p>
             </div>
             <Link
               href={`${ADMIN_BASE}/appointments`}
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#0A5F7A] hover:underline"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#0A5F7A]/8 px-3.5 py-1.5 text-xs font-bold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/15 transition hover:bg-[#0A5F7A] hover:text-white"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-slate-100/80">
             {APPOINTMENTS.slice(0, 5).map((a) => (
               <li
                 key={a.id}
-                className="flex items-center justify-between gap-3 px-6 py-3.5 transition hover:bg-slate-50/80"
+                className="group relative flex items-center justify-between gap-3 px-6 py-4 transition hover:bg-gradient-to-r hover:from-teal-50/60 hover:to-transparent"
               >
-                <div className="flex min-w-0 items-center gap-3.5">
-                  <Avatar name={a.patient} size={40} />
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-3 bottom-3 w-1 origin-center scale-y-0 rounded-r-full bg-gradient-to-b from-[#F59E0B] to-[#0A5F7A] transition-transform duration-300 group-hover:scale-y-100"
+                />
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="rounded-full p-0.5 ring-2 ring-[#0A5F7A]/15 shadow-sm">
+                    <Avatar name={a.patient} size={40} />
+                  </span>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-900">
                       {a.patient}
@@ -692,122 +871,157 @@ export default function DashboardPage({ initialUser }) {
         </Card>
 
         {/* Upcoming events */}
-        <Card className="p-6">
-          <h2 className={h2}>Upcoming events</h2>
-          <p className="text-xs text-slate-500 mb-4">
-            Published health camps &amp; sessions
-          </p>
-          <ul className="space-y-3">
-            {EVENTS.filter((e) => e.status === "Published")
-              .slice(0, 3)
-              .map((e) => {
-                const d = new Date(`${e.date}T00:00`);
-                return (
-                  <li
-                    key={e.id}
-                    className="flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/50 p-3 transition hover:border-[#0A5F7A]/30 hover:bg-slate-50"
-                  >
-                    <span className="grid h-13 w-13 shrink-0 place-items-center rounded-xl bg-teal-50 border border-teal-200/60 text-center leading-none text-[#0A5F7A]">
-                      <span>
-                        <span
-                          className={`${numFont.className} block text-lg font-bold`}
-                        >
-                          {d.getDate()}
-                        </span>
-                        <span className="block text-[10px] font-bold uppercase">
-                          {d.toLocaleString("en", { month: "short" })}
+        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
+          <CornerGlow color="#E11D48" className="-right-16 -top-16 h-52 w-52" />
+          <div className="relative">
+            <div className="flex items-center gap-2.5">
+              <TitleAccent />
+              <h2 className={h2}>Upcoming events</h2>
+            </div>
+            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
+              Published health camps &amp; sessions
+            </p>
+            <ul className="space-y-3">
+              {EVENTS.filter((e) => e.status === "Published")
+                .slice(0, 3)
+                .map((e) => {
+                  const d = new Date(`${e.date}T00:00`);
+                  return (
+                    <li
+                      key={e.id}
+                      className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50/70 p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0A5F7A]/30 hover:shadow-[0_14px_30px_-16px_rgba(10,95,122,0.45)]"
+                    >
+                      <span className="grid h-13 w-13 shrink-0 place-items-center rounded-2xl border border-teal-200/70 bg-gradient-to-b from-teal-50 to-white text-center leading-none text-[#0A5F7A] shadow-[0_6px_14px_-8px_rgba(10,95,122,0.6)]">
+                        <span>
+                          <span
+                            className={`${numFont.className} block text-lg font-bold`}
+                          >
+                            {d.getDate()}
+                          </span>
+                          <span className="block text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                            {d.toLocaleString("en", { month: "short" })}
+                          </span>
                         </span>
                       </span>
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">
-                        {e.title}
-                      </p>
-                      <p className="truncate text-xs text-slate-500">
-                        {e.location}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-          </ul>
-          <Link
-            href={`${ADMIN_BASE}/events`}
-            className={`${btnGhost} mt-4 w-full justify-center`}
-          >
-            Manage all events
-          </Link>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {e.title}
+                        </p>
+                        <p className="truncate text-xs text-slate-500">
+                          {e.location}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+            </ul>
+            <Link
+              href={`${ADMIN_BASE}/events`}
+              className={`${btnGhost} mt-5 w-full justify-center`}
+            >
+              Manage all events
+            </Link>
+          </div>
         </Card>
       </div>
 
       {/* BOTTOM ROW: DEPARTMENTS, QUICK ACTIONS, DOCTORS ON DUTY */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Doctors by department */}
-        <Card className="p-6">
-          <h2 className={h2}>Doctors by department</h2>
-          <p className="text-xs text-slate-500 mb-4">
-            Specialist staff distribution
-            {liveDoctors && liveDoctors.length > 0 && (
-              <span className="ml-1 text-emerald-600">· Live</span>
-            )}
-          </p>
-          <ul className="space-y-4">
-            {byDept.map(([dept, count]) => (
-              <li key={dept}>
-                <div className="mb-1 flex justify-between text-xs">
-                  <span className="font-semibold text-slate-700">{dept}</span>
-                  <span
-                    className={`${numFont.className} font-bold text-[#0A5F7A]`}
-                  >
-                    {count} {count === 1 ? "Doctor" : "Doctors"}
-                  </span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#0A5F7A] to-[#1D82A6] transition-all duration-700 ease-out"
-                    style={{
-                      width: mounted ? `${(count / topDept) * 100}%` : "0%",
-                    }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
+          <CornerGlow color="#0D9488" className="-left-16 -top-16 h-52 w-52" />
+          <div className="relative">
+            <div className="flex items-center gap-2.5">
+              <TitleAccent />
+              <h2 className={h2}>Doctors by department</h2>
+            </div>
+            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
+              Specialist staff distribution
+              {liveDoctors && liveDoctors.length > 0 && (
+                <span className="ml-1 font-semibold text-emerald-600">
+                  · Live
+                </span>
+              )}
+            </p>
+            <ul className="space-y-4">
+              {byDept.map(([dept, count]) => (
+                <li key={dept}>
+                  <div className="mb-1.5 flex justify-between text-xs">
+                    <span className="font-semibold text-slate-700">{dept}</span>
+                    <span
+                      className={`${numFont.className} rounded-full bg-[#0A5F7A]/8 px-2.5 py-0.5 font-bold text-[#0A5F7A]`}
+                    >
+                      {count} {count === 1 ? "Doctor" : "Doctors"}
+                    </span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 shadow-inner">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#0A5F7A] via-[#1D82A6] to-[#38BDF8] shadow-[0_0_12px_rgba(29,130,166,0.5)] transition-all duration-700 ease-out"
+                      style={{
+                        width: mounted ? `${(count / topDept) * 100}%` : "0%",
+                      }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Card>
 
         {/* Quick actions */}
-        <Card className="p-6">
-          <h2 className={h2}>Quick actions</h2>
-          <p className="text-xs text-slate-500 mb-4">
-            Common administrative tasks
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {quick.map(({ label, href, icon, tone }) => (
-              <Link
-                key={label}
-                href={href}
-                className="group flex flex-col items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 transition-all duration-150 hover:-translate-y-0.5 hover:border-[#0A5F7A]/40 hover:bg-white hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
-              >
-                <IconTile icon={icon} tone={tone} />
-                <span className="flex items-center gap-1 text-sm font-bold text-slate-900">
-                  {label}{" "}
-                  <ArrowRight className="h-3.5 w-3.5 -translate-x-1 text-[#0A5F7A] opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
-                </span>
-              </Link>
-            ))}
+        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
+          <CornerGlow
+            color="#7C3AED"
+            className="-right-16 -bottom-16 h-52 w-52"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2.5">
+              <TitleAccent />
+              <h2 className={h2}>Quick actions</h2>
+            </div>
+            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
+              Common administrative tasks
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {quick.map(({ label, href, icon, tone }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50/70 p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#0A5F7A]/40 hover:bg-white hover:shadow-[0_16px_32px_-16px_rgba(10,95,122,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-[#0A5F7A]/10 blur-2xl transition-opacity group-hover:bg-amber-400/25"
+                  />
+                  <IconTile icon={icon} tone={tone} />
+                  <span className="relative flex items-center gap-1 text-sm font-bold text-slate-900">
+                    {label}{" "}
+                    <ArrowRight className="h-3.5 w-3.5 -translate-x-1 text-[#0A5F7A] opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </Card>
 
         {/* Doctors on duty */}
-        <Card className="flex flex-col p-6">
-          <h2 className={h2}>Doctors on duty</h2>
-          <p className="text-xs text-slate-500 mb-2">
-            Active roster availability
-            {liveDoctors && liveDoctors.length > 0 && (
-              <span className="ml-1 text-emerald-600">· Live</span>
-            )}
-          </p>
-          <div className="my-auto pt-2">
+        <Card className={`${PREMIUM_CARD} flex flex-col p-6 sm:p-7`}>
+          <CornerGlow color="#059669" className="-right-16 -top-16 h-52 w-52" />
+          <div className="relative">
+            <div className="flex items-center gap-2.5">
+              <TitleAccent />
+              <h2 className={h2}>Doctors on duty</h2>
+            </div>
+            <p className="mb-2 mt-1 pl-4 text-xs text-slate-500">
+              Active roster availability
+              {liveDoctors && liveDoctors.length > 0 && (
+                <span className="ml-1 font-semibold text-emerald-600">
+                  · Live
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="relative my-auto pt-2">
             <RadialGauge
               value={dutyPct}
               label="Active specialists"

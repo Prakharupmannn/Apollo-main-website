@@ -203,12 +203,12 @@ export default function Footer({ onOpenAppointmentModal }) {
 
             {/* CTAs */}
             <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center xl:w-auto">
-              <a href="tel:1800-123-6666" className={EMERGENCY_BTN}>
+              <a href="tel:7247777181" className={EMERGENCY_BTN}>
                 <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75 motion-reduce:animate-none" />
                   <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
                 </span>
-                Emergency 1800-123-6666
+                Emergency  7247777181
               </a>
 
               {onOpenAppointmentModal ? (
@@ -261,8 +261,8 @@ export default function Footer({ onOpenAppointmentModal }) {
               </p>
               <p className="flex items-center gap-2.5">
                 <PhoneCall aria-hidden="true" className="h-4 w-4 shrink-0 text-[#7FE3F5]" />
-                <a href="tel:+917566123666" className="hover:text-white">
-                  +91 7566 123666
+                <a href="tel:+91 8031320388" className="hover:text-white">
+                  +91 8031320388
                 </a>
               </p>
               <p className="flex items-center gap-2.5">

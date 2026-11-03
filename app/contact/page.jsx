@@ -320,7 +320,7 @@ export default function ContactPage() {
     {
       type: "emergency",
       title: "24/7 Emergency Hotline",
-      number: "+91 1800-123-6666",
+      number: "+91 7247777181",
       desc: "Immediate Trauma Care, Ambulance Dispatch & Critical Triage",
       icon: PhoneCall,
       highlight: true,
@@ -328,7 +328,7 @@ export default function ContactPage() {
     {
       type: "appointment",
       title: "Appointment Booking Desk",
-      number: "+91 7566123666 ",
+      number: "+91 8031320388 ",
       desc: "OPD Appointments & Specialist Doctor Schedule",
       icon: Calendar,
       highlight: false,
@@ -651,7 +651,7 @@ const handleSendAnother = () => {
                 <motion.a
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  href="tel:1800-123-6666"
+                  href="tel:7247777181"
                   className="relative group flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-rose-600 via-rose-500 to-red-600 text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(225,29,72,0.35)] hover:shadow-[0_15px_30px_rgba(225,29,72,0.5)] transition-all duration-300"
                 >
                   <span className="relative flex h-3 w-3">
@@ -659,7 +659,7 @@ const handleSendAnother = () => {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
                   </span>
                   <PhoneCall className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                  <span>Call Emergency: 1800-123-6666</span>
+                  <span>Call Emergency: 7247777181</span>
                 </motion.a>
 
                 <Link href="/patientcare/appointment">
@@ -922,7 +922,7 @@ const handleSendAnother = () => {
                     <span>Apollo JBP Hospitals</span>
                   </div>
                   <p className="text-[11px] text-slate-600">
-                    Global Square, Patan Rd, Karmeta, Jabalpur, Madhya Pradesh
+                    Global Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh
                     482002
                   </p>
                   <div className="text-[10px] text-[#1D82A6] font-bold">
@@ -1053,7 +1053,7 @@ const handleSendAnother = () => {
                     <motion.a
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.97 }}
-                      href="tel:1800-123-6666"
+                      href="tel:7247777181"
                       className="px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5"
                     >
                       <PhoneCall className="w-3.5 h-3.5" />
@@ -1396,7 +1396,7 @@ const handleSendAnother = () => {
                 </p>
                 <div className="text-xs font-extrabold text-[#0E526B] bg-[#EDF6FB] p-3 rounded-xl border border-[#1D82A6]/20 flex items-center justify-between">
                   <span>TPA Desk Helpline:</span>
-                  <span className="font-mono">+91 7566123666</span>
+                  <span className="font-mono">+91 80313220388</span>
                 </div>
               </div>
             </div>

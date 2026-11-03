@@ -314,14 +314,14 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
               <span className="h-3 w-0.5 bg-white/25 rounded-full" />
 
               <a
-                href="tel:1800-123-6666"
+                href="tel:7247777181 "
                 className="flex items-center gap-1.5 px-2.5 md:px-3 py-0.5 rounded-full bg-rose-500/90 text-white border border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_0_12px_rgba(244,63,94,0.5)] transition-all duration-200 cursor-pointer font-bold tracking-wider whitespace-nowrap"
               >
                 <PhoneCall className="w-3.5 h-3.5 animate-bounce text-white" />
                 <span>
                   Emergency:{" "}
                   <span className="notranslate" translate="no">
-                    1800-123-6666
+                    7247777181 
                   </span>
                 </span>
               </a>
@@ -573,14 +573,14 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   <span>Book Appointment</span>
                 </button>
                 <a
-                  href="tel:1800-123-6666"
+                  href="tel:+91 7247777181"
                   className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-500 text-white shadow-sm hover:bg-rose-600 transition-colors"
                 >
                   <PhoneCall className="w-3.5 h-3.5 animate-bounce" />
                   <span>
                     Emergency{" "}
                     <span className="notranslate" translate="no">
-                      1800-123-6666
+                      7247777181 
                     </span>
                   </span>
                 </a>
@@ -816,13 +816,13 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                   problems.
                 </p>
                 <a
-                  href="tel:7566123666"
+                  href="tel:7247777181"
                   className="inline-flex flex-wrap items-center gap-1.5 mt-2 text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors"
                 >
                   <span>
                     Emergency Hotline:{" "}
                     <strong className="notranslate" translate="no">
-                      7566123666
+                      7247777181
                     </strong>
                   </span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -864,11 +864,11 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
                     Phone Consultation
                   </h4>
                   <a
-                    href="tel:7566123666"
+                    href="tel:8031320388"
                     className="notranslate text-sm font-bold text-[#0A5F7A] hover:underline mt-0.5 block"
                     translate="no"
                   >
-                    +91 7566123666
+                    +91 8031320388
                   </a>
                 </div>
               </div>
@@ -904,7 +904,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
           </button>
 
           <a
-            href="https://wa.me/917566123666"
+            href="https://wa.me/918031320388"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 py-3 px-4 sm:px-6 rounded-xl font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer"

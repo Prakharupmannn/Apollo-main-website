@@ -447,11 +447,11 @@ export default function LoginForm() {
             <div className="mt-4 space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <span className="font-medium text-slate-600">Hospital Support Desk</span>
-                <a href="tel:7566123666" className="notranslate font-bold text-[#0A5F7A] hover:underline" translate="no">+91 7566123666</a>
+                <a href="tel:8031320388" className="notranslate font-bold text-[#0A5F7A] hover:underline" translate="no">+91 8031320388</a>
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-slate-200/60 pt-2.5">
                 <span className="font-medium text-slate-600">Emergency Helpline</span>
-                <a href="tel:18001236666" className="notranslate font-bold text-rose-600 hover:underline" translate="no">1800-123-6666</a>
+                <a href="tel:7247777181" className="notranslate font-bold text-rose-600 hover:underline" translate="no">7247777181</a>
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-slate-200/60 pt-2.5">
                 <span className="font-medium text-slate-600">Official Email</span>

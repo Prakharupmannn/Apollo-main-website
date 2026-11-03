@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
  * directly instead of apiClient.
  *
  * Returns: { stats, loading, error, refetch }
- *   stats = { doctors, specialties, events, caseStudies, articles, users, inquiries }
+ *   stats = { doctors, specialties, events, caseStudies, articles, users, inquiries, careers, appointments }
  */
 export default function useDashboardStats() {
   const [stats, setStats]     = useState(null);
@@ -28,6 +28,7 @@ export default function useDashboardStats() {
 
         const res = await fetch("/api/admin/stats", {
           credentials: "include",
+          cache: "no-store",
           signal: controller.signal,
         });
 

@@ -29,8 +29,7 @@ export async function GET(request) {
         intro,
         services
       FROM specialties
-      WHERE status = 1
-      ORDER BY id ASC`
+      WHERE status = 1`
     );
 
     const specialties = rows.map((item) => ({

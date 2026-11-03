@@ -840,7 +840,7 @@ export const FLOW_RESPONSES = {
 
   // 13. Contact Flow
   contact: {
-    text: "📍 **Apollo JBP Hospitals Jabalpur - Contact & Directions**\n\nGlobal Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh 482002, India.\n\n• **Main Reception**: +91 7566 123666\n• **24/7 Emergency Code**: 1066 / 1800-123-6666\n• **Railway Station**: ~7 km | **Dumna Airport**: ~22 km",
+    text: "📍 **Apollo JBP Hospitals Jabalpur - Contact & Directions**\n\nGlobal Square, Patan Road, Karmeta, Jabalpur, Madhya Pradesh 482002, India.\n\n• **Main Reception**: +91 8031320388\n• **24/7 Emergency Code**: 1066 / 7247777181\n• **Railway Station**: ~7 km | **Dumna Airport**: ~22 km",
     cards: [
       {
         title: "Contact Us & Department Helplines",

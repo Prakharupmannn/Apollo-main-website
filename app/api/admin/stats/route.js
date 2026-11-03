@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
+import { fetchHospitalAppointments } from "@/lib/appointments-service";
 
 export const dynamic = "force-dynamic";
 
@@ -23,21 +24,44 @@ export async function GET() {
         (SELECT COUNT(*) FROM case_studies)                                        AS caseStudies,
         (SELECT COUNT(*) FROM \`health-care\`)                                     AS articles,
         (SELECT COUNT(*) FROM users        WHERE deleted_at IS NULL AND status = 1) AS users,
-        (SELECT COUNT(*) FROM inquiries)                                           AS inquiries
+        (SELECT COUNT(*) FROM inquiries)                                           AS inquiries,
+        (SELECT COUNT(*) FROM career_jobs)                                         AS careers
     `);
 
-    return NextResponse.json({
-      success: true,
-      stats: {
-        doctors:     Number(row.doctors || 0),
-        specialties: Number(row.specialties || 0),
-        events:      Number(row.events || 0),
-        caseStudies: Number(row.caseStudies || 0),
-        articles:    Number(row.articles || 0),
-        users:       Number(row.users || 0),
-        inquiries:   Number(row.inquiries || 0),
+    let appointmentsCount = null;
+    try {
+      const appointments = await fetchHospitalAppointments();
+      appointmentsCount = appointments.length;
+    } catch (e) {
+      console.warn("Could not fetch hospital appointments count for stats:", e.message);
+    }
+
+    const statsObj = {
+      doctors:     Number(row.doctors || 0),
+      specialties: Number(row.specialties || 0),
+      events:      Number(row.events || 0),
+      caseStudies: Number(row.caseStudies || 0),
+      articles:    Number(row.articles || 0),
+      users:       Number(row.users || 0),
+      inquiries:   Number(row.inquiries || 0),
+      careers:     Number(row.careers || 0),
+    };
+
+    if (appointmentsCount !== null) {
+      statsObj.appointments = appointmentsCount;
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        stats: statsObj,
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (error) {
     console.error("GET /api/admin/stats error:", error.message);
     return NextResponse.json(

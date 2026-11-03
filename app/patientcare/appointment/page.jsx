@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, {
@@ -35,7 +36,7 @@ import {
   Ticket,
 } from "lucide-react";
 
-import appointmentData from "../../../data/appointmentData";
+// import appointmentData from "../../../data/appointmentData";
 
 /* ───────────────────────── constants ───────────────────────── */
 const goldGradientStyle = {
@@ -51,25 +52,37 @@ const stepMotion = {
   transition: { duration: 0.26, ease },
 };
 
+function getLocalDateInputValue() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 const INITIAL_BOOKING = {
   patientName: "",
   ageValue: "",
   ageUnit: "Year",
   gender: "MALE",
   contact: "",
+  email: "",
   sameWhatsapp: true,
   whatsappNumber: "",
   scheme: "",
-  appointmentDate: "2026-10-07",
+  appointmentDate: getLocalDateInputValue(),
   consultant: "",
+  consultantId: "",
   pinCode: "",
-  state: "MADHYA PRADESH",
+  state: 21,
   district: "",
   tehsil: "",
   village: "",
   wardNumber: "",
   address: "",
-  slot: "09:30:00",
+  slot: "",
+  slotDetailId: "",
+  slotId: "",
 };
 
 /* 16px on phones stops iOS zooming into inputs */
@@ -111,23 +124,6 @@ const BARCODE = Array.from({ length: 38 }).map((_, i) => ({
   h: 40 + ((i * 37) % 60),
 }));
 
-/* static option lists, built once */
-const OPT_DISTRICTS = appointmentData.districts.map((d) => (
-  <option key={d} value={d}>
-    {d}
-  </option>
-));
-const OPT_TEHSILS = appointmentData.tehsils.map((t) => (
-  <option key={t} value={t}>
-    {t}
-  </option>
-));
-const OPT_VILLAGES = appointmentData.villages.map((v) => (
-  <option key={v} value={v}>
-    {v}
-  </option>
-));
-
 /* ───────────────────────── helpers ───────────────────────── */
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -140,6 +136,7 @@ function formatDate(d) {
 }
 
 function formatTime(t) {
+  if (!t) return "Select a slot";
   const [h, mi] = String(t).split(":");
   const hh = parseInt(h, 10);
   if (isNaN(hh)) return t;
@@ -600,35 +597,255 @@ const Timeline = memo(function Timeline({ items, onGo }) {
 });
 
 /* ───────────────────────── STEP 1 ───────────────────────── */
-const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit }) {
+const StepOne = memo(function StepOne({
+  booking,
+  setBooking,
+  setField,
+  onSubmit,
+  doctors,
+  doctorsLoading,
+  doctorsError,
+}) {
   const [docSearch, setDocSearch] = useState("");
   const [schemeSearch, setSchemeSearch] = useState("");
+  const [schemes, setSchemes] = useState([]);
+  const [schemesLoading, setSchemesLoading] = useState(false);
+  const [schemesError, setSchemesError] = useState("");
   const deferredDoc = useDeferredValue(docSearch);
   const deferredScheme = useDeferredValue(schemeSearch);
+
+  // Load active schemes from the HIS scheme master.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSchemes() {
+      setSchemesLoading(true);
+      setSchemesError("");
+
+      try {
+        const response = await fetch("/api/schemes");
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Failed to load schemes.");
+        }
+
+        if (!cancelled) setSchemes(Array.isArray(result.data) ? result.data : []);
+      } catch (error) {
+        if (!cancelled) {
+          setSchemesError(error.message || "Failed to load schemes.");
+        }
+      } finally {
+        if (!cancelled) setSchemesLoading(false);
+      }
+    }
+
+    loadSchemes();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+    // Location dropdown data
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [tehsils, setTehsils] = useState([]);
+  const [villages, setVillages] = useState([]);
+
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [districtsLoading, setDistrictsLoading] = useState(false);
+  const [tehsilsLoading, setTehsilsLoading] = useState(false);
+  const [villagesLoading, setVillagesLoading] = useState(false);
+
+  const [locationError, setLocationError] = useState("");
+
+  // Load states
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStates() {
+      setStatesLoading(true);
+
+      try {
+        const response = await fetch("/api/locations/states");
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Failed to load states");
+        }
+
+        if (!cancelled) {
+          setStates(result.data || []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLocationError(error.message || "Failed to load states");
+        }
+      } finally {
+        if (!cancelled) setStatesLoading(false);
+      }
+    }
+
+    loadStates();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load districts whenever the selected state changes
+  useEffect(() => {
+    let cancelled = false;
+
+    setDistricts([]);
+    setTehsils([]);
+    setVillages([]);
+
+    if (!booking.state) {
+      setDistrictsLoading(false);
+      return;
+    }
+
+    async function loadDistricts() {
+      setDistrictsLoading(true);
+
+      try {
+        const response = await fetch(
+          `/api/locations/districts?stateId=${encodeURIComponent(booking.state)}`
+        );
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Failed to load districts");
+        }
+
+        if (!cancelled) setDistricts(result.data || []);
+      } catch (error) {
+        if (!cancelled) {
+          setLocationError(error.message || "Failed to load districts");
+        }
+      } finally {
+        if (!cancelled) setDistrictsLoading(false);
+      }
+    }
+
+    loadDistricts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [booking.state]);
+
+  // Load tehsils whenever the selected district changes
+  useEffect(() => {
+    let cancelled = false;
+
+    setTehsils([]);
+    setVillages([]);
+
+    if (!booking.district) {
+      setTehsilsLoading(false);
+      return;
+    }
+
+    async function loadTehsils() {
+      setTehsilsLoading(true);
+
+      try {
+        const response = await fetch(
+          `/api/locations/tehsils?districtId=${encodeURIComponent(booking.district)}`
+        );
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Failed to load tehsils");
+        }
+
+        if (!cancelled) setTehsils(result.data || []);
+      } catch (error) {
+        if (!cancelled) {
+          setLocationError(error.message || "Failed to load tehsils");
+        }
+      } finally {
+        if (!cancelled) setTehsilsLoading(false);
+      }
+    }
+
+    loadTehsils();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [booking.district]);
+
+  // Load villages whenever the selected tehsil changes
+  useEffect(() => {
+    let cancelled = false;
+
+    setVillages([]);
+
+    if (!booking.tehsil) {
+      setVillagesLoading(false);
+      return;
+    }
+
+    async function loadVillages() {
+      setVillagesLoading(true);
+
+      try {
+        const response = await fetch(
+          `/api/locations/villages?tehsilId=${encodeURIComponent(booking.tehsil)}`
+        );
+        console.log("first", response);
+        const result = await response.json();
+      
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Failed to load villages");
+        }
+
+        if (!cancelled) setVillages(result.data || []);
+      } catch (error) {
+        if (!cancelled) {
+          setLocationError(error.message || "Failed to load villages");
+        }
+      } finally {
+        if (!cancelled) setVillagesLoading(false);
+      }
+    }
+
+    loadVillages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [booking.tehsil]);
 
   const doctorOptions = useMemo(() => {
     const q = deferredDoc.trim().toLowerCase();
     const list = q
-      ? appointmentData.consultants.filter((d) => d.toLowerCase().includes(q))
-      : appointmentData.consultants;
-    return list.map((doc) => (
-      <option key={doc} value={doc}>
-        {doc}
+      ? doctors.filter((doctor) => doctor.name.toLowerCase().includes(q))
+      : doctors;
+    return list.map((doctor) => (
+      <option key={doctor.id} value={String(doctor.id)}>
+        {doctor.name}
       </option>
     ));
-  }, [deferredDoc]);
+  }, [deferredDoc, doctors]);
 
   const schemeOptions = useMemo(() => {
     const q = deferredScheme.trim().toLowerCase();
     const list = q
-      ? appointmentData.schemes.filter((s) => s.toLowerCase().includes(q))
-      : appointmentData.schemes;
-    return list.map((sch) => (
-      <option key={sch} value={sch}>
-        {sch}
+      ? schemes.filter((scheme) =>
+          `${scheme.misc_sname || ""} ${scheme.misc_name || ""}`.toLowerCase().includes(q)
+        )
+      : schemes;
+
+    return list.map((scheme) => (
+      <option key={scheme.misc_id} value={String(scheme.misc_id)}>
+        {scheme.misc_sname || scheme.misc_name}
       </option>
     ));
-  }, [deferredScheme]);
+  }, [deferredScheme, schemes]);
 
   const on = (key) => (e) => setField(key, e.target.value);
 
@@ -745,6 +962,22 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
               className={`${inputCls} disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-slate-50`}
             />
           </Field>
+
+          <Field label="Email Address (OTP Verification)" htmlFor="f-email" required className="sm:col-span-2">
+            <input
+              id="f-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={booking.email}
+              onChange={on("email")}
+              placeholder="Enter your email address"
+              className={inputCls}
+            />
+            <p className="mt-1.5 text-[11px] text-slate-500">
+              We’ll send a one-time verification code to this email before booking.
+            </p>
+          </Field>
         </div>
       </FormBlock>
 
@@ -769,32 +1002,134 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
           </Field>
 
           <Field label="State" htmlFor="f-state" required>
-            <SelectBox id="f-state" required value={booking.state} onChange={on("state")}>
-              <option value="MADHYA PRADESH">MADHYA PRADESH</option>
-              <option value="MAHARASHTRA">MAHARASHTRA</option>
-              <option value="CHHATTISGARH">CHHATTISGARH</option>
-              <option value="UTTAR PRADESH">UTTAR PRADESH</option>
+            <SelectBox
+              id="f-state"
+              required
+              value={booking.state || ""}
+              onChange={(e) => {
+                const stateId = e.target.value;
+
+                setLocationError("");
+                setBooking((current) => ({
+                  ...current,
+                  state: stateId,
+                  district: "",
+                  tehsil: "",
+                  village: "",
+                }));
+              }}
+            >
+              <option value="">
+                {statesLoading ? "Loading states..." : "Select State"}
+              </option>
+
+              {states.map((state) => (
+                <option key={state.id} value={String(state.id)}>
+                  {state.name}
+                </option>
+              ))}
             </SelectBox>
           </Field>
 
           <Field label="District" htmlFor="f-district" required>
-            <SelectBox id="f-district" required value={booking.district} onChange={on("district")}>
-              <option value="">Select District</option>
-              {OPT_DISTRICTS}
+            <SelectBox
+              id="f-district"
+              required
+              value={booking.district || ""}
+              disabled={!booking.state || districtsLoading}
+              onChange={(e) => {
+                setLocationError("");
+                setBooking((current) => ({
+                  ...current,
+                  district: e.target.value,
+                  tehsil: "",
+                  village: "",
+                }));
+              }}
+            >
+              <option value="">
+                {!booking.state
+                  ? "Select State First"
+                  : districtsLoading
+                    ? "Loading districts..."
+                    : "Select District"}
+              </option>
+
+              {districts.map((district) => (
+                <option key={district.id} value={String(district.id)}>
+                  {district.name}
+                </option>
+              ))}
             </SelectBox>
           </Field>
 
           <Field label="Tehsil" htmlFor="f-tehsil">
-            <SelectBox id="f-tehsil" value={booking.tehsil} onChange={on("tehsil")}>
-              <option value="">Select Tahsil Name</option>
-              {OPT_TEHSILS}
+            <SelectBox
+              id="f-tehsil"
+              value={booking.tehsil || ""}
+              disabled={!booking.district || tehsilsLoading}
+              onChange={(e) => {
+                setLocationError("");
+                setBooking((current) => ({
+                  ...current,
+                  tehsil: e.target.value,
+                  village: "",
+                }));
+              }}
+            >
+              <option value="">
+                {!booking.district
+                  ? "Select District First"
+                  : tehsilsLoading
+                    ? "Loading tehsils..."
+                    : "Select Tehsil"}
+              </option>
+
+              {tehsils.map((tehsil) => (
+                <option key={tehsil.id} value={String(tehsil.id)}>
+                  {tehsil.name}
+                </option>
+              ))}
             </SelectBox>
           </Field>
 
           <Field label="Village" htmlFor="f-village">
-            <SelectBox id="f-village" value={booking.village} onChange={on("village")}>
-              <option value="">Select Village Name</option>
-              {OPT_VILLAGES}
+            <SelectBox
+              id="f-village"
+              value={booking.village || ""}
+              disabled={!booking.tehsil || villagesLoading}
+              onChange={(e) => {
+                const villageId = e.target.value;
+                const selectedVillage = villages.find(
+                  (village) => String(village.id) === villageId
+                );
+
+                setLocationError("");
+                setBooking((current) => ({
+                  ...current,
+                  village: villageId,
+                  pinCode:
+                    current.pinCode ||
+                    (
+                    selectedVillage?.pinCode != null
+                      ? String(selectedVillage.pinCode)
+                      : ""),
+                }));
+              }}
+            >
+              <option value="">
+                {!booking.tehsil
+                  ? "Select Tehsil First"
+                  : villagesLoading
+                    ? "Loading villages..."
+                    : "Select Village"}
+              </option>
+
+              {villages.map((village) => (
+                <option key={village.id} value={String(village.id)}>
+                  {village.name}
+                </option>
+              ))}
             </SelectBox>
           </Field>
 
@@ -809,7 +1144,12 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
             />
           </Field>
 
-          <Field label="Address" htmlFor="f-address" required className="sm:col-span-2">
+          <Field
+            label="Address"
+            htmlFor="f-address"
+            required
+            className="sm:col-span-2"
+          >
             <input
               id="f-address"
               type="text"
@@ -821,6 +1161,15 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
               className={inputCls}
             />
           </Field>
+
+          {locationError && (
+            <p
+              role="alert"
+              className="sm:col-span-2 text-sm font-medium text-red-600"
+            >
+              {locationError}
+            </p>
+          )}
         </div>
       </FormBlock>
 
@@ -844,10 +1193,20 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
                   className={`${filterCls} mt-1`}
                 />
               </div>
-              <SelectBox id="f-scheme" required value={booking.scheme} onChange={on("scheme")}>
-                <option value="">Select Scheme Name</option>
+              <SelectBox id="f-scheme" required value={booking.scheme} onChange={on("scheme")} disabled={schemesLoading || Boolean(schemesError)}>
+                <option value="">
+                  {schemesLoading ? "Loading schemes..." : schemesError ? "Schemes unavailable" : "Select Scheme Name"}
+                </option>
                 {schemeOptions}
               </SelectBox>
+              {schemesError && (
+                <p role="alert" className="mt-2 text-xs font-semibold text-red-600">
+                  {schemesError}
+                </p>
+              )}
+              {!schemesLoading && !schemesError && schemes.length === 0 && (
+                <p className="mt-2 text-xs text-slate-500">No active schemes are available.</p>
+              )}
             </div>
           </Field>
 
@@ -867,12 +1226,36 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
               <SelectBox
                 id="f-doctor"
                 required
-                value={booking.consultant}
-                onChange={on("consultant")}
+                value={booking.consultantId ? String(booking.consultantId) : ""}
+                onChange={(e) => {
+                  const selectedDoctor = doctors.find(
+                    (doctor) => String(doctor.id) === e.target.value
+                  );
+                  setBooking((current) => ({
+                    ...current,
+                    consultantId: selectedDoctor ? Number(selectedDoctor.id) : "",
+                    consultant: selectedDoctor ? selectedDoctor.name : "",
+                    slot: "",
+                    slotDetailId: "",
+                    slotId: "",
+                  }));
+                }}
               >
-                <option value="">Select Doctors</option>
+                <option value="">
+                  {doctorsLoading ? "Loading consultants..." : "Select Doctors"}
+                </option>
                 {doctorOptions}
               </SelectBox>
+              {doctorsError && (
+                <p role="alert" className="text-xs font-semibold text-red-600 mt-2">
+                  {doctorsError}
+                </p>
+              )}
+              {!doctorsLoading && !doctorsError && doctors.length === 0 && (
+                <p className="text-xs text-slate-500 mt-2">
+                  No active consultants are currently available.
+                </p>
+              )}
             </div>
           </Field>
 
@@ -883,8 +1266,18 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
                 id="f-date"
                 type="date"
                 required
+                min={getLocalDateInputValue()}
                 value={booking.appointmentDate}
-                onChange={on("appointmentDate")}
+                onChange={(e) => {
+                  const appointmentDate = e.target.value;
+                  setBooking((current) => ({
+                    ...current,
+                    appointmentDate,
+                    slot: "",
+                    slotDetailId: "",
+                    slotId: "",
+                  }));
+                }}
                 className={`${inputCls} pr-10`}
               />
             </div>
@@ -904,19 +1297,36 @@ const StepOne = memo(function StepOne({ booking, setBooking, setField, onSubmit 
 });
 
 /* ───────────────────────── STEP 2 ───────────────────────── */
+
 const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
   const isVisitors = s.note === "Visitors Only";
+
+  const isBooked =
+    Number(s.bookingType) !== 0 ||
+    Number(s.bookedBy) > 0;
+
+  const isUnavailable = Number(s.status) !== 1;
+
+  const isDisabled = isVisitors || isBooked || isUnavailable;
+
   return (
     <button
       type="button"
-      onClick={() => onSelect(s.time)}
+      onClick={() => {
+        if (!isDisabled) onSelect(s);
+      }}
       aria-pressed={selected}
-      className={`relative min-h-[88px] p-3 sm:p-4 rounded-2xl border text-center transition-all duration-200 flex flex-col items-center justify-between gap-2 cursor-pointer hover:-translate-y-1 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1D82A6]/30 [touch-action:manipulation] ${
-        selected
+      disabled={isDisabled}
+      className={`relative min-h-[88px] p-3 sm:p-4 rounded-2xl border text-center transition-all duration-200 flex flex-col items-center justify-between gap-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1D82A6]/30 [touch-action:manipulation] ${
+        isDisabled
+          ? isBooked
+            ? "bg-rose-50 border-rose-200 text-rose-500 cursor-not-allowed opacity-90"
+            : isVisitors
+            ? "bg-amber-100/70 border-amber-300 text-amber-900 cursor-not-allowed opacity-90"
+            : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-70"
+          : selected
           ? "scale-[1.03] bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] border-[#0A5F7A] text-white shadow-xl ring-2 ring-[#F6D98A]"
-          : isVisitors
-          ? "bg-amber-100/70 border-amber-300 text-amber-900 hover:bg-amber-200"
-          : "bg-white border-slate-200 text-slate-800 hover:border-[#1D82A6]/50 hover:bg-[#EDF6FB]"
+          : "bg-white border-slate-200 text-slate-800 hover:border-[#1D82A6]/50 hover:bg-[#EDF6FB] hover:-translate-y-1 active:scale-95 cursor-pointer"
       }`}
     >
       {selected && (
@@ -924,27 +1334,60 @@ const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
           <CheckCircle2 className="w-4 h-4" />
         </span>
       )}
-      <div className={`p-2 rounded-xl ${selected ? "bg-white/20" : "bg-[#EDF6FB] text-[#0A5F7A]"}`}>
+
+      <div
+        className={`p-2 rounded-xl ${
+          selected
+            ? "bg-white/20"
+            : isBooked
+            ? "bg-rose-100 text-rose-600"
+            : isVisitors
+            ? "bg-amber-200 text-amber-900"
+            : "bg-[#EDF6FB] text-[#0A5F7A]"
+        }`}
+      >
         <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
       </div>
+
       <div className="min-w-0">
-        <div className="text-sm font-black tracking-tight leading-normal">{formatTime(s.time)}</div>
+        <div className="text-sm font-black tracking-tight leading-normal">
+          {isVisitors ? "Visitors Only" : formatTime(s.time)}
+        </div>
+
         <div
           className={`text-[10px] font-bold uppercase tracking-wider leading-normal ${
-            selected ? "text-[#F6D98A]" : "text-emerald-600"
+            selected
+              ? "text-[#F6D98A]"
+              : isBooked
+              ? "text-rose-600"
+              : isVisitors
+              ? "text-amber-800"
+              : isUnavailable
+              ? "text-slate-500"
+              : "text-emerald-600"
           }`}
         >
-          {selected ? "Selected" : "Available"}
+          {isVisitors
+            ? "Not Bookable"
+            : selected
+            ? "Selected"
+            : isBooked
+            ? "Booked"
+            : isUnavailable
+            ? "Unavailable"
+            : "Available"}
         </div>
-        {s.note && (
-          <div className="text-[10px] font-black mt-1 px-2 py-0.5 rounded bg-rose-600 text-white inline-block leading-normal">
-            {s.note}
+
+        {isVisitors && (
+          <div className="text-[10px] font-black mt-1 px-2 py-0.5 rounded bg-amber-600 text-white inline-block leading-normal">
+            Visitors Only
           </div>
         )}
       </div>
     </button>
   );
 });
+
 
 const SummaryTile = memo(function SummaryTile({ icon: Icon, label, value }) {
   return (
@@ -962,18 +1405,41 @@ const SummaryTile = memo(function SummaryTile({ icon: Icon, label, value }) {
   );
 });
 
-const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm }) {
+const StepTwo = memo(function StepTwo({
+  booking,
+  slots,
+  slotsLoading,
+  slotsError,
+  onSelectSlot,
+  onBack,
+  onConfirm,
+  savingAppointment,
+  submitError,
+  emailOtp,
+  setEmailOtp,
+  otpBusy,
+  onSendOtp,
+  onVerifyOtp,
+}) {
   const headingRef = useRef(null);
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const groupedSlots = useMemo(() => {
-    const groups = { Morning: [], Afternoon: [], Evening: [] };
-    appointmentData.timeSlots.forEach((s) => groups[slotPeriod(s.time)].push(s));
-    return Object.entries(groups).filter(([, list]) => list.length > 0);
-  }, []);
+const groupedSlots = useMemo(() => {
+  const groups = {
+    Morning: [],
+    Afternoon: [],
+    Evening: [],
+  };
+
+  slots.forEach((slot) => {
+    groups[slotPeriod(slot.time)].push(slot);
+  });
+
+  return Object.entries(groups).filter(([, list]) => list.length > 0);
+}, [slots]);
 
   return (
     <m.div {...stepMotion} className="space-y-6">
@@ -982,6 +1448,24 @@ const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm
         <SummaryTile icon={Stethoscope} label="Doctor" value={booking.consultant || "Select Doctors"} />
         <SummaryTile icon={Calendar} label="Date" value={formatDate(booking.appointmentDate)} />
       </div>
+
+      {slotsLoading && (
+        <div className="py-5 text-center text-sm font-semibold text-slate-500" role="status">
+          Loading available slots...
+        </div>
+      )}
+
+      {!slotsLoading && slotsError && (
+        <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {slotsError}
+        </div>
+      )}
+
+      {submitError && (
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+          {submitError}
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="min-w-0">
@@ -1008,6 +1492,7 @@ const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm
         </div>
       </div>
 
+{!slotsLoading && slots.length > 0 && (
       <div className="space-y-6">
         {groupedSlots.map(([period, list]) => {
           const meta = periodMeta[period];
@@ -1027,19 +1512,102 @@ const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
-                {list.map((s) => (
-                  <SlotButton
-                    key={s.time}
-                    s={s}
-                    selected={booking.slot === s.time}
-                    onSelect={onSelectSlot}
+           
+            {list.map((s, index) => {
+              const isBooked =
+                Number(s.bookingType) !== 0 ||
+                Number(s.bookedBy) > 0;
+
+              const isVisitorsOnly =
+                !isBooked && (index + 1) % 3 === 0;
+
+              if (isVisitorsOnly) return null;
+
+              return (
+                <SlotButton
+                  key={s.id}
+                  s={s}
+                  selected={
+                    !isBooked &&
+                    Number(booking.slotDetailId) === Number(s.id)
+                  }
+                  onSelect={(slot) => {
+                    if (isBooked) return;
+                    onSelectSlot(slot);
+                  }}
+                />
+              );
+            })}
+
+
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
+
+      {/* Mandatory email OTP verification before appointment booking */}
+      <div className="rounded-2xl border border-[#1D82A6]/20 bg-[#F5FAFC] p-4 sm:p-5 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white border border-[#1D82A6]/15 text-[#0A5F7A] flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-extrabold text-[#0B3446]">Verify your email to confirm booking</h3>
+            <p className="mt-1 text-xs leading-relaxed text-slate-600">
+              OTP will be sent to <strong className="break-all">{booking.email}</strong>. Email verification is mandatory.
+            </p>
+          </div>
+        </div>
+
+        {emailOtp.verified ? (
+          <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            Email verified successfully.
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={onSendOtp}
+                disabled={otpBusy || !booking.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.email)}
+                className="min-h-[46px] rounded-xl bg-[#0A5F7A] px-5 py-3 text-xs font-extrabold text-white transition hover:bg-[#084b61] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {otpBusy ? "Please wait..." : emailOtp.challengeId ? "Resend OTP" : "Send OTP"}
+              </button>
+              {emailOtp.challengeId && (
+                <div className="flex min-w-0 flex-1 gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    aria-label="Six digit email OTP"
+                    placeholder="Enter 6-digit OTP"
+                    value={emailOtp.code}
+                    onChange={(event) => setEmailOtp((current) => ({ ...current, code: event.target.value.replace(/\D/g, "").slice(0, 6), message: "", error: "" }))}
+                    className={`${inputCls} min-w-0 flex-1 tracking-[0.25em]`}
                   />
-                ))}
-              </div>
+                  <button
+                    type="button"
+                    onClick={onVerifyOtp}
+                    disabled={otpBusy || emailOtp.code.length !== 6}
+                    className="min-h-[48px] rounded-xl border border-[#0A5F7A] px-5 py-3 text-xs font-extrabold text-[#0A5F7A] hover:bg-[#EDF6FB] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Verify
+                  </button>
+                </div>
+              )}
             </div>
-          );
-        })}
+            {emailOtp.error && <p role="alert" className="text-xs font-semibold text-red-600">{emailOtp.error}</p>}
+            {emailOtp.message && <p role="status" className="text-xs font-semibold text-[#0A5F7A]">{emailOtp.message}</p>}
+            {emailOtp.challengeId && <p className="text-[11px] text-slate-500">The OTP expires in 5 minutes. Check your spam folder if it doesn’t arrive.</p>}
+          </>
+        )}
       </div>
+
 
       <div className="pt-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <button
@@ -1051,10 +1619,18 @@ const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm
           <span>Edit Patient Info</span>
         </button>
 
-        <button type="button" onClick={onConfirm} className={goldBtnCls} style={goldGradientStyle}>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={savingAppointment || slotsLoading || !booking.slotDetailId || !emailOtp.verified || !emailOtp.verificationToken}
+          className={`${goldBtnCls} disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
+          style={goldGradientStyle}
+        >
           <span className="ap-btn-sheen" />
-          <span className="relative">Confirm & Generate Registration Pass</span>
-          <ChevronRight className="relative w-4 h-4" />
+          <span className="relative">
+            {savingAppointment ? "Saving Appointment..." : "Confirm & Generate Registration Pass"}
+          </span>
+          {!savingAppointment && <ChevronRight className="relative w-4 h-4" />}
         </button>
       </div>
     </m.div>
@@ -1062,7 +1638,7 @@ const StepTwo = memo(function StepTwo({ booking, onSelectSlot, onBack, onConfirm
 });
 
 /* ───────────────────────── STEP 3 ───────────────────────── */
-const StepThree = memo(function StepThree({ booking, passId, onReset }) {
+const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId, onReset }) {
   const headingRef = useRef(null);
 
   useEffect(() => {
@@ -1122,16 +1698,32 @@ const StepThree = memo(function StepThree({ booking, passId, onReset }) {
         id="pass-ticket"
         className="relative rounded-3xl bg-gradient-to-br from-[#06384A] via-[#0A5F7A] to-[#0D2E3A] text-white max-w-lg mx-auto text-left text-xs shadow-[0_30px_60px_rgba(6,56,74,0.4)] overflow-hidden border border-white/20"
       >
+
+        {/* Diagonal Apollo watermark */}
+<div
+  aria-hidden="true"
+  className="pointer-events-none absolute inset-0 overflow-hidden"
+>
+  <span
+    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 whitespace-nowrap text-[64px] sm:text-[76px] font-black tracking-[0.18em] text-white/[0.06] select-none"
+  >
+    APOLLO
+  </span>
+</div>
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#F6D98A]/15 blur-2xl pointer-events-none" />
         <div className="absolute top-[46%] -left-3 w-6 h-6 rounded-full bg-white" />
         <div className="absolute top-[46%] -right-3 w-6 h-6 rounded-full bg-white" />
 
         <div className="relative p-4 sm:p-6 space-y-4">
           <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-dashed border-white/25">
-            <span className="inline-flex items-center gap-2 font-black text-[#F6D98A] tracking-[0.16em] uppercase text-[10px] leading-normal">
-              <HeartPulse className="w-4 h-4" />
-              Apollo JBP Hospitals
-            </span>
+            <span className="inline-flex items-center gap-2.5 font-black text-[#F6D98A] tracking-[0.12em] uppercase text-[10px] leading-normal">
+  <img
+    src="/images/apollologo.png"
+    alt="Apollo Hospitals"
+    className="w-9 h-9 object-contain rounded-full bg-white p-1"
+  />
+  <span>Apollo JBP Hospitals</span>
+</span>
             <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold leading-normal">
               CONFIRMED
             </span>
@@ -1145,6 +1737,15 @@ const StepThree = memo(function StepThree({ booking, passId, onReset }) {
               {passId}
             </span>
           </div>
+
+          {savedAppointmentId != null && (
+            <div>
+              <span className="text-slate-300 block text-[10px] uppercase tracking-wider leading-normal">
+                HIS Appointment ID
+              </span>
+              <span className="font-black text-white text-sm leading-snug">{savedAppointmentId}</span>
+            </div>
+          )}
 
           <div className="min-w-0">
             <span className="text-slate-300 block text-[10px] uppercase tracking-wider leading-normal">
@@ -1205,7 +1806,134 @@ const StepThree = memo(function StepThree({ booking, passId, onReset }) {
       <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         <button
           type="button"
-          onClick={() => window.print()}
+         onClick={() => {
+  const ticket = document.getElementById("pass-ticket");
+
+  if (!ticket) {
+    console.error("Appointment pass not found.");
+    return;
+  }
+
+  const printWindow = window.open(
+    "",
+    "_blank",
+    "width=900,height=700"
+  );
+
+  if (!printWindow) {
+    alert("Please allow pop-ups to print your appointment pass.");
+    return;
+  }
+
+  // Copy website styles, excluding the old print CSS
+  const styles = Array.from(
+    document.querySelectorAll('link[rel="stylesheet"], style')
+  )
+    .filter((node) => {
+      return !node.textContent?.includes("@media print");
+    })
+    .map((node) => node.outerHTML)
+    .join("\n");
+
+  printWindow.document.open();
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Appointment Pass</title>
+
+        ${styles}
+
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 12mm;
+          }
+
+          html,
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            background: #ffffff !important;
+          }
+
+          body {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            padding: 0 !important;
+          }
+
+          #pass-ticket {
+            display: block !important;
+            position: relative !important;
+            width: 180mm !important;
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 0 auto !important;
+            overflow: visible !important;
+            box-sizing: border-box !important;
+            box-shadow: none !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          #pass-ticket,
+          #pass-ticket * {
+            visibility: visible !important;
+          }
+
+          img {
+            max-width: 100%;
+          }
+
+          @media print {
+            html,
+            body {
+              height: auto !important;
+              overflow: visible !important;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        ${ticket.outerHTML}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  printWindow.onload = () => {
+    const images = Array.from(printWindow.document.images);
+
+    Promise.all(
+      images.map((img) => {
+        if (img.complete) return Promise.resolve();
+
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      })
+    ).then(() => {
+      printWindow.focus();
+      printWindow.print();
+    });
+  };
+
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  };
+}}
           className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl text-[#3A2B0A] text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F6D98A]/60 [touch-action:manipulation]"
           style={goldGradientStyle}
         >
@@ -1228,13 +1956,136 @@ const StepThree = memo(function StepThree({ booking, passId, onReset }) {
 export default function MakeAppointmentPage() {
   const [step, setStep] = useState(1);
   const [booking, setBooking] = useState(INITIAL_BOOKING);
-  const [passId, setPassId] = useState("APO-JBP-9921");
+  const [emailOtp, setEmailOtp] = useState({
+    challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "",
+  });
+  const [otpBusy, setOtpBusy] = useState(false);
+  const [passId, setPassId] = useState("");
+  const [doctors, setDoctors] = useState([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(true);
+  const [doctorsError, setDoctorsError] = useState("");
   const journeyRef = useRef(null);
 
-  const setField = useCallback(
-    (key, value) => setBooking((b) => ({ ...b, [key]: value })),
-    []
-  );
+  const [slots, setSlots] = useState([]);
+const [slotsLoading, setSlotsLoading] = useState(false);
+const [slotsError, setSlotsError] = useState("");
+
+const [savingAppointment, setSavingAppointment] = useState(false);
+const [submitError, setSubmitError] = useState("");
+const [savedAppointmentId, setSavedAppointmentId] = useState(null);
+// start
+useEffect(() => {
+  if (step !== 2) return;
+
+  const doctorId = booking.consultantId;
+  const appointmentDate = booking.appointmentDate;
+
+  if (!doctorId || !appointmentDate) {
+    setSlots([]);
+    setSlotsError("Please select a doctor and appointment date.");
+    return;
+  }
+
+  const controller = new AbortController();
+
+  async function fetchSlots() {
+    setSlotsLoading(true);
+    setSlotsError("");
+    setSlots([]);
+
+    try {
+      const params = new URLSearchParams({
+        drid: String(doctorId),
+        bookdt: appointmentDate,
+      });
+
+      const response = await fetch(
+        `/api/appointments/slots?${params.toString()}`,
+        { signal: controller.signal, cache: "no-store" }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setSlots([]);
+        setSlotsError(
+          result.message || "Unable to load appointment slots."
+        );
+        return;
+      }
+
+     
+const visibleSlots = (result.data || []).filter(
+  (slot) => Number(slot.status) === 1
+);
+
+setSlots(visibleSlots);
+
+if (visibleSlots.length === 0) {
+  setSlotsError("No slots available for this doctor on this date.");
+}
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSlots([]);
+        setSlotsError("Unable to load slots. Please try again.");
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setSlotsLoading(false);
+      }
+    }
+  }
+
+  fetchSlots();
+
+  return () => controller.abort();
+}, [step, booking.consultantId, booking.appointmentDate]);
+//  end
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadDoctors() {
+      try {
+        setDoctorsLoading(true);
+        setDoctorsError("");
+
+        const response = await fetch("/api/appointments/doctors", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const result = await response.json();
+
+        if (!response.ok || result.success !== true || !Array.isArray(result.data)) {
+          throw new Error(result.message || "Unable to load consultants.");
+        }
+
+        setDoctors(
+          result.data
+            .filter((doctor) => doctor?.id != null && doctor?.name)
+            .map((doctor) => ({ id: Number(doctor.id), name: String(doctor.name) }))
+        );
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Load appointment doctors error:", error);
+          setDoctorsError("Unable to load consultants. Please refresh and try again.");
+        }
+      } finally {
+        if (!controller.signal.aborted) setDoctorsLoading(false);
+      }
+    }
+
+    loadDoctors();
+    return () => controller.abort();
+  }, []);
+
+  const setField = useCallback((key, value) => {
+    setBooking((current) => ({ ...current, [key]: value }));
+    if (key === "email") {
+      setEmailOtp({ challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "" });
+    }
+  }, []);
 
   const scrollToJourney = useCallback(() => {
     requestAnimationFrame(() =>
@@ -1251,11 +2102,112 @@ export default function MakeAppointmentPage() {
     [scrollToJourney]
   );
 
-  const handleFinalSubmit = useCallback(() => {
+
+const handleSendOtp = useCallback(async () => {
+  if (otpBusy) return;
+  const email = String(booking.email || "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setEmailOtp((current) => ({ ...current, error: "Enter a valid email address.", message: "" }));
+    return;
+  }
+  setOtpBusy(true);
+  setEmailOtp((current) => ({ ...current, error: "", message: "" }));
+  try {
+    const response = await fetch("/api/appointments/email-otp/send", {
+      method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
+      body: JSON.stringify({ email }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "Unable to send OTP.");
+    setEmailOtp({ challengeId: result.challengeId, code: "", verificationToken: "", verified: false, message: result.message || "OTP sent. Check your email.", error: "" });
+  } catch (error) {
+    setEmailOtp((current) => ({ ...current, error: error.message || "Unable to send OTP.", message: "" }));
+  } finally { setOtpBusy(false); }
+}, [booking.email, otpBusy]);
+
+const handleVerifyOtp = useCallback(async () => {
+  if (otpBusy) return;
+  setOtpBusy(true);
+  setEmailOtp((current) => ({ ...current, error: "", message: "" }));
+  try {
+    const response = await fetch("/api/appointments/email-otp/verify", {
+      method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
+      body: JSON.stringify({ email: String(booking.email || "").trim().toLowerCase(), challengeId: emailOtp.challengeId, otp: emailOtp.code }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "OTP verification failed.");
+    setEmailOtp((current) => ({ ...current, verified: true, verificationToken: result.verificationToken, code: "", message: "Email verified. You can now confirm your appointment.", error: "" }));
+  } catch (error) {
+    setEmailOtp((current) => ({ ...current, error: error.message || "OTP verification failed.", message: "" }));
+  } finally { setOtpBusy(false); }
+}, [booking.email, emailOtp.challengeId, emailOtp.code, otpBusy]);
+
+const handleFinalSubmit = useCallback(async () => {
+  if (savingAppointment) return;
+  if (!booking.slotDetailId) {
+    setSubmitError("Please select an available appointment slot.");
+    return;
+  }
+  if (!emailOtp.verified || !emailOtp.verificationToken) {
+    setSubmitError("Please verify your email with OTP before booking.");
+    return;
+  }
+
+  setSavingAppointment(true);
+  setSubmitError("");
+
+  try {
+    const response = await fetch("/api/appointments/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        patientName: booking.patientName,
+        email: String(booking.email || "").trim().toLowerCase(),
+        emailVerificationToken: emailOtp.verificationToken,
+        ageValue: booking.ageValue,
+        ageUnit: booking.ageUnit,
+        gender: booking.gender,
+        contact: booking.contact,
+        whatsappNumber: booking.sameWhatsapp
+          ? booking.contact
+          : booking.whatsappNumber,
+        scheme: booking.scheme,
+        consultantId: booking.consultantId,
+        appointmentDate: booking.appointmentDate,
+        slotDetailId: booking.slotDetailId,
+        state: booking.state,
+        district: booking.district,
+        tehsil: booking.tehsil,
+        pinCode: booking.pinCode,
+        village: booking.village,
+        wardNumber: booking.wardNumber,
+        address: booking.address,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.status) {
+      throw new Error(
+        result.message || "Unable to book appointment."
+      );
+    }
+
+    setSavedAppointmentId(result.data.book_id);
     setPassId(makePassId());
     setStep(3);
     scrollToJourney();
-  }, [scrollToJourney]);
+  } catch (error) {
+    setSubmitError(
+      error.message || "Unable to book appointment. Please try again."
+    );
+  } finally {
+    setSavingAppointment(false);
+  }
+}, [booking, emailOtp.verified, emailOtp.verificationToken, savingAppointment, scrollToJourney]);
+
 
   const goToStep1 = useCallback(() => {
     setStep(1);
@@ -1274,15 +2226,24 @@ export default function MakeAppointmentPage() {
   );
 
   const handleReset = useCallback(() => {
-    setBooking(INITIAL_BOOKING);
+    setBooking({ ...INITIAL_BOOKING, appointmentDate: getLocalDateInputValue() });
+    setSavedAppointmentId(null);
+    setSubmitError("");
+    setPassId("");
+    setEmailOtp({ challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "" });
     setStep(1);
     scrollToJourney();
   }, [scrollToJourney]);
 
-  const handleSelectSlot = useCallback(
-    (time) => setBooking((b) => (b.slot === time ? b : { ...b, slot: time })),
-    []
-  );
+ const handleSelectSlot = useCallback((slot) => {
+  setSubmitError("");
+  setBooking((current) => ({
+    ...current,
+    slot: slot.time,
+    slotDetailId: slot.id,
+    slotId: slot.slotId,
+  }));
+}, []);
 
   /* journey data shared by stepper, step list and timeline */
   const items = useMemo(
@@ -1346,7 +2307,7 @@ export default function MakeAppointmentPage() {
 
   return (
     <LazyMotion features={domAnimation} strict>
-      <main className="relative min-h-screen bg-[#EEF5F9] text-slate-900 pt-28 sm:pt-36 xl:pt-40 pb-16 sm:pb-24 selection:bg-[#1D82A6] selection:text-white overflow-hidden">
+      <main className="relative min-h-screen bg-[#EEF5F9] text-slate-900 pt-28 sm:pt-36 xl:pt-40 pb-16 sm:pb-24 selection:bg-[#1D82A6] selection:text-white ">
         {/* static background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           <div className="absolute -top-40 -left-40 w-[320px] sm:w-[600px] h-[320px] sm:h-[600px] rounded-full bg-gradient-to-br from-[#1D82A6]/25 via-[#0A5F7A]/15 to-transparent sm:blur-3xl" />
@@ -1376,9 +2337,9 @@ export default function MakeAppointmentPage() {
             <TopStepper items={items} onGo={goTo} />
 
             <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_290px] gap-4 sm:gap-5 items-start">
-              <div className="lg:sticky lg:top-36 xl:top-40">
-                <StepList items={items} />
-              </div>
+              <div className="hidden lg:block lg:sticky lg:top-36 xl:top-40 self-start">
+  <StepList items={items} />
+</div>
 
               {/* center: form card */}
               <div className="min-w-0 space-y-4">
@@ -1412,15 +2373,28 @@ export default function MakeAppointmentPage() {
                         setBooking={setBooking}
                         setField={setField}
                         onSubmit={handleNextToSlots}
+                        doctors={doctors}
+                        doctorsLoading={doctorsLoading}
+                        doctorsError={doctorsError}
                       />
                     )}
                     {step === 2 && (
                       <StepTwo
                         key="s2"
                         booking={booking}
+                        slots={slots}
+                        slotsLoading={slotsLoading}
+                        slotsError={slotsError}
                         onSelectSlot={handleSelectSlot}
                         onBack={goToStep1}
                         onConfirm={handleFinalSubmit}
+                        savingAppointment={savingAppointment}
+                        submitError={submitError}
+                        emailOtp={emailOtp}
+                        setEmailOtp={setEmailOtp}
+                        otpBusy={otpBusy}
+                        onSendOtp={handleSendOtp}
+                        onVerifyOtp={handleVerifyOtp}
                       />
                     )}
                     {step === 3 && (
@@ -1428,6 +2402,7 @@ export default function MakeAppointmentPage() {
                         key="s3"
                         booking={booking}
                         passId={passId}
+                        savedAppointmentId={savedAppointmentId}
                         onReset={handleReset}
                       />
                     )}
@@ -1435,9 +2410,9 @@ export default function MakeAppointmentPage() {
                 </section>
               </div>
 
-              <div className="xl:sticky xl:top-40">
-                <Timeline items={items} onGo={goTo} />
-              </div>
+              <div className="hidden xl:block xl:sticky xl:top-40 self-start">
+  <Timeline items={items} onGo={goTo} />
+</div>
             </div>
           </div>
         </div>
@@ -1514,15 +2489,6 @@ export default function MakeAppointmentPage() {
             .ap-check { stroke-dashoffset: 0; animation: none; }
           }
 
-          @media print {
-            body * { visibility: hidden !important; }
-            #pass-ticket, #pass-ticket * { visibility: visible !important; }
-            #pass-ticket {
-              position: absolute; left: 0; top: 0; width: 100%;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          }
         `}</style>
       </main>
     </LazyMotion>

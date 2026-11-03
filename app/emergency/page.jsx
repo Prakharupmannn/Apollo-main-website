@@ -90,7 +90,7 @@ export default function EmergencyPage() {
     {
       condition: "Heart Attack Symptoms",
       steps: [
-        "Call Emergency 1800-123-6666 immediately for cardiac ambulance.",
+        "Call Emergency +91 8031320388 immediately for cardiac ambulance.",
         "Keep the patient seated in a semi-upright relaxed position.",
         "Loosen tight clothing around neck and waist.",
         "Do not leave the patient unattended; perform CPR if unconscious.",
@@ -134,22 +134,22 @@ export default function EmergencyPage() {
   const emergencyContacts = [
     {
       label: "National Emergency Helpline",
-      number: "+91 1800-123-6666",
+      number: "+91 7247777181",
       desc: "Toll-Free 24/7 Direct Ambulance Hotline",
     },
     {
       label: "Apollo Jabalpur ER Reception",
-      number: "+91 1800-123-6666",
+      number: "+91 8031320388",
       desc: "Emergency Triage & Patient Arrival Desk",
     },
     {
       label: "Trauma & ICU Direct Counter",
-      number: "+91 7566123666",
+      number: " +91 8031320388",
       desc: "Critical Bed Availability & Transfer",
     },
     {
       label: "24/7 Blood Bank Direct Desk",
-      number: "+91 7566123666",
+      number: " +91 8031320388",
       desc: "Emergency PRBC & Platelet Dispatch",
     },
   ];
@@ -390,11 +390,11 @@ export default function EmergencyPage() {
 
               <div className="flex items-center gap-2 shrink-0">
                 <a
-                  href="tel:18001236666"
+                  href="tel:+91 8031320388"
                   className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs transition-all shadow-md hover:shadow-rose-600/50 border border-rose-400/30"
                 >
                   <PhoneCall className="w-3 h-3" />
-                  <span>Call 1800-123-6666</span>
+                  <span>Call +91 8031320388</span>
                 </a>
               </div>
             </div>
@@ -513,22 +513,22 @@ export default function EmergencyPage() {
                     <motion.a
                       whileHover={{ scale: 1.04, y: -2 }}
                       whileTap={{ scale: 0.96 }}
-                      href="tel:18001236666"
+                      href="tel:+91 7247777181"
                       className="relative group flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-rose-600 via-red-600 to-rose-600 text-white font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(225,29,72,0.6)] border border-rose-300/40 cursor-pointer overflow-hidden"
                     >
                       <span className="absolute inset-0 w-full h-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                       <PhoneCall className="w-5 h-5 animate-pulse" />
-                      <span>Call Hotline: 1800-123-6666</span>
+                      <span>Call Hotline: 7247777181</span>
                     </motion.a>
 
                     <motion.a
                       whileHover={{ scale: 1.04, y: -2 }}
                       whileTap={{ scale: 0.96 }}
-                      href="tel:+917566123666"
+                      href="tel: +91 8031320388"
                       className="flex items-center gap-2.5 px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm transition-all border border-white/20 backdrop-blur-md shadow-lg"
                     >
                       <Ambulance className="w-4 h-4 text-[#F6D98A]" />
-                      <span>Direct Desk: +91 7566123666</span>
+                      <span>Direct Desk: +91 8031320388</span>
                     </motion.a>
                   </motion.div>
                 </div>
@@ -839,10 +839,10 @@ export default function EmergencyPage() {
                       <motion.a
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.96 }}
-                        href="tel:18001236666"
+                        href="tel: +91 8031320388"
                         className="px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 text-white font-extrabold text-xs shadow-md"
                       >
-                        Call Driver Direct (1800-123-6666)
+                        Call Driver Direct (+91 8031320388)
                       </motion.a>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
