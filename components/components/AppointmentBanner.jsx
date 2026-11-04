@@ -126,7 +126,7 @@ export default function AppointmentBanner() {
                     </span>
 
                     <PhoneCall className="w-4 h-4 text-[#F6D98A] group-hover:rotate-12 transition-transform duration-300" />
-                    <span>Call 1066 Emergency</span>
+                    <span className="text-red-200">Call 7247777181 Emergency</span>
                   </a>
                 </div>
 

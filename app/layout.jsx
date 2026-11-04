@@ -78,7 +78,7 @@ export const metadata = {
     "Cardiology",
     "Oncology",
     "Neurology",
-    "Emergency Care 1066",
+    "Emergency Care",
     "Health Checkup",
   ],
   icons: {
