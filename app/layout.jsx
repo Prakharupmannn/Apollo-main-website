@@ -30,7 +30,7 @@ export const metadata = {
   metadataBase: new URL("https://www.apollohospitalsjbp.com"),
   title: "Apollo Hospitals | Expert Care for a Healthier Tomorrow",
   description:
-    "Apollo Hospitals - Advanced Healthcare, Trusted by Millions, For Every Stage of Life. Book Appointments, Find Doctors, Emergency 24/7 Care & Centres of Excellence.",
+    "Apollo Hospitals Jabalpur offers expert doctors, advanced healthcare, 24/7 emergency care, specialist treatments and online appointment booking.",
   keywords: [
     "Apollo Hospitals",
     "Book Doctor Appointment",
