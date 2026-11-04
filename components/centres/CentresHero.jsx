@@ -11,7 +11,10 @@ const pad = (n) => String(n).padStart(2, "0");
 
 // Two columns, different order so the wall never looks repetitive
 const COL_A = centresOfExcellence;
-const COL_B = [...centresOfExcellence.slice(3), ...centresOfExcellence.slice(0, 3)].reverse();
+const COL_B = [
+  ...centresOfExcellence.slice(3),
+  ...centresOfExcellence.slice(0, 3),
+].reverse();
 
 export default function CentresHero() {
   return (
@@ -33,7 +36,10 @@ export default function CentresHero() {
       `}</style>
 
       {/* ---------- Aurora background (static = free to render) ---------- */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+      >
         <div className="absolute -left-32 -top-24 h-[420px] w-[420px] rounded-full bg-[#1D82A6]/[0.16] blur-3xl" />
         <div className="absolute right-[-120px] top-[8%] h-[460px] w-[460px] rounded-full bg-[#F6D98A]/[0.45] blur-3xl" />
         <div className="absolute bottom-[-160px] left-[28%] h-[380px] w-[380px] rounded-full bg-[#5CC8B5]/[0.14] blur-3xl" />
@@ -42,7 +48,8 @@ export default function CentresHero() {
         <div
           className="absolute inset-0 opacity-[0.5] [mask-image:radial-gradient(ellipse_at_30%_40%,black,transparent_70%)]"
           style={{
-            backgroundImage: "radial-gradient(rgba(14,82,107,.16) 1px, transparent 1px)",
+            backgroundImage:
+              "radial-gradient(rgba(14,82,107,.16) 1px, transparent 1px)",
             backgroundSize: "26px 26px",
           }}
         />
@@ -91,7 +98,9 @@ export default function CentresHero() {
             <a
               href="#centres-journey"
               className="group inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-[12px] font-extrabold text-[#3A2B0A] shadow-[0_18px_40px_-10px_rgba(200,149,46,.7)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-10px_rgba(200,149,46,.8)]"
-              style={{ background: "linear-gradient(180deg,#F8DE94 0%,#C8952E 100%)" }}
+              style={{
+                background: "linear-gradient(180deg,#F8DE94 0%,#C8952E 100%)",
+              }}
             >
               Explore the Centres
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#3A2B0A]/10 transition-transform duration-300 group-hover:translate-y-0.5">
@@ -109,55 +118,70 @@ export default function CentresHero() {
           </div>
 
           {/* Centre chips — real links, great for navigation + SEO */}
-         {/* Centre chips — real links, great for navigation + SEO */}
-<nav
-  aria-label="Centres of Excellence"
-  className="cx-rise mt-7 -mx-6 px-6 sm:mx-0 sm:px-0"
-  style={{ animationDelay: ".52s" }}
->
-  <div
-    className="
+          {/* Centre chips — real links, great for navigation + SEO */}
+          <nav
+            aria-label="Centres of Excellence"
+            className="cx-rise mt-7 -mx-6 px-6 sm:mx-0 sm:px-0"
+            style={{ animationDelay: ".52s" }}
+          >
+            <div
+              className="
       flex flex-nowrap gap-2 overflow-x-auto pb-2
       snap-x snap-proximity
       [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
       sm:flex-wrap sm:overflow-visible sm:pb-0
     "
-  >
-    {centresOfExcellence.map((centre) => (
-      <Link
-        key={centre.slug}
-        href={`/centres-of-excellence/${centre.slug}`}
-        className="group inline-flex shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-full border border-[#1D82A6]/15 bg-white/75 py-1.5 pl-1.5 pr-3.5 text-[11px] font-semibold text-[#0B3446] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C8952E]/50 hover:bg-white hover:shadow-[0_10px_24px_-10px_rgba(200,149,46,.6)]"
-      >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EDF6FB] transition-colors duration-300 group-hover:bg-[#FFF3D6] [&>svg]:h-4 [&>svg]:w-4">
-          <CentreIcon slug={centre.slug} active={false} />
-        </span>
-        {centre.shortName || centre.title}
-      </Link>
-    ))}
-  </div>
-</nav>
+            >
+              {centresOfExcellence.map((centre) => (
+                <Link
+                  key={centre.slug}
+                  href={`/centres-of-excellence/${centre.slug}`}
+                  className="group inline-flex shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-full border border-[#1D82A6]/15 bg-white/75 py-1.5 pl-1.5 pr-3.5 text-[11px] font-semibold text-[#0B3446] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C8952E]/50 hover:bg-white hover:shadow-[0_10px_24px_-10px_rgba(200,149,46,.6)]"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EDF6FB] transition-colors duration-300 group-hover:bg-[#FFF3D6] [&>svg]:h-4 [&>svg]:w-4">
+                    <CentreIcon slug={centre.slug} active={false} />
+                  </span>
+                  {centre.shortName || centre.title}
+                </Link>
+              ))}
+            </div>
+          </nav>
 
           {/* Trust strip */}
           <ul
             className="cx-rise mt-6 flex flex-wrap gap-x-7 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0E526B]/70"
             style={{ animationDelay: ".62s" }}
           >
-            {["Specialist-led", "Advanced technology", "Patient-first"].map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C8952E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                {item}
-              </li>
-            ))}
+            {["Specialist-led", "Advanced technology", "Patient-first"].map(
+              (item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C8952E"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {item}
+                </li>
+              ),
+            )}
           </ul>
         </div>
 
         {/* =============== RIGHT — showcase =============== */}
 
         {/* Desktop: tilted wall of two counter-scrolling columns */}
-        <div className="cx-pause relative hidden h-[520px] lg:block" aria-hidden="true">
+        <div
+          className="cx-pause relative hidden h-[520px] lg:block"
+          aria-hidden="true"
+        >
           {/* gold orbit hairlines behind the wall */}
           <div className="absolute left-1/2 top-1/2 h-[470px] w-[470px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#C8952E]/25" />
           <div className="absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-[#1D82A6]/25" />
@@ -176,8 +200,12 @@ export default function CentresHero() {
               {pad(TOTAL)}
             </span>
             <div>
-              <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">Specialised</div>
-              <div className="text-[13px] font-bold text-[#06202B]">Centres of Care</div>
+              <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">
+                Specialised
+              </div>
+              <div className="text-[13px] font-bold text-[#06202B]">
+                Centres of Care
+              </div>
             </div>
           </div>
 
@@ -185,8 +213,12 @@ export default function CentresHero() {
             className="cx-float absolute bottom-[14%] right-0 z-10 rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-[0_20px_50px_-15px_rgba(6,32,43,.35)]"
             style={{ animationDelay: "-3s" }}
           >
-            <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">Apollo JBP Hospitals</div>
-            <div className="mt-0.5 font-serif text-[15px] italic text-[#06202B]">For a Healthier Tomorrow</div>
+            <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0E526B]/70">
+              Apollo JBP Hospitals
+            </div>
+            <div className="mt-0.5 font-serif text-[15px] italic text-[#06202B]">
+              For a Healthier Tomorrow
+            </div>
           </div>
         </div>
 
@@ -203,7 +235,10 @@ export default function CentresHero() {
       </div>
 
       {/* soft bottom fade into the journey section */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-[#EDF6FB]" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-[#EDF6FB]"
+      />
     </section>
   );
 }
@@ -228,7 +263,12 @@ function ColumnCopy({ items }) {
   return (
     <div className="flex flex-col gap-4 pb-4">
       {items.map((centre) => (
-        <CentreTile key={centre.slug} centre={centre} className="h-[210px] w-[185px]" sizes="185px" />
+        <CentreTile
+          key={centre.slug}
+          centre={centre}
+          className="h-[210px] w-[185px]"
+          sizes="185px"
+        />
       ))}
     </div>
   );
@@ -238,7 +278,12 @@ function MobileRow() {
   return (
     <div className="flex gap-4 pr-4">
       {centresOfExcellence.map((centre) => (
-        <CentreTile key={centre.slug} centre={centre} className="h-[210px] w-[160px]" sizes="160px" />
+        <CentreTile
+          key={centre.slug}
+          centre={centre}
+          className="h-[210px] w-[160px]"
+          sizes="160px"
+        />
       ))}
     </div>
   );
@@ -251,7 +296,7 @@ function CentreTile({ centre, className = "", sizes }) {
     >
       <Image
         src={centre.image}
-        alt=""
+        alt="image"
         fill
         sizes={sizes}
         quality={60}
@@ -272,7 +317,9 @@ function CentreTile({ centre, className = "", sizes }) {
           <span className="h-px w-4 bg-[#F6D98A]" />
           {centre.eyebrow}
         </div>
-        <div className="font-serif text-[16px] leading-tight text-white">{centre.title}</div>
+        <div className="font-serif text-[16px] leading-tight text-white">
+          {centre.title}
+        </div>
       </div>
     </div>
   );

@@ -1453,7 +1453,7 @@ export default function HeroSection({
             >
               <Image
                 src={s.src}
-                alt=""
+                alt="slides"
                 fill
                 priority={i === 0}
                 fetchPriority={i === 0 ? "high" : "auto"}

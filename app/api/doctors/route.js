@@ -102,6 +102,7 @@ export async function GET(request) {
         faqs,
         podcasts,
         opd,
+        display_order AS display_order,
         display_order AS displayOrder,
 
         -- Newly added columns
@@ -121,7 +122,7 @@ export async function GET(request) {
 
       FROM doctors
       WHERE status = 1
-      ORDER BY display_order ASC
+      ORDER BY display_order ASC, name ASC
     `);
 
     const jsonFields = [
@@ -153,6 +154,13 @@ export async function GET(request) {
 
     const doctors = rows.map((doctor) => {
       const parsedDoctor = { ...doctor };
+      parsedDoctor.display_order =
+        doctor.display_order != null
+          ? Number(doctor.display_order)
+          : doctor.displayOrder != null
+          ? Number(doctor.displayOrder)
+          : 0;
+      parsedDoctor.displayOrder = parsedDoctor.display_order;
 
       for (const field of jsonFields) {
         const value = parsedDoctor[field];
@@ -216,13 +224,24 @@ export async function POST(request) {
     const doctorCode = `DR${String(nextNum).padStart(3, "0")}`;
     const slug = await uniqueSlug(createSlug(body.name));
 
+    let displayOrder = nextNum;
+    const rawOrder =
+      body.display_order !== undefined && body.display_order !== ""
+        ? body.display_order
+        : body.displayOrder !== undefined && body.displayOrder !== ""
+        ? body.displayOrder
+        : undefined;
+    if (rawOrder !== undefined && !isNaN(Number(rawOrder))) {
+      displayOrder = parseInt(rawOrder, 10);
+    }
+
     const columns = ["doctor_code", "slug", "speciality_slug", "status", "display_order"];
     const values = [
       doctorCode,
       slug,
       createSlug(body.speciality),
       body.status === "Inactive" ? 0 : 1,
-      nextNum,
+      displayOrder,
     ];
 
     for (const f of TEXT_FIELDS) {
@@ -303,6 +322,16 @@ export async function PATCH(request) {
     if (body.status !== undefined) {
       sets.push("status = ?");
       values.push(body.status === "Inactive" ? 0 : 1);
+    }
+    const rawOrder =
+      body.display_order !== undefined && body.display_order !== ""
+        ? body.display_order
+        : body.displayOrder !== undefined && body.displayOrder !== ""
+        ? body.displayOrder
+        : undefined;
+    if (rawOrder !== undefined && !isNaN(Number(rawOrder))) {
+      sets.push("display_order = ?");
+      values.push(parseInt(rawOrder, 10));
     }
 
     if (sets.length === 0) {

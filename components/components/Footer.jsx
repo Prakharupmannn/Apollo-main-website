@@ -160,7 +160,7 @@ export default function Footer({ onOpenAppointmentModal }) {
         >
           <Image
             src="/images/apollo-hospital-image.webp"
-            alt=""
+            alt="logo"
             fill
             sizes="(min-width: 1024px) 42vw, 0px"
             quality={60}

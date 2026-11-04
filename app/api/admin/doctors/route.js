@@ -87,6 +87,7 @@ export async function GET(request) {
         faqs,
         podcasts,
         opd,
+        display_order   AS display_order,
         display_order   AS displayOrder,
         status,
         tagline,
@@ -108,6 +109,13 @@ export async function GET(request) {
 
     const doctors = rows.map((doctor) => {
       const parsed = { ...doctor };
+      parsed.display_order =
+        doctor.display_order != null
+          ? Number(doctor.display_order)
+          : doctor.displayOrder != null
+          ? Number(doctor.displayOrder)
+          : 0;
+      parsed.displayOrder = parsed.display_order;
       for (const field of JSON_FIELDS) {
         parsed[field] = parseJsonField(parsed[field]);
       }

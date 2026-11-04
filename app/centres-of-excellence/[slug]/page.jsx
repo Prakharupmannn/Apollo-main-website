@@ -473,7 +473,7 @@ function Preventive({ c }) {
 
       <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
         <div className="group relative min-h-[220px] overflow-hidden rounded-[22px] ring-1 ring-[#C8952E]/25">
-          {c.image ? <Image src={c.image} alt="" fill sizes="(max-width:1024px) 100vw, 35vw" className="object-cover transition-transform duration-1000 group-hover:scale-105 motion-reduce:transition-none" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#06202B]" />}
+          {c.image ? <Image src={c.image} alt="image" fill sizes="(max-width:1024px) 100vw, 35vw" className="object-cover transition-transform duration-1000 group-hover:scale-105 motion-reduce:transition-none" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#0E526B] to-[#06202B]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#06202B]/80 to-transparent" />
           <div className="absolute inset-x-5 bottom-5">
             <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#F6D98A]">

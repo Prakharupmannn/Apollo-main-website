@@ -67,6 +67,12 @@ const buildState = (d = {}) => ({
   ...Object.fromEntries(TEXT_FIELDS.map((f) => [f, d[f] ?? ""])),
   status: d.status || "Active",
   databaseId: d.databaseId,
+  display_order:
+    d.display_order !== undefined && d.display_order !== null
+      ? String(d.display_order)
+      : d.displayOrder !== undefined && d.displayOrder !== null
+      ? String(d.displayOrder)
+      : "",
   // string lists
   about: toStrings(d.about),
   training: toStrings(d.training),
@@ -461,6 +467,16 @@ export default function DoctorModal({
                   </select>
                 </Field>
                 <Field label="Experience"><input {...text("experience")} placeholder="e.g. 15+ Years" className={inputCls} /></Field>
+                <Field label="Display Order">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    {...text("display_order")}
+                    placeholder="e.g. 1"
+                    className={inputCls}
+                  />
+                </Field>
                 <Field label="Status">
                   <select {...text("status")} className={inputCls}>
                     <option>Active</option>

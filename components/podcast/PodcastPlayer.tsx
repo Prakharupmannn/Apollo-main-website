@@ -341,7 +341,7 @@ export default function PodcastPlayer({
                       >
                         <Image
                           src={`https://i.ytimg.com/vi/${p.vid}/mqdefault.jpg`}
-                          alt=""
+                          alt="podcast"
                           width={240}
                           height={135}
                           unoptimized

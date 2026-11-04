@@ -90,7 +90,7 @@ export default function DoctorsImageFlip() {
         <div className="invisible">
           <Image
             src={images[0].src}
-            alt=""
+            alt="image"
             width={600}
             height={450}
             decoding="async"
