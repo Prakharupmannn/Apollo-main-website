@@ -194,7 +194,7 @@ export default function DoctorsHero({ total = 49 }) {
             <div className="absolute inset-[5px] overflow-hidden rounded-full bg-[#DCEEF5]">
               <Image
                 src="/images/doctors/doctorhero.webp"
-                alt="Expert doctors at Apollo JBP Hospitals"
+                alt="Expert team of specialist doctors at Apollo Hospitals Jabalpur"
                 fill
                 priority
                 sizes="(min-width:1024px) 210px, 40vw"

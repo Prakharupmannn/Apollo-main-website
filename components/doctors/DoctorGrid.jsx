@@ -31,7 +31,10 @@ function getDoctorTone(slug = "") {
 /* ---------------- Doctor Card ---------------- */
 
 
-function DoctorPhoto({ src, name, tone }) {
+function DoctorPhoto({ src, name, speciality, tone }) {
+  const altText = name
+    ? `${name}${speciality ? ` - ${speciality}` : ""} | Apollo Hospitals Jabalpur`
+    : "Doctor at Apollo Hospitals Jabalpur";
   const [failed, setFailed] = useState(false);
 
   if (!src || failed) {
@@ -73,7 +76,7 @@ function DoctorPhoto({ src, name, tone }) {
   return (
     <Image
       src={src}
-      alt={name}
+      alt={altText}
       width={300}
       height={200}
       unoptimized={typeof src === "string" && src.startsWith("http")}
@@ -106,7 +109,7 @@ const DoctorCard = memo(function DoctorCard({ doctor }) {
         />
 
         <div className="relative h-[200px] overflow-hidden rounded-[20px] ring-1 ring-[#0E526B]/5">
-          <DoctorPhoto src={doctor.image} name={doctor.name} tone={tone} />
+          <DoctorPhoto src={doctor.image} name={doctor.name} speciality={doctor.speciality} tone={tone} />
 
           <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white/80 to-transparent" />
 
@@ -147,6 +150,7 @@ const DoctorCard = memo(function DoctorCard({ doctor }) {
         <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
           <Link
             href={`/doctors/${doctor.slug}`}
+            aria-label={`View profile of ${doctor.name}`}
             className="flex h-9 items-center justify-center rounded-lg border border-[#BFD6DF] bg-white text-[11px] font-bold text-[#0E526B] transition hover:border-[#0E526B] hover:bg-[#F3F9FB]"
           >
             View Profile
@@ -154,6 +158,7 @@ const DoctorCard = memo(function DoctorCard({ doctor }) {
 
           <Link
             href={`/patientcare/appointment?doctor=${doctor.slug}`}
+            aria-label={`Book appointment with ${doctor.name}`}
             className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#0E526B] to-[#137A9A] text-[11px] font-bold text-white shadow-[0_8px_18px_rgba(14,82,107,.25)] transition hover:brightness-110"
           >
             Book Now

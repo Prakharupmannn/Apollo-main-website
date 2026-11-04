@@ -1,6 +1,62 @@
-﻿
+
 // Always fetch fresh data from DB - never serve a stale cached page
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Best Doctors in Jabalpur | Expert Specialists | Apollo Hospitals",
+  description:
+    "Find and consult top doctors in Jabalpur at Apollo Hospitals. Leading specialists across Cardiology, Oncology, Neurology, Orthopaedics, Gastroenterology & 20+ disciplines. Book OPD appointments online.",
+  keywords: [
+    "Doctors in Jabalpur",
+    "Apollo Hospitals Jabalpur doctors",
+    "Best doctors in Jabalpur",
+    "Top specialists in Jabalpur",
+    "Cardiologist in Jabalpur",
+    "Oncologist in Jabalpur",
+    "Neurologist in Jabalpur",
+    "Orthopaedic doctor Jabalpur",
+    "Book doctor appointment Jabalpur",
+    "Apollo hospital doctor list Jabalpur",
+  ],
+  alternates: {
+    canonical: "/doctors",
+  },
+  openGraph: {
+    title: "Best Doctors & Specialists in Jabalpur | Apollo Hospitals",
+    description:
+      "Consult with renowned medical specialists at Apollo Hospitals Jabalpur. View doctor profiles, qualifications, OPD timings, and schedule appointments online.",
+    url: "/doctors",
+    siteName: "Apollo Hospitals Jabalpur",
+    images: [
+      {
+        url: "/images/doctors/doctorhero.webp",
+        width: 1200,
+        height: 630,
+        alt: "Specialist Doctors at Apollo Hospitals Jabalpur",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Expert Doctors & Specialists | Apollo Hospitals Jabalpur",
+    description:
+      "Browse leading consultants across 20+ specialties at Apollo Hospitals Jabalpur. Book consultations easily online.",
+    images: ["/images/doctors/doctorhero.webp"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 import {
   ArrowRight,ChevronRight,RotateCcw,SlidersHorizontal,X, CheckCircle2, ChevronDown, Heart,
   Search, ShieldCheck, Stethoscope, UsersRound,
@@ -214,6 +270,104 @@ export default async function DoctorsPage({ searchParams }) {
   const filteredDoctors = filterDoctors(rawDoctors, search, specialty);
   const specialtyOptions = buildSpecialtyOptions(rawDoctors);
 
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Hospital",
+        "@id": `${baseUrl}/#hospital`,
+        name: hospital?.name || "Apollo Hospitals Jabalpur",
+        url: baseUrl,
+        logo: `${baseUrl}/apollologo.webp`,
+        telephone: hospital?.phone || "+91 761 000 0000",
+        emergencyTelephone: hospital?.emergency || "1066",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: hospital?.city || "Jabalpur",
+          addressRegion: hospital?.state || "Madhya Pradesh",
+          addressCountry: "IN",
+        },
+      },
+      {
+        "@type": "MedicalWebPage",
+        "@id": `${baseUrl}/doctors#webpage`,
+        url: `${baseUrl}/doctors`,
+        name: "Best Doctors in Jabalpur | Expert Specialists | Apollo Hospitals",
+        description:
+          "Find and consult top doctors in Jabalpur at Apollo Hospitals. Leading specialists across Cardiology, Oncology, Neurology, Orthopaedics, Gastroenterology & 20+ disciplines.",
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${baseUrl}/#website`,
+          name: hospital?.name || "Apollo Hospitals Jabalpur",
+          url: baseUrl,
+        },
+        about: { "@id": `${baseUrl}/#hospital` },
+        breadcrumb: { "@id": `${baseUrl}/doctors#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${baseUrl}/doctors#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${baseUrl}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Doctors",
+            item: `${baseUrl}/doctors`,
+          },
+        ],
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${baseUrl}/doctors#doctorlist`,
+        name: "Doctors at Apollo Hospitals Jabalpur",
+        numberOfItems: rawDoctors.length,
+        itemListElement: rawDoctors.map((doc, index) => {
+          const imgUrl = doc.image
+            ? (doc.image.startsWith("http")
+                ? doc.image
+                : `${baseUrl}${doc.image.startsWith("/") ? "" : "/"}${doc.image}`)
+            : undefined;
+
+          return {
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@type": "Physician",
+              name: doc.name,
+              jobTitle: doc.designation || doc.speciality || "Specialist Consultant",
+              medicalSpecialty: doc.speciality || undefined,
+              url: `${baseUrl}/doctors/${doc.slug}`,
+              ...(imgUrl ? { image: imgUrl } : {}),
+              worksFor: {
+                "@id": `${baseUrl}/#hospital`,
+              },
+            },
+          };
+        }),
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${baseUrl}/doctors#faq`,
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.a,
+          },
+        })),
+      },
+    ],
+  };
+
   const counts = Object.fromEntries(
     specialties.map((s) => [
       s.slug,
@@ -224,7 +378,12 @@ export default async function DoctorsPage({ searchParams }) {
   );
 
   return (
-    <main className="overflow-clip bg-[#F8FCFD] text-[#06202B]">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="overflow-clip bg-[#F8FCFD] text-[#06202B]">
       <DoctorsHero hospital={hospital} />
       <DoctorFinder
   search={search}
@@ -253,6 +412,7 @@ export default async function DoctorsPage({ searchParams }) {
       <DoctorFaq />
       <Cta hospital={hospital} />
     </main>
+    </>
   );
 }
 
@@ -316,7 +476,7 @@ function SpecialtyRail({specialties, active, counts }) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex items-end justify-between gap-5">
           <div>
-            <p className="font-serif text-2xl text-[#06202B]">Popular Specialties</p>
+            <h2 className="font-serif text-2xl text-[#06202B]">Popular Specialties</h2>
             <p className="mt-1 text-xs text-[#71858E]">
               Find specialists by Centre of Excellence.
             </p>
