@@ -7,7 +7,7 @@ import {
   Clock,
   Mail,
   Sparkles,
-  PhoneCall,
+
   CheckCircle2,
   Building2,
   ExternalLink,
@@ -18,9 +18,23 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Terms of Service | Apollo JBP Hospitals, Jabalpur",
+  title: "Terms of Service & Patient Consent | Apollo Hospitals Jabalpur",
   description:
-    "Legal Terms, Treatment Authorization & Consent Policy for Apollo JBP Hospitals, Jabalpur.",
+    "Legal Terms, Treatment Authorization & Consent Policy for Apollo Hospitals Jabalpur.",
+  alternates: {
+    canonical: "/terms-of-service",
+  },
+  openGraph: {
+    title: "Terms of Service | Apollo Hospitals Jabalpur",
+    description: "Legal Terms & Consent Policy for Apollo Hospitals Jabalpur.",
+    url: "/terms-of-service",
+    siteName: "Apollo Hospitals Jabalpur",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // ✅ FIX: Use string names instead of Lucide component references

@@ -49,10 +49,40 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const s = specialitiesData.find((x) => x.slug === slug);
-  if (!s) return {};
+  if (!s) return { title: "Speciality | Apollo Hospitals Jabalpur" };
+
+  const title = `${s.name} in Jabalpur | Best Specialists & Treatments | Apollo Hospitals`;
+  const description =
+    s.intro ||
+    `${s.name} department at Apollo Hospitals Jabalpur. Experienced specialists, advanced diagnostics, and compassionate patient care.`;
+
   return {
-    title: `${s.name} in Jabalpur | Apollo JBP Hospitals`,
-    description: s.intro,
+    title,
+    description,
+    alternates: {
+      canonical: `/ourspecialities/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/ourspecialities/${slug}`,
+      siteName: "Apollo Hospitals Jabalpur",
+      type: "website",
+      images: [
+        {
+          url: s.heroImage || "/apollologo.webp",
+          width: 1200,
+          height: 630,
+          alt: s.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [s.heroImage || "/apollologo.webp"],
+    },
   };
 }
 

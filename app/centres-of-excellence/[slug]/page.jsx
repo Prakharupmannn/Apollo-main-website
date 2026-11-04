@@ -785,12 +785,42 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const centres = await getActiveCentres();
-  console.log("centres", centres);
   const c = centres.find((centre) => centre.slug === slug);
-  if (!c) return {};
-  const title = `${c.title} | Apollo JBP Hospitals Jabalpur`;
-  const description = c.seoDescription || c.description;
-  return { title, description, openGraph: { title, description } };
+  if (!c) return { title: "Centre of Excellence | Apollo Hospitals Jabalpur" };
+  const title = `${c.title} | Apollo Hospitals Jabalpur`;
+  const description =
+    c.seoDescription ||
+    c.description ||
+    `${c.title} Centre of Excellence at Apollo Hospitals Jabalpur. Expert specialists, advanced treatments and technology.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/centres-of-excellence/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/centres-of-excellence/${slug}`,
+      siteName: "Apollo Hospitals Jabalpur",
+      type: "website",
+      images: [
+        {
+          url: c.heroImage || "/apollologo.webp",
+          width: 1200,
+          height: 630,
+          alt: c.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [c.heroImage || "/apollologo.webp"],
+    },
+  };
 }
 
 export default async function CentrePage({ params }) {
@@ -801,8 +831,45 @@ export default async function CentrePage({ params }) {
 
   const related = centres.filter((centre) => centre.slug !== c.slug).slice(0, 3);
 
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "MedicalClinic",
+        "@id": `${baseUrl}/centres-of-excellence/${c.slug}#clinic`,
+        name: `${c.title} - Apollo Hospitals Jabalpur`,
+        url: `${baseUrl}/centres-of-excellence/${c.slug}`,
+        description: c.seoDescription || c.description,
+        parentOrganization: { "@id": `${baseUrl}/#hospital` },
+        medicalSpecialty: c.title,
+      },
+      {
+        "@type": "MedicalWebPage",
+        "@id": `${baseUrl}/centres-of-excellence/${c.slug}#webpage`,
+        url: `${baseUrl}/centres-of-excellence/${c.slug}`,
+        name: `${c.title} | Apollo Hospitals Jabalpur`,
+        description: c.seoDescription || c.description,
+        about: { "@id": `${baseUrl}/centres-of-excellence/${c.slug}#clinic` },
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: `${baseUrl}/` },
+            { "@type": "ListItem", position: 2, name: "Centres of Excellence", item: `${baseUrl}/centres-of-excellence` },
+            { "@type": "ListItem", position: 3, name: c.title, item: `${baseUrl}/centres-of-excellence/${c.slug}` },
+          ],
+        },
+      },
+    ],
+  };
+
   return (
-    <main className="bg-white pb-20 antialiased lg:pb-0">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="bg-white pb-20 antialiased lg:pb-0">
       <Hero c={c} totalCentres={centres.length} />
       <Facts c={c} />
       <SectionNav c={c} />
@@ -818,5 +885,6 @@ export default async function CentrePage({ params }) {
       <Cta c={c} />
       <StickyBook hasDoctors={!!c.doctors?.length} />
     </main>
+    </>
   );
 }

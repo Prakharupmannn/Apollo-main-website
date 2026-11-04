@@ -1480,20 +1480,49 @@ export async function generateMetadata({ params }) {
   const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) {
-    return { title: "Doctor not found" };
+    return { title: "Doctor Not Found | Apollo Hospitals Jabalpur" };
   }
 
-  return {
-    title: `${doctor.name} - ${
-      doctor.speciality || "Specialist"
-    } | ${hospital?.name || "Apollo JBP Hospitals"}`,
+  const title = `${doctor.name} - ${doctor.speciality || "Specialist"} | Apollo Hospitals Jabalpur`;
+  const description =
+    doctor.summary ||
+    doctor.designation ||
+    `${doctor.name}, renowned ${doctor.speciality || "specialist"} consultant at Apollo Hospitals Jabalpur. View OPD timings, qualifications, and book an appointment.`;
 
-    description:
-      doctor.summary ||
-      doctor.designation ||
-      `${doctor.name}, ${doctor.speciality || "specialist"} at ${
-        hospital?.name || "Apollo JBP Hospitals"
-      }, Jabalpur.`,
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const imgUrl = doctor.image
+    ? (doctor.image.startsWith("http")
+        ? doctor.image
+        : `${baseUrl}${doctor.image.startsWith("/") ? "" : "/"}${doctor.image}`)
+    : `${baseUrl}/apollologo.webp`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/doctors/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/doctors/${slug}`,
+      siteName: "Apollo Hospitals Jabalpur",
+      type: "profile",
+      images: [
+        {
+          url: imgUrl,
+          width: 800,
+          height: 800,
+          alt: doctor.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imgUrl],
+    },
   };
 }
 
@@ -1503,6 +1532,50 @@ export default async function DoctorProfilePage({ params }) {
   const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) notFound();
+
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const docImg = doctor.image
+    ? (doctor.image.startsWith("http")
+        ? doctor.image
+        : `${baseUrl}${doctor.image.startsWith("/") ? "" : "/"}${doctor.image}`)
+    : undefined;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Physician",
+        "@id": `${baseUrl}/doctors/${doctor.slug}#physician`,
+        name: doctor.name,
+        jobTitle: doctor.designation || doctor.speciality || "Specialist Consultant",
+        medicalSpecialty: doctor.speciality || undefined,
+        description: doctor.summary || doctor.designation || undefined,
+        url: `${baseUrl}/doctors/${doctor.slug}`,
+        ...(docImg ? { image: docImg } : {}),
+        worksFor: {
+          "@id": `${baseUrl}/#hospital`,
+          "@type": "Hospital",
+          name: "Apollo Hospitals Jabalpur",
+          url: baseUrl,
+        },
+      },
+      {
+        "@type": "MedicalWebPage",
+        "@id": `${baseUrl}/doctors/${doctor.slug}#webpage`,
+        url: `${baseUrl}/doctors/${doctor.slug}`,
+        name: `${doctor.name} | Apollo Hospitals Jabalpur`,
+        about: { "@id": `${baseUrl}/doctors/${doctor.slug}#physician` },
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: `${baseUrl}/` },
+            { "@type": "ListItem", position: 2, name: "Doctors", item: `${baseUrl}/doctors` },
+            { "@type": "ListItem", position: 3, name: doctor.name, item: `${baseUrl}/doctors/${doctor.slug}` },
+          ],
+        },
+      },
+    ],
+  };
 
   const doctors = await getDoctors();
 
@@ -1571,7 +1644,12 @@ const podcasts = Array.isArray(doctor.podcasts)
   const twoCols = expertise.length > 0 && education.length > 0;
 
   return (
-    <main className="bg-[#F8FCFD] pb-20 lg:pb-0">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="bg-[#F8FCFD] pb-20 lg:pb-0">
       <Hero
         doctor={doctor}
         tone={tone}
@@ -1647,5 +1725,6 @@ const podcasts = Array.isArray(doctor.podcasts)
       {/* mobile sticky booking bar */}
       <MobileBookingBar phone={hospital?.phone} bookHref={bookHref} />
     </main>
+    </>
   );
 }

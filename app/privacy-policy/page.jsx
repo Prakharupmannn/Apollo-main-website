@@ -16,9 +16,23 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy Policy | Apollo JBP Hospitals, Jabalpur",
+  title: "Privacy Policy | Patient Data Protection | Apollo Hospitals Jabalpur",
   description:
-    "Patient Data Protection & Privacy Standard for Apollo JBP Hospitals, Jabalpur.",
+    "Patient Data Protection, confidentiality standards, and Privacy Policy for Apollo Hospitals Jabalpur.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy | Apollo Hospitals Jabalpur",
+    description: "Patient Data Protection & Privacy Policy for Apollo Hospitals Jabalpur.",
+    url: "/privacy-policy",
+    siteName: "Apollo Hospitals Jabalpur",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const sections = [

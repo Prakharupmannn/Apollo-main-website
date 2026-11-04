@@ -4,17 +4,85 @@ import CentresJourney, { CentreIcon } from "@/components/centres/CentresJourney"
 // import { centresOfExcellence } from "@/data/centresOfExcellence";
 import { getActiveCentres } from "@/lib/centres-service";
 export const metadata = {
-  title: "Centres of Excellence | Apollo JBP Hospitals Jabalpur",
+  title: "Centres of Excellence | Advanced Healthcare | Apollo Hospitals Jabalpur",
   description:
-    "Explore the Centres of Excellence at Apollo JBP Hospitals Jabalpur.",
+    "Explore specialised Centres of Excellence at Apollo Hospitals Jabalpur: Cardiac Sciences, Oncology, Neurosciences, Gastro Sciences, Orthopaedics, and Critical Care with PET-CT, LINAC, and advanced surgical care.",
+  keywords: [
+    "Centres of Excellence Jabalpur",
+    "Apollo Hospitals Jabalpur Centres",
+    "Heart hospital Jabalpur",
+    "Cancer hospital Jabalpur",
+    "Neurosciences Jabalpur",
+    "Orthopaedics centre Jabalpur",
+  ],
+  alternates: {
+    canonical: "/centres-of-excellence",
+  },
+  openGraph: {
+    title: "Centres of Excellence | Apollo Hospitals Jabalpur",
+    description:
+      "World-class quaternary healthcare institutes across Cardiology, Oncology, Neurosciences, Gastro, and Orthopaedics at Apollo Hospitals Jabalpur.",
+    url: "/centres-of-excellence",
+    siteName: "Apollo Hospitals Jabalpur",
+    type: "website",
+    images: [
+      {
+        url: "/apollologo.webp",
+        width: 1200,
+        height: 630,
+        alt: "Centres of Excellence - Apollo Hospitals Jabalpur",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Centres of Excellence | Apollo Hospitals Jabalpur",
+    description:
+      "Advanced clinical excellence institutes across major disciplines at Apollo Hospitals Jabalpur.",
+    images: ["/apollologo.webp"],
+  },
 };
 
 const pad = (n) => String(n).padStart(2, "0");
 
 export default async function CentresOfExcellencePage() {
   const centresOfExcellence = await getActiveCentres();
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "MedicalWebPage",
+        "@id": `${baseUrl}/centres-of-excellence#webpage`,
+        url: `${baseUrl}/centres-of-excellence`,
+        name: "Centres of Excellence | Apollo Hospitals Jabalpur",
+        description:
+          "Specialised quaternary healthcare centres at Apollo Hospitals Jabalpur.",
+        about: { "@id": `${baseUrl}/#hospital` },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${baseUrl}/centres-of-excellence#list`,
+        name: "Centres of Excellence",
+        numberOfItems: centresOfExcellence.length,
+        itemListElement: centresOfExcellence.map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: c.title,
+          url: `${baseUrl}/centres-of-excellence/${c.slug}`,
+          description: c.seoDescription || c.description,
+        })),
+      },
+    ],
+  };
+
   return (
-    <main className="bg-[#EDF6FB]">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="bg-[#EDF6FB]">
       {/* HERO */}
       <CentresHero />
 
@@ -108,5 +176,6 @@ export default async function CentresOfExcellencePage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

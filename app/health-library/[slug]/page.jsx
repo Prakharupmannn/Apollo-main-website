@@ -115,18 +115,44 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  if (!slug) return { title: "Article not found | Apollo JBP Hospitals" };
+  if (!slug) return { title: "Article Not Found | Apollo Hospitals Jabalpur" };
 
   const art = await getHealthCareArticleBySlug(slug);
-  if (!art) return { title: "Article not found | Apollo JBP Hospitals" };
+  if (!art) return { title: "Article Not Found | Apollo Hospitals Jabalpur" };
+
+  const title = `${art.title} | Apollo Hospitals Jabalpur`;
+  const description = art.metaDescription || art.excerpt || art.title;
+  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const imgUrl = art.image
+    ? (art.image.startsWith("http") ? art.image : `${baseUrl}${art.image.startsWith("/") ? "" : "/"}${art.image}`)
+    : `${baseUrl}/apollologo.webp`;
 
   return {
-    title: `${art.title} | Apollo JBP Hospitals`,
-    description: art.metaDescription || art.excerpt,
+    title,
+    description,
+    alternates: {
+      canonical: `/health-library/${slug}`,
+    },
     openGraph: {
-      title: art.title,
-      description: art.metaDescription || art.excerpt,
-      images: art.image ? [art.image] : [],
+      title,
+      description,
+      url: `/health-library/${slug}`,
+      siteName: "Apollo Hospitals Jabalpur",
+      type: "article",
+      images: [
+        {
+          url: imgUrl,
+          width: 1200,
+          height: 630,
+          alt: art.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imgUrl],
     },
   };
 }

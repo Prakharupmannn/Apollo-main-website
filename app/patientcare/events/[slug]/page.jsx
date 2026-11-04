@@ -35,6 +35,47 @@ const goldBorder = {
 
 import { getEventBySlug } from '@/lib/events-service';
 
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+  if (!event) return { title: "Event | Apollo Hospitals Jabalpur" };
+
+  const title = `${event.title} | Apollo Hospitals Jabalpur`;
+  const description =
+    event.subtitle ||
+    event.description ||
+    `Join ${event.title} organized by Apollo Hospitals Jabalpur.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/patientcare/events/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/patientcare/events/${slug}`,
+      siteName: "Apollo Hospitals Jabalpur",
+      type: "website",
+      images: [
+        {
+          url: event.image || "/apollologo.webp",
+          width: 1200,
+          height: 630,
+          alt: event.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [event.image || "/apollologo.webp"],
+    },
+  };
+}
+
 export default async function EventDetailPage({ params }) {
   const { slug } = await params;
 

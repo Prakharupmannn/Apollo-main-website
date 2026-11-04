@@ -2,20 +2,20 @@ import AboutContent from "./AboutContent";
 import { brand } from "../../data/about-data";
 
 // Update this to the real production domain before deploying.
-const SITE_URL = "https://apollo-main-website.vercel.app";
+const SITE_URL = "https://www.apollohospitalsjbp.com";
 
 export const metadata = {
   title: "About Us | Apollo JBP Hospitals, Jabalpur",
   description:
     "Apollo JBP Hospitals is a quaternary care centre in Jabalpur — a managed unit of Apollo Hospitals Enterprise Ltd, offering the region's only PET-CT facility, 12 modular operation theatres, and specialised critical care.",
   alternates: {
-    canonical: `${SITE_URL}/about-us`,
+    canonical: `${SITE_URL}/aboutus`,
   },
   openGraph: {
     title: "About Us | Apollo JBP Hospitals, Jabalpur",
     description:
       "Quaternary care built for Central India — the region's only PET-CT facility, 12 modular operation theatres, and 50+ specialists.",
-    url: `${SITE_URL}/about-us`,
+    url: `${SITE_URL}/aboutus`,
     siteName: "Apollo JBP Hospitals",
     images: [`${SITE_URL}${brand ? "" : ""}/image/operation.jpg`],
     type: "website",
@@ -26,7 +26,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Hospital",
   name: "Apollo JBP Hospitals, Jabalpur",
-  url: `${SITE_URL}/about-us`,
+  url: `${SITE_URL}/aboutus`,
   telephone: brand.generalPhone,
   address: {
     "@type": "PostalAddress",

@@ -28,7 +28,48 @@ const deva = Noto_Sans_Devanagari({
 
 export const metadata = {
   metadataBase: new URL("https://www.apollohospitalsjbp.com"),
-  title: "Apollo Hospitals | Expert Care for a Healthier Tomorrow",
+  title: {
+    default: "Apollo Hospitals Jabalpur | Multispeciality Care & Doctors",
+    template: "%s | Apollo Hospitals Jabalpur",
+  },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Apollo Hospitals Jabalpur | Leading Multispeciality Healthcare",
+    description:
+      "Apollo Hospitals Jabalpur offers 50+ specialist consultants, 24/7 emergency & trauma care, advanced diagnostics, and online appointment booking.",
+    url: "https://www.apollohospitalsjbp.com",
+    siteName: "Apollo Hospitals Jabalpur",
+    locale: "en_IN",
+    type: "website",
+    images: [
+      {
+        url: "/apollologo.webp",
+        width: 1200,
+        height: 630,
+        alt: "Apollo Hospitals Jabalpur",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Apollo Hospitals Jabalpur | Advanced Healthcare",
+    description:
+      "Leading multispeciality hospital in Jabalpur with 24/7 emergency, expert doctors, and advanced treatments.",
+    images: ["/apollologo.webp"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   description:
     "Apollo Hospitals Jabalpur, the leading multispeciality hospital offering expert doctors, advanced treatments, 24/7 emergency care and online appointment booking",
   keywords: [
@@ -78,6 +119,56 @@ export default function RootLayout({ children }) {
           rel="preconnect"
           href="https://www.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Hospital",
+              "@id": "https://www.apollohospitalsjbp.com/#hospital",
+              name: "Apollo Hospitals Jabalpur",
+              alternateName: [
+                "Apollo JBP Hospitals",
+                "Apollo Hospital Jabalpur",
+              ],
+              url: "https://www.apollohospitalsjbp.com",
+              logo: "https://www.apollohospitalsjbp.com/apollologo.webp",
+              image: "https://www.apollohospitalsjbp.com/apollologo.webp",
+              telephone: "+91 761 000 0000",
+              emergencyTelephone: "1066",
+              priceRange: "$$",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Global Square, Patan Rd, Karmeta",
+                addressLocality: "Jabalpur",
+                addressRegion: "Madhya Pradesh",
+                postalCode: "482002",
+                addressCountry: "IN",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: 23.2104,
+                longitude: 79.9238,
+              },
+              openingHoursSpecification: [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                  ],
+                  opens: "00:00",
+                  closes: "23:59",
+                },
+              ],
+            }),
+          }}
         />
       </head>
       <body
