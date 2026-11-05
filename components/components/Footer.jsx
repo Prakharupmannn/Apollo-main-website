@@ -376,9 +376,20 @@ export default function Footer({ onOpenAppointmentModal }) {
               type="button"
               onClick={scrollToTop}
               aria-label="Back to top"
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#22C1E0] to-[#087F9C] text-white shadow-[0_6px_16px_rgba(0,0,0,0.35)] ring-1 ring-white/30 transition hover:-translate-y-0.5 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+              className="group relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-b from-[#22C1E0] to-[#087F9C] text-white shadow-[0_6px_16px_rgba(0,0,0,0.35)] ring-1 ring-white/30 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
             >
-              <ArrowUp aria-hidden="true" className="h-4 w-4" />
+              <span
+                aria-hidden="true"
+                className="absolute bottom-[3px] right-[14px] text-[9px] font-black tracking-tighter text-[#07384B]/20 opacity-20 transition-opacity duration-300 group-hover:opacity-60"
+              >
+                PP
+              </span>
+
+              {/* Back to top arrow */}
+              <ArrowUp
+                aria-hidden="true"
+                className="relative z-10 h-4 w-4 transition-opacity duration-300 group-hover:opacity-70"
+              />
             </button>
           </div>
         </div>
