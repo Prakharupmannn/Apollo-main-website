@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { X, Plus, Pencil, Trash2, Check, ImageIcon } from "lucide-react";
-import FileUpload from "./FileUpload";
 
 /* ───────── data helpers (same format the API already accepts) ───────── */
 
@@ -33,11 +32,25 @@ const toStrings = (v) =>
     .filter(Boolean);
 
 const toObjects = (v, keys) =>
-  toArr(v).map((x) =>
-    typeof x === "object" && x
-      ? Object.fromEntries(keys.map((k) => [k, x[k] ?? ""]))
-      : { ...Object.fromEntries(keys.map((k) => [k, ""])), [keys[0]]: String(x) }
-  );
+  toArr(v).map((x) => {
+    if (typeof x === "object" && x) {
+      return Object.fromEntries(
+        keys.map((k) => {
+          // Backward compatibility for old podcast records
+          if (k === "youtube") {
+            return [k, x.youtube ?? x.url ?? ""];
+          }
+
+          return [k, x[k] ?? ""];
+        })
+      );
+    }
+
+    return {
+      ...Object.fromEntries(keys.map((k) => [k, ""])),
+      [keys[0]]: String(x),
+    };
+  });
 
 const parseOpd = (v) => {
   const p = parse(v);
@@ -59,7 +72,7 @@ const SCHEMA = {
   qualifications: ["degree", "institute", "year"],
   highlights: ["value", "label"],
   experience_details: ["title", "organization", "period", "description"],
-  podcasts: ["title", "url"],
+  podcasts: ["id", "title", "youtube"],
   faqs: ["question", "answer"],
 };
 
@@ -67,12 +80,6 @@ const buildState = (d = {}) => ({
   ...Object.fromEntries(TEXT_FIELDS.map((f) => [f, d[f] ?? ""])),
   status: d.status || "Active",
   databaseId: d.databaseId,
-  display_order:
-    d.display_order !== undefined && d.display_order !== null
-      ? String(d.display_order)
-      : d.displayOrder !== undefined && d.displayOrder !== null
-      ? String(d.displayOrder)
-      : "",
   // string lists
   about: toStrings(d.about),
   training: toStrings(d.training),
@@ -95,7 +102,10 @@ const buildState = (d = {}) => ({
   qualifications: toObjects(d.qualifications, SCHEMA.qualifications),
   highlights: toObjects(d.highlights, SCHEMA.highlights),
   experience_details: toObjects(d.experience_details, SCHEMA.experience_details),
-  podcasts: toObjects(d.podcasts, SCHEMA.podcasts),
+  podcasts: toObjects(d.podcasts, SCHEMA.podcasts).map((item, index) => ({
+  ...item,
+  id: item.id || `podcast-${index + 1}`,
+})),
   faqs: toObjects(d.faqs, SCHEMA.faqs),
   opd: parseOpd(d.opd),
 });
@@ -258,13 +268,19 @@ function ObjectList({ title, items, onChange, schema, labels, addLabel, primary,
   return (
     <div>
       <SubHead
-        title={title}
-        addLabel={addLabel}
-        onAdd={() => {
-          onChange([...items, { ...empty }]);
-          setEditing(items.length);
-        }}
-      />
+  title={title}
+  addLabel={addLabel}
+  onAdd={() => {
+    const newItem = { ...empty };
+
+    if (title === "Podcasts") {
+      newItem.id = `podcast-${Date.now()}`;
+    }
+
+    onChange([...items, newItem]);
+    setEditing(items.length);
+  }}
+/>
       {items.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[#DCE8ED] px-4 py-3 text-[12px] text-[#9FB1B9]">
           Nothing added yet.
@@ -275,7 +291,7 @@ function ObjectList({ title, items, onChange, schema, labels, addLabel, primary,
             <li key={i} className="px-3.5 py-3">
               {editing === i ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {schema.map((k) => (
+                  {schema.filter((k) => !(title === "Podcasts" && k === "id")).map((k) => (
                     <Field
                       key={k}
                       label={labels[k]}
@@ -443,17 +459,24 @@ export default function DoctorModal({
           <Section n="1" title="Basic Information">
             <div className="grid gap-5 md:grid-cols-[170px_1fr]">
               <div>
-                <FileUpload
-                  value={f.image}
-                  onChange={(url) => {
-                    setF((p) => ({ ...p, image: url }));
-                    setImgOk(true);
-                  }}
-                  folder="doctors"
-                  label="Doctor Photo"
-                  placeholder="https://... or upload photo"
-                  aspectRatio="aspect-[4/5]"
-                />
+                <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#BFD6DF] bg-[#F4FAFC]">
+                  {f.image && imgOk ? (
+                    <img
+                      src={f.image}
+                      alt=""
+                      onError={() => setImgOk(false)}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  ) : (
+                    <div className="text-center text-[#71858E]">
+                      <ImageIcon className="mx-auto h-7 w-7 text-[#0E526B]" />
+                      <p className="mt-2 text-[11px] font-semibold">Photo preview</p>
+                    </div>
+                  )}
+                </div>
+                <Field label="Photo URL" className="mt-3">
+                  <input {...text("image")} onInput={() => setImgOk(true)} placeholder="https://…" className={inputCls} />
+                </Field>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -467,16 +490,6 @@ export default function DoctorModal({
                   </select>
                 </Field>
                 <Field label="Experience"><input {...text("experience")} placeholder="e.g. 15+ Years" className={inputCls} /></Field>
-                <Field label="Display Order">
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    {...text("display_order")}
-                    placeholder="e.g. 1"
-                    className={inputCls}
-                  />
-                </Field>
                 <Field label="Status">
                   <select {...text("status")} className={inputCls}>
                     <option>Active</option>
@@ -552,9 +565,18 @@ export default function DoctorModal({
             <TagInput title="Certifications" items={f.certifications} onChange={set("certifications")} />
             <TagInput title="Professional Memberships" items={f.professional_memberships} onChange={set("professional_memberships")} />
             <ObjectList
-              title="Podcasts" items={f.podcasts} onChange={set("podcasts")}
-              schema={SCHEMA.podcasts} labels={{ title: "Podcast Title", url: "URL" }}
-              addLabel="Add Podcast" primary="title" secondary="url"
+              title="Podcasts"
+              items={f.podcasts}
+              onChange={set("podcasts")}
+              schema={SCHEMA.podcasts}
+              labels={{
+                id: "Podcast ID",
+                title: "Podcast Title",
+                youtube: "YouTube URL",
+              }}
+              addLabel="Add Podcast"
+              primary="title"
+              secondary="youtube"
             />
             <ObjectList
               title="FAQs" items={f.faqs} onChange={set("faqs")}
