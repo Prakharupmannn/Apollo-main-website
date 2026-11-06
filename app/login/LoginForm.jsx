@@ -403,7 +403,7 @@ export default function LoginForm() {
         <span className="flex items-center gap-2">
           <PhoneCall className="h-3.5 w-3.5 text-rose-500" />
           Emergency Hotline 24×7:
-          <strong className="notranslate font-semibold text-slate-900" translate="no">1800-123-6666</strong>
+          <strong className="notranslate font-semibold text-slate-900" translate="no">+91 8031320388</strong>
         </span>
       </footer>
 
