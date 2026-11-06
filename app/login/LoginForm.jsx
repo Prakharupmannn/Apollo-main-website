@@ -399,7 +399,7 @@ export default function LoginForm() {
       </main>
 
       <footer className="relative z-10 hidden shrink-0 items-center justify-between gap-3 px-8 py-3 text-xs text-slate-600 sm:flex">
-        <span>© 2026 Apollo JBP Hospitals Jabalpur. All rights reserved.</span>
+        <span>© 2025 Apollo JBP Hospitals Jabalpur. All rights reserved.</span>
         <span className="flex items-center gap-2">
           <PhoneCall className="h-3.5 w-3.5 text-rose-500" />
           Emergency Hotline 24×7:
