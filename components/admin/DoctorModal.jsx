@@ -642,3 +642,6 @@ export default function DoctorModal({
     </div>
   );
 }
+
+
+
