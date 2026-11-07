@@ -190,20 +190,15 @@ export default function LoginForm() {
           data.message || "Invalid login credentials."
         );
       }
+setIsSuccess(true);
 
-      setIsSuccess(true);
-
-      router.replace("/admin");
-      router.refresh();
-    } catch (error) {
-      setIsSuccess(false);
-      fail(
-        error.message ||
-          "We could not sign you in. Please try again."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+// Full reload so middleware/server sees the new cookie
+window.location.assign("/admin");
+   } catch (error) {
+  setIsSuccess(false);
+  fail(error.message || "We could not sign you in. Please try again.");
+  setIsSubmitting(false);   // only reset on failure
+}
   };
 
   return (
