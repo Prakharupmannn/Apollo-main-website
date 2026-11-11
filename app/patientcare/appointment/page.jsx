@@ -287,7 +287,7 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
 
               <div className="ap-in" style={{ animationDelay: "260ms" }}>
                 <a
-                  href="tel:18001236666"
+                  href="mob:+91 8031320388"
                   className="inline-flex items-center gap-3 min-h-[48px] px-5 sm:px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-[0.97] text-white border border-white/25 font-bold text-xs shadow-lg transition-all [touch-action:manipulation]"
                 >
                   <span className="relative flex h-8 w-8 items-center justify-center shrink-0">
@@ -296,7 +296,7 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                       <PhoneCall className="w-4 h-4 text-[#F6D98A]" />
                     </span>
                   </span>
-                  <span>Help Desk: 1800-123-6666</span>
+                  <span>Help Desk: +91 8031320388</span>
                 </a>
               </div>
             </div>
