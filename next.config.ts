@@ -70,25 +70,26 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Permissions-Policy",
+            // microphone=(self) lets your own site use the mic (needed for the chatbot's voice input)
             value:
-              "camera=(), microphone=(), geolocation=(), payment=()",
+              "camera=(), microphone=(self), geolocation=(), payment=()",
           },
           {
-          key: "Content-Security-Policy",
-          value: [
-            "default-src 'self'",
-            "base-uri 'self'",
-            "object-src 'none'",
-            "frame-ancestors 'self'",
-            "form-action 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-            "style-src 'self' 'unsafe-inline' https:",
-            "img-src 'self' data: blob: https:",
-            "font-src 'self' data: https:",
-            "connect-src 'self' https: wss:",
-            "frame-src 'self' https:",
-          ].join("; "),
-         },
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "base-uri 'self'",
+              "object-src 'none'",
+              "frame-ancestors 'self'",
+              "form-action 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+              "style-src 'self' 'unsafe-inline' https:",
+              "img-src 'self' data: blob: https:",
+              "font-src 'self' data: https:",
+              "connect-src 'self' https: wss:",
+              "frame-src 'self' https:",
+            ].join("; "),
+          },
         ],
       },
     ];
