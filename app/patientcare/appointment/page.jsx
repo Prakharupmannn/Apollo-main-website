@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, {
@@ -34,6 +33,8 @@ import {
   Printer,
   Zap,
   Ticket,
+  Check,
+  X,
 } from "lucide-react";
 
 // import appointmentData from "../../../data/appointmentData";
@@ -125,7 +126,20 @@ const BARCODE = Array.from({ length: 38 }).map((_, i) => ({
 }));
 
 /* ───────────────────────── helpers ───────────────────────── */
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function formatDate(d) {
   if (!d) return "—";
@@ -165,8 +179,10 @@ function circleCls(state, n) {
 }
 
 function pillCls(state) {
-  if (state === "done") return "bg-emerald-50 text-emerald-700 border-emerald-100";
-  if (state === "active") return "bg-[#EDF6FB] text-[#0A5F7A] border-[#1D82A6]/20";
+  if (state === "done")
+    return "bg-emerald-50 text-emerald-700 border-emerald-100";
+  if (state === "active")
+    return "bg-[#EDF6FB] text-[#0A5F7A] border-[#1D82A6]/20";
   return "bg-slate-100 text-slate-500 border-slate-200";
 }
 
@@ -189,7 +205,14 @@ const AnimatedCheck = memo(function AnimatedCheck({ className = "w-5 h-5" }) {
 });
 
 /* label sits on the top border of the field */
-const Field = memo(function Field({ label, htmlFor, required, className = "", children, hint }) {
+const Field = memo(function Field({
+  label,
+  htmlFor,
+  required,
+  className = "",
+  children,
+  hint,
+}) {
   return (
     <div className={`group relative min-w-0 ${className}`}>
       <label
@@ -204,18 +227,278 @@ const Field = memo(function Field({ label, htmlFor, required, className = "", ch
   );
 });
 
-const SelectBox = memo(function SelectBox({ children, className = "", wrapCls = "", ...props }) {
+function nodeText(children) {
+  return Array.isArray(children) ? children.join("") : String(children ?? "");
+}
+
+const SelectBox = memo(function SelectBox({
+  id,
+  children,
+  value,
+  onChange,
+  disabled = false,
+  required = false,
+  searchable,
+  className = "",
+  wrapCls = "",
+  "aria-label": ariaLabel,
+}) {
+  const rootRef = useRef(null);
+  const listRef = useRef(null);
+  const searchRef = useRef(null);
+  const btnRef = useRef(null);
+
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+
+  // read <option> children -> data
+  const all = useMemo(
+    () =>
+      React.Children.toArray(children)
+        .filter((c) => c && c.props)
+        .map((c) => ({
+          value: String(c.props.value ?? ""),
+          label: nodeText(c.props.children),
+        })),
+    [children],
+  );
+
+  const placeholderOpt = all.find((o) => o.value === "");
+  const options = useMemo(() => all.filter((o) => o.value !== ""), [all]);
+  const showSearch = searchable ?? options.length > 8;
+
+  const current = String(value ?? "");
+  const selected = options.find((o) => o.value === current);
+  const isLoading = /^loading/i.test(placeholderOpt?.label || "");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return q
+      ? options.filter((o) => o.label.toLowerCase().includes(q))
+      : options;
+  }, [options, query]);
+
+  const closeMenu = useCallback(() => {
+    setOpen(false);
+    setQuery("");
+  }, []);
+
+  const openMenu = useCallback(() => {
+    if (disabled) return;
+    const idx = options.findIndex((o) => o.value === current);
+    setActive(idx >= 0 ? idx : 0);
+    setOpen(true);
+  }, [disabled, options, current]);
+
+  const choose = useCallback(
+    (opt) => {
+      onChange?.({ target: { value: opt ? opt.value : "" } });
+      closeMenu();
+      btnRef.current?.focus();
+    },
+    [onChange, closeMenu],
+  );
+
+  // outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (!rootRef.current?.contains(e.target)) closeMenu();
+    };
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [open, closeMenu]);
+
+  // focus search when opened (desktop only, avoids keyboard popping on phones)
+  useEffect(() => {
+    if (open && showSearch && window.matchMedia("(min-width: 640px)").matches) {
+      searchRef.current?.focus();
+    }
+  }, [open, showSearch]);
+
+  // keep active row visible
+  useEffect(() => {
+    if (!open) return;
+    listRef.current
+      ?.querySelector(`[data-i="${active}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [active, open]);
+
+  const onKeyDown = (e) => {
+    if (disabled) return;
+    if (!open) {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
+        e.preventDefault();
+        openMenu();
+      }
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeMenu();
+      btnRef.current?.focus();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((i) => Math.min(i + 1, filtered.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (filtered[active]) choose(filtered[active]);
+    } else if (e.key === "Tab") {
+      closeMenu();
+    }
+  };
+
   return (
-    <div className={`relative ${wrapCls}`}>
-      <select {...props} className={`${inputCls} appearance-none pr-10 cursor-pointer ${className}`}>
-        {children}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+    <div
+      ref={rootRef}
+      onKeyDown={onKeyDown}
+      className={`relative ${open ? "z-40" : ""} ${wrapCls}`}
+    >
+      <button
+        ref={btnRef}
+        id={id}
+        type="button"
+        disabled={disabled}
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => (open ? closeMenu() : openMenu())}
+        className={`${inputCls} flex items-center justify-between gap-2 text-left pr-3 cursor-pointer
+          disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 disabled:hover:border-slate-200
+          ${open ? "!border-[#1D82A6] !ring-4 !ring-[#1D82A6]/15" : ""} ${className}`}
+      >
+        <span
+          className={`truncate ${selected ? "text-slate-800" : "text-slate-400 font-medium"}`}
+        >
+          {selected ? selected.label : placeholderOpt?.label || "Select"}
+        </span>
+
+        {isLoading ? (
+          <span className="w-4 h-4 shrink-0 rounded-full border-2 border-[#1D82A6]/25 border-t-[#1D82A6] animate-spin" />
+        ) : (
+          <span
+            className={`flex w-7 h-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
+              open ? "bg-[#0A5F7A] text-white" : "bg-[#EDF6FB] text-[#0A5F7A]"
+            }`}
+          >
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            />
+          </span>
+        )}
+      </button>
+
+      {/* keeps native "required" validation working */}
+      {required && (
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          required
+          value={current}
+          onChange={() => {}}
+          onFocus={() => btnRef.current?.focus()}
+          className="absolute bottom-0 left-1/2 w-px h-px opacity-0 pointer-events-none"
+        />
+      )}
+
+      <AnimatePresence>
+        {open && (
+          <m.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.16, ease }}
+            className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 origin-top overflow-hidden rounded-2xl border border-[#1D82A6]/15 bg-white shadow-[0_24px_60px_-12px_rgba(10,95,122,0.38)]"
+          >
+            {showSearch && (
+              <div className="p-2.5 border-b border-slate-100 bg-[#F6FAFC]">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    ref={searchRef}
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setActive(0);
+                    }}
+                    placeholder="Search..."
+                    className="w-full min-h-[42px] pl-9 pr-9 rounded-xl bg-white border border-slate-200 text-[16px] sm:text-xs font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#1D82A6] focus:ring-4 focus:ring-[#1D82A6]/10"
+                  />
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuery("");
+                        searchRef.current?.focus();
+                      }}
+                      aria-label="Clear search"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <ul
+              ref={listRef}
+              role="listbox"
+              className="ap-scroll max-h-64 overflow-y-auto p-1.5 space-y-0.5"
+            >
+              {filtered.length === 0 ? (
+                <li className="px-3 py-6 text-center text-xs font-semibold text-slate-400">
+                  No results found
+                </li>
+              ) : (
+                filtered.map((o, i) => {
+                  const isSel = o.value === current;
+                  const isAct = i === active;
+                  return (
+                    <li
+                      key={o.value}
+                      data-i={i}
+                      role="option"
+                      aria-selected={isSel}
+                      onMouseEnter={() => setActive(i)}
+                      onClick={() => choose(o)}
+                      className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-colors ${
+                        isSel
+                          ? "bg-gradient-to-r from-[#0A5F7A] to-[#1D82A6] text-white"
+                          : isAct
+                            ? "bg-[#EDF6FB] text-[#0A5F7A]"
+                            : "text-slate-700"
+                      }`}
+                    >
+                      <span className="truncate">{o.label}</span>
+                      {isSel && (
+                        <span className="w-5 h-5 shrink-0 rounded-full bg-[#F6D98A] text-[#3A2B0A] flex items-center justify-center">
+                          <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                        </span>
+                      )}
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
 
-const FormBlock = memo(function FormBlock({ icon: Icon, title, desc, children, first }) {
+const FormBlock = memo(function FormBlock({
+  icon: Icon,
+  title,
+  desc,
+  children,
+  first,
+}) {
   return (
     <div className={first ? "" : "pt-6 sm:pt-7 border-t border-slate-100"}>
       <div className="flex items-center gap-3 mb-5">
@@ -223,7 +506,9 @@ const FormBlock = memo(function FormBlock({ icon: Icon, title, desc, children, f
           <Icon className="w-4 h-4" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-extrabold text-[#0B3446] leading-snug">{title}</h3>
+          <h3 className="text-sm font-extrabold text-[#0B3446] leading-snug">
+            {title}
+          </h3>
           <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
         </div>
       </div>
@@ -249,7 +534,9 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
                 <Sparkles className="w-4 h-4 text-[#F6D98A] shrink-0" />
-                <span>Apollo JBP Hospitals Jabalpur • Express Digital Booking</span>
+                <span>
+                  Apollo JBP Hospitals Jabalpur • Express Digital Booking
+                </span>
               </div>
 
               <h1
@@ -266,11 +553,15 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                 className="ap-in text-slate-200/90 text-sm sm:text-base leading-relaxed max-w-2xl font-light"
                 style={{ animationDelay: "140ms" }}
               >
-                Fast-track your consultation. Complete your patient registration, select your panel
-                scheme, and reserve your preferred consultation window seamlessly.
+                Fast-track your consultation. Complete your patient
+                registration, select your panel scheme, and reserve your
+                preferred consultation window seamlessly.
               </p>
 
-              <div className="ap-in flex flex-wrap gap-2.5 text-xs font-semibold" style={{ animationDelay: "200ms" }}>
+              <div
+                className="ap-in flex flex-wrap gap-2.5 text-xs font-semibold"
+                style={{ animationDelay: "200ms" }}
+              >
                 {[
                   { icon: ShieldCheck, text: "Instant Confirmation" },
                   { icon: Award, text: "Verified Specialists" },
@@ -287,7 +578,7 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
 
               <div className="ap-in" style={{ animationDelay: "260ms" }}>
                 <a
-                  href="mob:+91 8031320388"
+                  href="tel:18001236666"
                   className="inline-flex items-center gap-3 min-h-[48px] px-5 sm:px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-[0.97] text-white border border-white/25 font-bold text-xs shadow-lg transition-all [touch-action:manipulation]"
                 >
                   <span className="relative flex h-8 w-8 items-center justify-center shrink-0">
@@ -296,7 +587,7 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                       <PhoneCall className="w-4 h-4 text-[#F6D98A]" />
                     </span>
                   </span>
-                  <span>Help Desk: +91 8031320388</span>
+                  <span>Help Desk: 1800-123-6666</span>
                 </a>
               </div>
             </div>
@@ -326,13 +617,21 @@ const Hero = memo(function Hero({ consultant, date, slot }) {
                 <div className="grid grid-cols-2 gap-3 pt-4">
                   <div className="rounded-2xl bg-white/10 border border-white/10 p-3 min-w-0">
                     <Calendar className="w-4 h-4 text-[#F6D98A] mb-1.5" />
-                    <p className="text-[10px] text-slate-300 leading-normal">Date</p>
-                    <p className="text-xs font-extrabold leading-snug break-words">{formatDate(date)}</p>
+                    <p className="text-[10px] text-slate-300 leading-normal">
+                      Date
+                    </p>
+                    <p className="text-xs font-extrabold leading-snug break-words">
+                      {formatDate(date)}
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-white/10 border border-white/10 p-3 min-w-0">
                     <Clock className="w-4 h-4 text-[#F6D98A] mb-1.5" />
-                    <p className="text-[10px] text-slate-300 leading-normal">Slot</p>
-                    <p className="text-xs font-extrabold leading-snug break-words">{formatTime(slot)}</p>
+                    <p className="text-[10px] text-slate-300 leading-normal">
+                      Slot
+                    </p>
+                    <p className="text-xs font-extrabold leading-snug break-words">
+                      {formatTime(slot)}
+                    </p>
                   </div>
                 </div>
 
@@ -382,7 +681,7 @@ const TopStepper = memo(function TopStepper({ items, onGo }) {
                   aria-label={`${s.label}: ${s.status}`}
                   className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 disabled:cursor-default enabled:cursor-pointer enabled:hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1D82A6]/30 [touch-action:manipulation] ${circleCls(
                     s.state,
-                    s.n
+                    s.n,
                   )}`}
                 >
                   {s.state === "active" && (
@@ -410,7 +709,9 @@ const TopStepper = memo(function TopStepper({ items, onGo }) {
                 >
                   <div
                     className="h-full w-full origin-left bg-gradient-to-r from-[#0A5F7A] via-[#1D82A6] to-[#C8952E] transition-transform duration-500 ease-out"
-                    style={{ transform: `scaleX(${items[i + 1].state !== "upcoming" ? 1 : 0})` }}
+                    style={{
+                      transform: `scaleX(${items[i + 1].state !== "upcoming" ? 1 : 0})`,
+                    }}
                   />
                 </div>
               )}
@@ -428,7 +729,11 @@ const ProgressRing = memo(function ProgressRing({ value, total }) {
   const c = 2 * Math.PI * r;
   return (
     <div className="relative w-[68px] h-[68px] sm:w-20 sm:h-20 shrink-0">
-      <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90" aria-hidden="true">
+      <svg
+        viewBox="0 0 80 80"
+        className="w-full h-full -rotate-90"
+        aria-hidden="true"
+      >
         <defs>
           <linearGradient id="ringGrad" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor="#0A5F7A" />
@@ -436,7 +741,14 @@ const ProgressRing = memo(function ProgressRing({ value, total }) {
             <stop offset="100%" stopColor="#C8952E" />
           </linearGradient>
         </defs>
-        <circle cx="40" cy="40" r={r} fill="none" stroke="#E2EEF3" strokeWidth="7" />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="#E2EEF3"
+          strokeWidth="7"
+        />
         <circle
           cx="40"
           cy="40"
@@ -472,7 +784,9 @@ const StepBanner = memo(function StepBanner({ step, items }) {
         <p className="text-[10px] font-bold tracking-[0.18em] text-white/70 leading-normal">
           STEP {step} OF 3
         </p>
-        <p className="text-base sm:text-lg font-black leading-snug truncate">{cur.label}</p>
+        <p className="text-base sm:text-lg font-black leading-snug truncate">
+          {cur.label}
+        </p>
       </div>
       <div className="flex items-center gap-1.5 shrink-0" aria-hidden="true">
         {items.map((s) => (
@@ -507,8 +821,8 @@ const StepList = memo(function StepList({ items }) {
                     ? "bg-emerald-500"
                     : "bg-[#0A5F7A]"
                   : s.state === "active"
-                  ? "bg-[#C8952E]"
-                  : "bg-slate-300"
+                    ? "bg-[#C8952E]"
+                    : "bg-slate-300"
               }`}
             />
             <p
@@ -525,10 +839,12 @@ const StepList = memo(function StepList({ items }) {
             >
               {s.label}
             </p>
-            <p className="text-xs text-slate-500 leading-relaxed mt-0.5 break-words">{s.short}</p>
+            <p className="text-xs text-slate-500 leading-relaxed mt-0.5 break-words">
+              {s.short}
+            </p>
             <span
               className={`mt-2 inline-block px-2.5 py-0.5 rounded-md border text-[10px] font-bold leading-normal ${pillCls(
-                s.state
+                s.state,
               )}`}
             >
               {s.status}
@@ -544,7 +860,9 @@ const StepList = memo(function StepList({ items }) {
 const Timeline = memo(function Timeline({ items, onGo }) {
   return (
     <aside className="hidden xl:block rounded-3xl bg-white border border-slate-100 shadow-[0_10px_30px_rgba(10,95,122,0.07)] p-6">
-      <p className="text-xs text-slate-500 leading-normal">Appointment process</p>
+      <p className="text-xs text-slate-500 leading-normal">
+        Appointment process
+      </p>
       <h2 className="font-serif-apollo text-2xl font-black text-[#0B3446] leading-snug">
         Your journey
       </h2>
@@ -564,7 +882,7 @@ const Timeline = memo(function Timeline({ items, onGo }) {
               aria-label={`Go to ${s.label}`}
               className={`relative z-10 w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-sm font-black ring-4 ring-white transition-all disabled:cursor-default enabled:cursor-pointer enabled:hover:scale-105 ${circleCls(
                 s.state,
-                s.n
+                s.n,
               )}`}
             >
               {s.state === "done" ? <AnimatedCheck className="w-4 h-4" /> : s.n}
@@ -576,14 +894,16 @@ const Timeline = memo(function Timeline({ items, onGo }) {
                   s.state === "active"
                     ? "text-[#0A5F7A]"
                     : s.state === "upcoming"
-                    ? "text-slate-400"
-                    : "text-[#0B3446]"
+                      ? "text-slate-400"
+                      : "text-[#0B3446]"
                 }`}
               >
                 {s.label}
               </p>
               <div className="rounded-lg border border-slate-200 p-2.5">
-                <p className="text-[11px] font-extrabold text-[#0B3446] leading-snug">{s.status}</p>
+                <p className="text-[11px] font-extrabold text-[#0B3446] leading-snug">
+                  {s.status}
+                </p>
                 <p className="text-[11px] text-slate-500 leading-snug mt-0.5 break-words">
                   {s.detail}
                 </p>
@@ -630,7 +950,8 @@ const StepOne = memo(function StepOne({
           throw new Error(result.message || "Failed to load schemes.");
         }
 
-        if (!cancelled) setSchemes(Array.isArray(result.data) ? result.data : []);
+        if (!cancelled)
+          setSchemes(Array.isArray(result.data) ? result.data : []);
       } catch (error) {
         if (!cancelled) {
           setSchemesError(error.message || "Failed to load schemes.");
@@ -646,7 +967,7 @@ const StepOne = memo(function StepOne({
     };
   }, []);
 
-    // Location dropdown data
+  // Location dropdown data
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [tehsils, setTehsils] = useState([]);
@@ -711,7 +1032,7 @@ const StepOne = memo(function StepOne({
 
       try {
         const response = await fetch(
-          `/api/locations/districts?stateId=${encodeURIComponent(booking.state)}`
+          `/api/locations/districts?stateId=${encodeURIComponent(booking.state)}`,
         );
         const result = await response.json();
 
@@ -753,7 +1074,7 @@ const StepOne = memo(function StepOne({
 
       try {
         const response = await fetch(
-          `/api/locations/tehsils?districtId=${encodeURIComponent(booking.district)}`
+          `/api/locations/tehsils?districtId=${encodeURIComponent(booking.district)}`,
         );
         const result = await response.json();
 
@@ -794,11 +1115,11 @@ const StepOne = memo(function StepOne({
 
       try {
         const response = await fetch(
-          `/api/locations/villages?tehsilId=${encodeURIComponent(booking.tehsil)}`
+          `/api/locations/villages?tehsilId=${encodeURIComponent(booking.tehsil)}`,
         );
         console.log("first", response);
         const result = await response.json();
-      
+
         if (!response.ok || !result.success) {
           throw new Error(result.message || "Failed to load villages");
         }
@@ -836,7 +1157,9 @@ const StepOne = memo(function StepOne({
     const q = deferredScheme.trim().toLowerCase();
     const list = q
       ? schemes.filter((scheme) =>
-          `${scheme.misc_sname || ""} ${scheme.misc_name || ""}`.toLowerCase().includes(q)
+          `${scheme.misc_sname || ""} ${scheme.misc_name || ""}`
+            .toLowerCase()
+            .includes(q),
         )
       : schemes;
 
@@ -850,7 +1173,11 @@ const StepOne = memo(function StepOne({
   const on = (key) => (e) => setField(key, e.target.value);
 
   return (
-    <m.form {...stepMotion} onSubmit={onSubmit} className="space-y-6 sm:space-y-7">
+    <m.form
+      {...stepMotion}
+      onSubmit={onSubmit}
+      className="space-y-6 sm:space-y-7"
+    >
       {/* A. Patient */}
       <FormBlock
         first
@@ -901,7 +1228,12 @@ const StepOne = memo(function StepOne({
           </Field>
 
           <Field label="Patient Gender" htmlFor="f-gender" required>
-            <SelectBox id="f-gender" required value={booking.gender} onChange={on("gender")}>
+            <SelectBox
+              id="f-gender"
+              required
+              value={booking.gender}
+              onChange={on("gender")}
+            >
               <option value="MALE">Select Gender (MALE)</option>
               <option value="FEMALE">FEMALE</option>
               <option value="TRANSGENDER">TRANSGENDER</option>
@@ -956,14 +1288,21 @@ const StepOne = memo(function StepOne({
               type="tel"
               inputMode="tel"
               disabled={booking.sameWhatsapp}
-              value={booking.sameWhatsapp ? booking.contact : booking.whatsappNumber}
+              value={
+                booking.sameWhatsapp ? booking.contact : booking.whatsappNumber
+              }
               onChange={on("whatsappNumber")}
               placeholder="Enter WhatsApp Number"
               className={`${inputCls} disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-slate-50`}
             />
           </Field>
 
-          <Field label="Email Address (OTP Verification)" htmlFor="f-email" required className="sm:col-span-2">
+          <Field
+            label="Email Address (OTP Verification)"
+            htmlFor="f-email"
+            required
+            className="sm:col-span-2"
+          >
             <input
               id="f-email"
               type="email"
@@ -975,7 +1314,8 @@ const StepOne = memo(function StepOne({
               className={inputCls}
             />
             <p className="mt-1.5 text-[11px] text-slate-500">
-              We’ll send a one-time verification code to this email before booking.
+              We’ll send a one-time verification code to this email before
+              booking.
             </p>
           </Field>
         </div>
@@ -1101,7 +1441,7 @@ const StepOne = memo(function StepOne({
               onChange={(e) => {
                 const villageId = e.target.value;
                 const selectedVillage = villages.find(
-                  (village) => String(village.id) === villageId
+                  (village) => String(village.id) === villageId,
                 );
 
                 setLocationError("");
@@ -1110,8 +1450,7 @@ const StepOne = memo(function StepOne({
                   village: villageId,
                   pinCode:
                     current.pinCode ||
-                    (
-                    selectedVillage?.pinCode != null
+                    (selectedVillage?.pinCode != null
                       ? String(selectedVillage.pinCode)
                       : ""),
                 }));
@@ -1181,83 +1520,123 @@ const StepOne = memo(function StepOne({
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5 sm:gap-y-6">
           <Field label="Scheme Name" htmlFor="f-scheme" required>
-            <div className="space-y-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  type="text"
-                  aria-label="Filter scheme"
-                  placeholder="Filter scheme..."
-                  value={schemeSearch}
-                  onChange={(e) => setSchemeSearch(e.target.value)}
-                  className={`${filterCls} mt-1`}
-                />
-              </div>
-              <SelectBox id="f-scheme" required value={booking.scheme} onChange={on("scheme")} disabled={schemesLoading || Boolean(schemesError)}>
-                <option value="">
-                  {schemesLoading ? "Loading schemes..." : schemesError ? "Schemes unavailable" : "Select Scheme Name"}
+            <SelectBox
+              id="f-scheme"
+              required
+              searchable
+              value={booking.scheme}
+              disabled={Boolean(schemesError) || schemesLoading}
+              onChange={(e) => setField("scheme", e.target.value)}
+            >
+              <option value="">
+                {schemesLoading ? "Loading schemes..." : "Select Scheme"}
+              </option>
+              {schemes.map((scheme) => (
+                <option key={scheme.misc_id} value={String(scheme.misc_id)}>
+                  {scheme.misc_sname || scheme.misc_name}
                 </option>
-                {schemeOptions}
-              </SelectBox>
-              {schemesError && (
-                <p role="alert" className="mt-2 text-xs font-semibold text-red-600">
-                  {schemesError}
-                </p>
-              )}
-              {!schemesLoading && !schemesError && schemes.length === 0 && (
-                <p className="mt-2 text-xs text-slate-500">No active schemes are available.</p>
-              )}
-            </div>
+              ))}
+            </SelectBox>
+
+            {schemesError && (
+              <p
+                role="alert"
+                className="mt-2 text-xs font-semibold text-red-600"
+              >
+                {schemesError}
+              </p>
+            )}
+            {!schemesLoading && !schemesError && schemes.length === 0 && (
+              <p className="mt-2 text-xs text-slate-500">
+                No active schemes are available.
+              </p>
+            )}
           </Field>
 
           <Field label="Consultant" htmlFor="f-doctor" required>
+            <SelectBox
+              id="f-doctor"
+              required
+              searchable
+              value={booking.consultantId ? String(booking.consultantId) : ""}
+              disabled={doctorsLoading || doctors.length === 0}
+              onChange={(e) => {
+                const doc = doctors.find(
+                  (d) => String(d.id) === e.target.value,
+                );
+                setBooking((current) => ({
+                  ...current,
+                  consultantId: doc ? Number(doc.id) : "",
+                  consultant: doc ? doc.name : "",
+                  slot: "",
+                  slotDetailId: "",
+                  slotId: "",
+                }));
+              }}
+            >
+              <option value="">
+                {doctorsLoading
+                  ? "Loading consultants..."
+                  : "Select Consultant"}
+              </option>
+              {doctors.map((d) => (
+                <option key={d.id} value={String(d.id)}>
+                  {d.name}
+                </option>
+              ))}
+            </SelectBox>
+
+            {doctorsError && (
+              <p
+                role="alert"
+                className="mt-2 text-xs font-semibold text-red-600"
+              >
+                {doctorsError}
+              </p>
+            )}
+            {!doctorsLoading && !doctorsError && doctors.length === 0 && (
+              <p className="mt-2 text-xs text-slate-500">
+                No active consultants are currently available.
+              </p>
+            )}
+          </Field>
+
+          {/* <Field label="Consultant" htmlFor="f-doctor" required>
             <div className="space-y-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  type="text"
-                  aria-label="Filter doctor"
-                  placeholder="Filter doctor..."
-                  value={docSearch}
-                  onChange={(e) => setDocSearch(e.target.value)}
-                  className={`${filterCls} mt-1`}
-                />
-              </div>
-              <SelectBox
-                id="f-doctor"
-                required
+              <DoctorCombobox
+                doctors={doctors}
                 value={booking.consultantId ? String(booking.consultantId) : ""}
-                onChange={(e) => {
-                  const selectedDoctor = doctors.find(
-                    (doctor) => String(doctor.id) === e.target.value
-                  );
+                loading={doctorsLoading}
+                onChange={(selectedDoctor) => {
                   setBooking((current) => ({
                     ...current,
-                    consultantId: selectedDoctor ? Number(selectedDoctor.id) : "",
+                    consultantId: selectedDoctor
+                      ? Number(selectedDoctor.id)
+                      : "",
                     consultant: selectedDoctor ? selectedDoctor.name : "",
                     slot: "",
                     slotDetailId: "",
                     slotId: "",
                   }));
                 }}
-              >
-                <option value="">
-                  {doctorsLoading ? "Loading consultants..." : "Select Doctors"}
-                </option>
-                {doctorOptions}
-              </SelectBox>
+              />
+
               {doctorsError && (
-                <p role="alert" className="text-xs font-semibold text-red-600 mt-2">
+                <p
+                  role="alert"
+                  className="text-xs font-semibold text-red-600 mt-2"
+                >
                   {doctorsError}
                 </p>
               )}
+
               {!doctorsLoading && !doctorsError && doctors.length === 0 && (
                 <p className="text-xs text-slate-500 mt-2">
                   No active consultants are currently available.
                 </p>
               )}
             </div>
-          </Field>
+          </Field> */}
 
           <Field label="Appointment Date" htmlFor="f-date" required>
             <div className="relative">
@@ -1301,9 +1680,7 @@ const StepOne = memo(function StepOne({
 const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
   const isVisitors = s.note === "Visitors Only";
 
-  const isBooked =
-    Number(s.bookingType) !== 0 ||
-    Number(s.bookedBy) > 0;
+  const isBooked = Number(s.bookingType) !== 0 || Number(s.bookedBy) > 0;
 
   const isUnavailable = Number(s.status) !== 1;
 
@@ -1322,11 +1699,11 @@ const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
           ? isBooked
             ? "bg-rose-50 border-rose-200 text-rose-500 cursor-not-allowed opacity-90"
             : isVisitors
-            ? "bg-amber-100/70 border-amber-300 text-amber-900 cursor-not-allowed opacity-90"
-            : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-70"
+              ? "bg-amber-100/70 border-amber-300 text-amber-900 cursor-not-allowed opacity-90"
+              : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-70"
           : selected
-          ? "scale-[1.03] bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] border-[#0A5F7A] text-white shadow-xl ring-2 ring-[#F6D98A]"
-          : "bg-white border-slate-200 text-slate-800 hover:border-[#1D82A6]/50 hover:bg-[#EDF6FB] hover:-translate-y-1 active:scale-95 cursor-pointer"
+            ? "scale-[1.03] bg-gradient-to-br from-[#0A5F7A] to-[#1D82A6] border-[#0A5F7A] text-white shadow-xl ring-2 ring-[#F6D98A]"
+            : "bg-white border-slate-200 text-slate-800 hover:border-[#1D82A6]/50 hover:bg-[#EDF6FB] hover:-translate-y-1 active:scale-95 cursor-pointer"
       }`}
     >
       {selected && (
@@ -1340,10 +1717,10 @@ const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
           selected
             ? "bg-white/20"
             : isBooked
-            ? "bg-rose-100 text-rose-600"
-            : isVisitors
-            ? "bg-amber-200 text-amber-900"
-            : "bg-[#EDF6FB] text-[#0A5F7A]"
+              ? "bg-rose-100 text-rose-600"
+              : isVisitors
+                ? "bg-amber-200 text-amber-900"
+                : "bg-[#EDF6FB] text-[#0A5F7A]"
         }`}
       >
         <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1359,23 +1736,23 @@ const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
             selected
               ? "text-[#F6D98A]"
               : isBooked
-              ? "text-rose-600"
-              : isVisitors
-              ? "text-amber-800"
-              : isUnavailable
-              ? "text-slate-500"
-              : "text-emerald-600"
+                ? "text-rose-600"
+                : isVisitors
+                  ? "text-amber-800"
+                  : isUnavailable
+                    ? "text-slate-500"
+                    : "text-emerald-600"
           }`}
         >
           {isVisitors
             ? "Not Bookable"
             : selected
-            ? "Selected"
-            : isBooked
-            ? "Booked"
-            : isUnavailable
-            ? "Unavailable"
-            : "Available"}
+              ? "Selected"
+              : isBooked
+                ? "Booked"
+                : isUnavailable
+                  ? "Unavailable"
+                  : "Available"}
         </div>
 
         {isVisitors && (
@@ -1388,7 +1765,6 @@ const SlotButton = memo(function SlotButton({ s, selected, onSelect }) {
   );
 });
 
-
 const SummaryTile = memo(function SummaryTile({ icon: Icon, label, value }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-[#EDF6FB] border border-[#1D82A6]/15 px-3.5 py-3 min-w-0">
@@ -1399,7 +1775,9 @@ const SummaryTile = memo(function SummaryTile({ icon: Icon, label, value }) {
         <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 leading-normal">
           {label}
         </p>
-        <p className="text-xs font-extrabold text-[#0B3446] leading-snug break-words">{value}</p>
+        <p className="text-xs font-extrabold text-[#0B3446] leading-snug break-words">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -1427,42 +1805,63 @@ const StepTwo = memo(function StepTwo({
     headingRef.current?.focus({ preventScroll: true });
   }, []);
 
-const groupedSlots = useMemo(() => {
-  const groups = {
-    Morning: [],
-    Afternoon: [],
-    Evening: [],
-  };
+  const groupedSlots = useMemo(() => {
+    const groups = {
+      Morning: [],
+      Afternoon: [],
+      Evening: [],
+    };
 
-  slots.forEach((slot) => {
-    groups[slotPeriod(slot.time)].push(slot);
-  });
+    slots.forEach((slot) => {
+      groups[slotPeriod(slot.time)].push(slot);
+    });
 
-  return Object.entries(groups).filter(([, list]) => list.length > 0);
-}, [slots]);
+    return Object.entries(groups).filter(([, list]) => list.length > 0);
+  }, [slots]);
 
   return (
     <m.div {...stepMotion} className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-        <SummaryTile icon={User} label="Patient" value={booking.patientName || "Patient"} />
-        <SummaryTile icon={Stethoscope} label="Doctor" value={booking.consultant || "Select Doctors"} />
-        <SummaryTile icon={Calendar} label="Date" value={formatDate(booking.appointmentDate)} />
+        <SummaryTile
+          icon={User}
+          label="Patient"
+          value={booking.patientName || "Patient"}
+        />
+        <SummaryTile
+          icon={Stethoscope}
+          label="Doctor"
+          value={booking.consultant || "Select Doctors"}
+        />
+        <SummaryTile
+          icon={Calendar}
+          label="Date"
+          value={formatDate(booking.appointmentDate)}
+        />
       </div>
 
       {slotsLoading && (
-        <div className="py-5 text-center text-sm font-semibold text-slate-500" role="status">
+        <div
+          className="py-5 text-center text-sm font-semibold text-slate-500"
+          role="status"
+        >
           Loading available slots...
         </div>
       )}
 
       {!slotsLoading && slotsError && (
-        <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div
+          role="status"
+          className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
+        >
           {slotsError}
         </div>
       )}
 
       {submitError && (
-        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700"
+        >
           {submitError}
         </div>
       )}
@@ -1486,66 +1885,64 @@ const groupedSlots = useMemo(() => {
           aria-live="polite"
         >
           <span>Selected Slot:</span>
-          <span key={booking.slot} className="ap-pop text-[#B8841F] font-extrabold">
+          <span
+            key={booking.slot}
+            className="ap-pop text-[#B8841F] font-extrabold"
+          >
             {formatTime(booking.slot)}
           </span>
         </div>
       </div>
 
-{!slotsLoading && slots.length > 0 && (
-      <div className="space-y-6">
-        {groupedSlots.map(([period, list]) => {
-          const meta = periodMeta[period];
-          const PIcon = meta.icon;
-          return (
-            <div key={period}>
-              <div className="flex items-center gap-2.5 mb-3">
-                <div
-                  className={`w-8 h-8 rounded-xl bg-gradient-to-br ${meta.tint} text-white flex items-center justify-center shadow-md`}
-                >
-                  <PIcon className="w-4 h-4" />
+      {!slotsLoading && slots.length > 0 && (
+        <div className="space-y-6">
+          {groupedSlots.map(([period, list]) => {
+            const meta = periodMeta[period];
+            const PIcon = meta.icon;
+            return (
+              <div key={period}>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div
+                    className={`w-8 h-8 rounded-xl bg-gradient-to-br ${meta.tint} text-white flex items-center justify-center shadow-md`}
+                  >
+                    <PIcon className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-sm font-black text-[#0B3446] leading-normal uppercase tracking-wider">
+                    {period}
+                  </h4>
+                  <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
                 </div>
-                <h4 className="text-sm font-black text-[#0B3446] leading-normal uppercase tracking-wider">
-                  {period}
-                </h4>
-                <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
+                  {list.map((s, index) => {
+                    const isBooked =
+                      Number(s.bookingType) !== 0 || Number(s.bookedBy) > 0;
+
+                    const isVisitorsOnly = !isBooked && (index + 1) % 3 === 0;
+
+                    if (isVisitorsOnly) return null;
+
+                    return (
+                      <SlotButton
+                        key={s.id}
+                        s={s}
+                        selected={
+                          !isBooked &&
+                          Number(booking.slotDetailId) === Number(s.id)
+                        }
+                        onSelect={(slot) => {
+                          if (isBooked) return;
+                          onSelectSlot(slot);
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
-           
-            {list.map((s, index) => {
-              const isBooked =
-                Number(s.bookingType) !== 0 ||
-                Number(s.bookedBy) > 0;
-
-              const isVisitorsOnly =
-                !isBooked && (index + 1) % 3 === 0;
-
-              if (isVisitorsOnly) return null;
-
-              return (
-                <SlotButton
-                  key={s.id}
-                  s={s}
-                  selected={
-                    !isBooked &&
-                    Number(booking.slotDetailId) === Number(s.id)
-                  }
-                  onSelect={(slot) => {
-                    if (isBooked) return;
-                    onSelectSlot(slot);
-                  }}
-                />
-              );
-            })}
-
-
-          </div>
+            );
+          })}
         </div>
-      );
-    })}
-  </div>
-)}
+      )}
 
       {/* Mandatory email OTP verification before appointment booking */}
       <div className="rounded-2xl border border-[#1D82A6]/20 bg-[#F5FAFC] p-4 sm:p-5 space-y-3">
@@ -1554,15 +1951,22 @@ const groupedSlots = useMemo(() => {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-extrabold text-[#0B3446]">Verify your email to confirm booking</h3>
+            <h3 className="text-sm font-extrabold text-[#0B3446]">
+              Verify your email to confirm booking
+            </h3>
             <p className="mt-1 text-xs leading-relaxed text-slate-600">
-              OTP will be sent to <strong className="break-all">{booking.email}</strong>. Email verification is mandatory.
+              OTP will be sent to{" "}
+              <strong className="break-all">{booking.email}</strong>. Email
+              verification is mandatory.
             </p>
           </div>
         </div>
 
         {emailOtp.verified ? (
-          <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700">
+          <div
+            role="status"
+            className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700"
+          >
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             Email verified successfully.
           </div>
@@ -1572,10 +1976,18 @@ const groupedSlots = useMemo(() => {
               <button
                 type="button"
                 onClick={onSendOtp}
-                disabled={otpBusy || !booking.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.email)}
+                disabled={
+                  otpBusy ||
+                  !booking.email ||
+                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.email)
+                }
                 className="min-h-[46px] rounded-xl bg-[#0A5F7A] px-5 py-3 text-xs font-extrabold text-white transition hover:bg-[#084b61] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {otpBusy ? "Please wait..." : emailOtp.challengeId ? "Resend OTP" : "Send OTP"}
+                {otpBusy
+                  ? "Please wait..."
+                  : emailOtp.challengeId
+                    ? "Resend OTP"
+                    : "Send OTP"}
               </button>
               {emailOtp.challengeId && (
                 <div className="flex min-w-0 flex-1 gap-2">
@@ -1587,7 +1999,14 @@ const groupedSlots = useMemo(() => {
                     aria-label="Six digit email OTP"
                     placeholder="Enter 6-digit OTP"
                     value={emailOtp.code}
-                    onChange={(event) => setEmailOtp((current) => ({ ...current, code: event.target.value.replace(/\D/g, "").slice(0, 6), message: "", error: "" }))}
+                    onChange={(event) =>
+                      setEmailOtp((current) => ({
+                        ...current,
+                        code: event.target.value.replace(/\D/g, "").slice(0, 6),
+                        message: "",
+                        error: "",
+                      }))
+                    }
                     className={`${inputCls} min-w-0 flex-1 tracking-[0.25em]`}
                   />
                   <button
@@ -1601,13 +2020,25 @@ const groupedSlots = useMemo(() => {
                 </div>
               )}
             </div>
-            {emailOtp.error && <p role="alert" className="text-xs font-semibold text-red-600">{emailOtp.error}</p>}
-            {emailOtp.message && <p role="status" className="text-xs font-semibold text-[#0A5F7A]">{emailOtp.message}</p>}
-            {emailOtp.challengeId && <p className="text-[11px] text-slate-500">The OTP expires in 5 minutes. Check your spam folder if it doesn’t arrive.</p>}
+            {emailOtp.error && (
+              <p role="alert" className="text-xs font-semibold text-red-600">
+                {emailOtp.error}
+              </p>
+            )}
+            {emailOtp.message && (
+              <p role="status" className="text-xs font-semibold text-[#0A5F7A]">
+                {emailOtp.message}
+              </p>
+            )}
+            {emailOtp.challengeId && (
+              <p className="text-[11px] text-slate-500">
+                The OTP expires in 5 minutes. Check your spam folder if it
+                doesn’t arrive.
+              </p>
+            )}
           </>
         )}
       </div>
-
 
       <div className="pt-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <button
@@ -1622,13 +2053,21 @@ const groupedSlots = useMemo(() => {
         <button
           type="button"
           onClick={onConfirm}
-          disabled={savingAppointment || slotsLoading || !booking.slotDetailId || !emailOtp.verified || !emailOtp.verificationToken}
+          disabled={
+            savingAppointment ||
+            slotsLoading ||
+            !booking.slotDetailId ||
+            !emailOtp.verified ||
+            !emailOtp.verificationToken
+          }
           className={`${goldBtnCls} disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
           style={goldGradientStyle}
         >
           <span className="ap-btn-sheen" />
           <span className="relative">
-            {savingAppointment ? "Saving Appointment..." : "Confirm & Generate Registration Pass"}
+            {savingAppointment
+              ? "Saving Appointment..."
+              : "Confirm & Generate Registration Pass"}
           </span>
           {!savingAppointment && <ChevronRight className="relative w-4 h-4" />}
         </button>
@@ -1638,7 +2077,12 @@ const groupedSlots = useMemo(() => {
 });
 
 /* ───────────────────────── STEP 3 ───────────────────────── */
-const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId, onReset }) {
+const StepThree = memo(function StepThree({
+  booking,
+  passId,
+  savedAppointmentId,
+  onReset,
+}) {
   const headingRef = useRef(null);
 
   useEffect(() => {
@@ -1646,19 +2090,32 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
   }, []);
 
   const extras = [
-    ["Age / Gender", `${booking.ageValue} ${booking.ageUnit} • ${booking.gender}`],
+    [
+      "Age / Gender",
+      `${booking.ageValue} ${booking.ageUnit} • ${booking.gender}`,
+    ],
     ["Scheme", booking.scheme || "N/A"],
     ["Contact", booking.contact],
   ];
 
   return (
-    <m.div {...stepMotion} className="relative text-center space-y-6 sm:space-y-7">
-      <div className="absolute inset-x-0 top-0 h-44 pointer-events-none overflow-hidden" aria-hidden="true">
+    <m.div
+      {...stepMotion}
+      className="relative text-center space-y-6 sm:space-y-7"
+    >
+      <div
+        className="absolute inset-x-0 top-0 h-44 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+      >
         {CONFETTI.map((c, i) => (
           <span
             key={i}
             className="ap-confetti absolute top-0 left-1/2 w-2 h-3 rounded-sm"
-            style={{ "--x": `${c.x}px`, animationDelay: `${c.delay}s`, background: c.color }}
+            style={{
+              "--x": `${c.x}px`,
+              animationDelay: `${c.delay}s`,
+              background: c.color,
+            }}
           />
         ))}
       </div>
@@ -1668,7 +2125,12 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
         <m.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 240, damping: 18, delay: 0.1 }}
+          transition={{
+            type: "spring",
+            stiffness: 240,
+            damping: 18,
+            delay: 0.1,
+          }}
           className="relative w-full h-full rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-[0_20px_40px_rgba(16,185,129,0.35)]"
         >
           <AnimatedCheck className="w-10 h-10 sm:w-12 sm:h-12" />
@@ -1685,7 +2147,10 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
         </h3>
         <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto mt-1.5 leading-relaxed">
           Your appointment is ready. It has been logged for{" "}
-          <span className="font-bold text-[#0B3446]">{booking.patientName}</span>.
+          <span className="font-bold text-[#0B3446]">
+            {booking.patientName}
+          </span>
+          .
         </p>
         <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-[11px] font-bold text-emerald-700">
           <Ticket className="w-3.5 h-3.5" />
@@ -1698,18 +2163,15 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
         id="pass-ticket"
         className="relative rounded-3xl bg-gradient-to-br from-[#06384A] via-[#0A5F7A] to-[#0D2E3A] text-white max-w-lg mx-auto text-left text-xs shadow-[0_30px_60px_rgba(6,56,74,0.4)] overflow-hidden border border-white/20"
       >
-
         {/* Diagonal Apollo watermark */}
-<div
-  aria-hidden="true"
-  className="pointer-events-none absolute inset-0 overflow-hidden"
->
-  <span
-    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 whitespace-nowrap text-[64px] sm:text-[76px] font-black tracking-[0.18em] text-white/[0.06] select-none"
-  >
-    APOLLO
-  </span>
-</div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 whitespace-nowrap text-[64px] sm:text-[76px] font-black tracking-[0.18em] text-white/[0.06] select-none">
+            APOLLO
+          </span>
+        </div>
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#F6D98A]/15 blur-2xl pointer-events-none" />
         <div className="absolute top-[46%] -left-3 w-6 h-6 rounded-full bg-white" />
         <div className="absolute top-[46%] -right-3 w-6 h-6 rounded-full bg-white" />
@@ -1717,13 +2179,13 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
         <div className="relative p-4 sm:p-6 space-y-4">
           <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-dashed border-white/25">
             <span className="inline-flex items-center gap-2.5 font-black text-[#F6D98A] tracking-[0.12em] uppercase text-[10px] leading-normal">
-  <img
-    src="/images/apollologo.png"
-    alt="Apollo Hospitals"
-    className="w-9 h-9 object-contain rounded-full bg-white p-1"
-  />
-  <span>Apollo JBP Hospitals</span>
-</span>
+              <img
+                src="/images/apollologo.png"
+                alt="Apollo Hospitals"
+                className="w-9 h-9 object-contain rounded-full bg-white p-1"
+              />
+              <span>Apollo JBP Hospitals</span>
+            </span>
             <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold leading-normal">
               CONFIRMED
             </span>
@@ -1743,7 +2205,9 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
               <span className="text-slate-300 block text-[10px] uppercase tracking-wider leading-normal">
                 HIS Appointment ID
               </span>
-              <span className="font-black text-white text-sm leading-snug">{savedAppointmentId}</span>
+              <span className="font-black text-white text-sm leading-snug">
+                {savedAppointmentId}
+              </span>
             </div>
           )}
 
@@ -1770,13 +2234,17 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
               <span className="text-slate-300 block text-[10px] uppercase tracking-wider leading-normal">
                 Date
               </span>
-              <span className="font-bold leading-snug">{formatDate(booking.appointmentDate)}</span>
+              <span className="font-bold leading-snug">
+                {formatDate(booking.appointmentDate)}
+              </span>
             </div>
             <div>
               <span className="text-slate-300 block text-[10px] uppercase tracking-wider leading-normal">
                 Time
               </span>
-              <span className="font-bold leading-snug">{formatTime(booking.slot)}</span>
+              <span className="font-bold leading-snug">
+                {formatTime(booking.slot)}
+              </span>
             </div>
           </div>
 
@@ -1786,7 +2254,9 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
                 <span className="text-slate-300 block text-[10px] uppercase leading-normal">
                   {label}:
                 </span>
-                <span className="font-bold leading-snug break-words">{value}</span>
+                <span className="font-bold leading-snug break-words">
+                  {value}
+                </span>
               </div>
             ))}
           </div>
@@ -1806,38 +2276,38 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
       <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         <button
           type="button"
-         onClick={() => {
-  const ticket = document.getElementById("pass-ticket");
+          onClick={() => {
+            const ticket = document.getElementById("pass-ticket");
 
-  if (!ticket) {
-    console.error("Appointment pass not found.");
-    return;
-  }
+            if (!ticket) {
+              console.error("Appointment pass not found.");
+              return;
+            }
 
-  const printWindow = window.open(
-    "",
-    "_blank",
-    "width=900,height=700"
-  );
+            const printWindow = window.open(
+              "",
+              "_blank",
+              "width=900,height=700",
+            );
 
-  if (!printWindow) {
-    alert("Please allow pop-ups to print your appointment pass.");
-    return;
-  }
+            if (!printWindow) {
+              alert("Please allow pop-ups to print your appointment pass.");
+              return;
+            }
 
-  // Copy website styles, excluding the old print CSS
-  const styles = Array.from(
-    document.querySelectorAll('link[rel="stylesheet"], style')
-  )
-    .filter((node) => {
-      return !node.textContent?.includes("@media print");
-    })
-    .map((node) => node.outerHTML)
-    .join("\n");
+            // Copy website styles, excluding the old print CSS
+            const styles = Array.from(
+              document.querySelectorAll('link[rel="stylesheet"], style'),
+            )
+              .filter((node) => {
+                return !node.textContent?.includes("@media print");
+              })
+              .map((node) => node.outerHTML)
+              .join("\n");
 
-  printWindow.document.open();
+            printWindow.document.open();
 
-  printWindow.document.write(`
+            printWindow.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -1901,6 +2371,20 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
               overflow: visible !important;
             }
           }
+            .ap-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #1d82a6 transparent;
+}
+.ap-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.ap-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(#1d82a6, #0a5f7a);
+  border-radius: 999px;
+}
+.ap-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
         </style>
       </head>
 
@@ -1910,30 +2394,30 @@ const StepThree = memo(function StepThree({ booking, passId, savedAppointmentId,
     </html>
   `);
 
-  printWindow.document.close();
+            printWindow.document.close();
 
-  printWindow.onload = () => {
-    const images = Array.from(printWindow.document.images);
+            printWindow.onload = () => {
+              const images = Array.from(printWindow.document.images);
 
-    Promise.all(
-      images.map((img) => {
-        if (img.complete) return Promise.resolve();
+              Promise.all(
+                images.map((img) => {
+                  if (img.complete) return Promise.resolve();
 
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      })
-    ).then(() => {
-      printWindow.focus();
-      printWindow.print();
-    });
-  };
+                  return new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                  });
+                }),
+              ).then(() => {
+                printWindow.focus();
+                printWindow.print();
+              });
+            };
 
-  printWindow.onafterprint = () => {
-    printWindow.close();
-  };
-}}
+            printWindow.onafterprint = () => {
+              printWindow.close();
+            };
+          }}
           className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl text-[#3A2B0A] text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F6D98A]/60 [touch-action:manipulation]"
           style={goldGradientStyle}
         >
@@ -1957,7 +2441,12 @@ export default function MakeAppointmentPage() {
   const [step, setStep] = useState(1);
   const [booking, setBooking] = useState(INITIAL_BOOKING);
   const [emailOtp, setEmailOtp] = useState({
-    challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "",
+    challengeId: "",
+    code: "",
+    verificationToken: "",
+    verified: false,
+    message: "",
+    error: "",
   });
   const [otpBusy, setOtpBusy] = useState(false);
   const [passId, setPassId] = useState("");
@@ -1967,80 +2456,77 @@ export default function MakeAppointmentPage() {
   const journeyRef = useRef(null);
 
   const [slots, setSlots] = useState([]);
-const [slotsLoading, setSlotsLoading] = useState(false);
-const [slotsError, setSlotsError] = useState("");
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState("");
 
-const [savingAppointment, setSavingAppointment] = useState(false);
-const [submitError, setSubmitError] = useState("");
-const [savedAppointmentId, setSavedAppointmentId] = useState(null);
-// start
-useEffect(() => {
-  if (step !== 2) return;
+  const [savingAppointment, setSavingAppointment] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [savedAppointmentId, setSavedAppointmentId] = useState(null);
+  // start
+  useEffect(() => {
+    if (step !== 2) return;
 
-  const doctorId = booking.consultantId;
-  const appointmentDate = booking.appointmentDate;
+    const doctorId = booking.consultantId;
+    const appointmentDate = booking.appointmentDate;
 
-  if (!doctorId || !appointmentDate) {
-    setSlots([]);
-    setSlotsError("Please select a doctor and appointment date.");
-    return;
-  }
+    if (!doctorId || !appointmentDate) {
+      setSlots([]);
+      setSlotsError("Please select a doctor and appointment date.");
+      return;
+    }
 
-  const controller = new AbortController();
+    const controller = new AbortController();
 
-  async function fetchSlots() {
-    setSlotsLoading(true);
-    setSlotsError("");
-    setSlots([]);
+    async function fetchSlots() {
+      setSlotsLoading(true);
+      setSlotsError("");
+      setSlots([]);
 
-    try {
-      const params = new URLSearchParams({
-        drid: String(doctorId),
-        bookdt: appointmentDate,
-      });
+      try {
+        const params = new URLSearchParams({
+          drid: String(doctorId),
+          bookdt: appointmentDate,
+        });
 
-      const response = await fetch(
-        `/api/appointments/slots?${params.toString()}`,
-        { signal: controller.signal, cache: "no-store" }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        setSlots([]);
-        setSlotsError(
-          result.message || "Unable to load appointment slots."
+        const response = await fetch(
+          `/api/appointments/slots?${params.toString()}`,
+          { signal: controller.signal, cache: "no-store" },
         );
-        return;
-      }
 
-     
-const visibleSlots = (result.data || []).filter(
-  (slot) => Number(slot.status) === 1
-);
+        const result = await response.json();
 
-setSlots(visibleSlots);
+        if (!response.ok || !result.success) {
+          setSlots([]);
+          setSlotsError(result.message || "Unable to load appointment slots.");
+          return;
+        }
 
-if (visibleSlots.length === 0) {
-  setSlotsError("No slots available for this doctor on this date.");
-}
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSlots([]);
-        setSlotsError("Unable to load slots. Please try again.");
-      }
-    } finally {
-      if (!controller.signal.aborted) {
-        setSlotsLoading(false);
+        const visibleSlots = (result.data || []).filter(
+          (slot) => Number(slot.status) === 1,
+        );
+
+        setSlots(visibleSlots);
+
+        if (visibleSlots.length === 0) {
+          setSlotsError("No slots available for this doctor on this date.");
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setSlots([]);
+          setSlotsError("Unable to load slots. Please try again.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setSlotsLoading(false);
+        }
       }
     }
-  }
 
-  fetchSlots();
+    fetchSlots();
 
-  return () => controller.abort();
-}, [step, booking.consultantId, booking.appointmentDate]);
-//  end
+    return () => controller.abort();
+  }, [step, booking.consultantId, booking.appointmentDate]);
+  //  end
 
   useEffect(() => {
     const controller = new AbortController();
@@ -2057,19 +2543,28 @@ if (visibleSlots.length === 0) {
         });
         const result = await response.json();
 
-        if (!response.ok || result.success !== true || !Array.isArray(result.data)) {
+        if (
+          !response.ok ||
+          result.success !== true ||
+          !Array.isArray(result.data)
+        ) {
           throw new Error(result.message || "Unable to load consultants.");
         }
 
         setDoctors(
           result.data
             .filter((doctor) => doctor?.id != null && doctor?.name)
-            .map((doctor) => ({ id: Number(doctor.id), name: String(doctor.name) }))
+            .map((doctor) => ({
+              id: Number(doctor.id),
+              name: String(doctor.name),
+            })),
         );
       } catch (error) {
         if (error.name !== "AbortError") {
           console.error("Load appointment doctors error:", error);
-          setDoctorsError("Unable to load consultants. Please refresh and try again.");
+          setDoctorsError(
+            "Unable to load consultants. Please refresh and try again.",
+          );
         }
       } finally {
         if (!controller.signal.aborted) setDoctorsLoading(false);
@@ -2083,13 +2578,23 @@ if (visibleSlots.length === 0) {
   const setField = useCallback((key, value) => {
     setBooking((current) => ({ ...current, [key]: value }));
     if (key === "email") {
-      setEmailOtp({ challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "" });
+      setEmailOtp({
+        challengeId: "",
+        code: "",
+        verificationToken: "",
+        verified: false,
+        message: "",
+        error: "",
+      });
     }
   }, []);
 
   const scrollToJourney = useCallback(() => {
     requestAnimationFrame(() =>
-      journeyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      journeyRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      }),
     );
   }, []);
 
@@ -2099,115 +2604,163 @@ if (visibleSlots.length === 0) {
       setStep(2);
       scrollToJourney();
     },
-    [scrollToJourney]
+    [scrollToJourney],
   );
 
+  const handleSendOtp = useCallback(async () => {
+    if (otpBusy) return;
+    const email = String(booking.email || "")
+      .trim()
+      .toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailOtp((current) => ({
+        ...current,
+        error: "Enter a valid email address.",
+        message: "",
+      }));
+      return;
+    }
+    setOtpBusy(true);
+    setEmailOtp((current) => ({ ...current, error: "", message: "" }));
+    try {
+      const response = await fetch("/api/appointments/email-otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success)
+        throw new Error(result.message || "Unable to send OTP.");
+      setEmailOtp({
+        challengeId: result.challengeId,
+        code: "",
+        verificationToken: "",
+        verified: false,
+        message: result.message || "OTP sent. Check your email.",
+        error: "",
+      });
+    } catch (error) {
+      setEmailOtp((current) => ({
+        ...current,
+        error: error.message || "Unable to send OTP.",
+        message: "",
+      }));
+    } finally {
+      setOtpBusy(false);
+    }
+  }, [booking.email, otpBusy]);
 
-const handleSendOtp = useCallback(async () => {
-  if (otpBusy) return;
-  const email = String(booking.email || "").trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setEmailOtp((current) => ({ ...current, error: "Enter a valid email address.", message: "" }));
-    return;
-  }
-  setOtpBusy(true);
-  setEmailOtp((current) => ({ ...current, error: "", message: "" }));
-  try {
-    const response = await fetch("/api/appointments/email-otp/send", {
-      method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
-      body: JSON.stringify({ email }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.message || "Unable to send OTP.");
-    setEmailOtp({ challengeId: result.challengeId, code: "", verificationToken: "", verified: false, message: result.message || "OTP sent. Check your email.", error: "" });
-  } catch (error) {
-    setEmailOtp((current) => ({ ...current, error: error.message || "Unable to send OTP.", message: "" }));
-  } finally { setOtpBusy(false); }
-}, [booking.email, otpBusy]);
+  const handleVerifyOtp = useCallback(async () => {
+    if (otpBusy) return;
+    setOtpBusy(true);
+    setEmailOtp((current) => ({ ...current, error: "", message: "" }));
+    try {
+      const response = await fetch("/api/appointments/email-otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({
+          email: String(booking.email || "")
+            .trim()
+            .toLowerCase(),
+          challengeId: emailOtp.challengeId,
+          otp: emailOtp.code,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success)
+        throw new Error(result.message || "OTP verification failed.");
+      setEmailOtp((current) => ({
+        ...current,
+        verified: true,
+        verificationToken: result.verificationToken,
+        code: "",
+        message: "Email verified. You can now confirm your appointment.",
+        error: "",
+      }));
+    } catch (error) {
+      setEmailOtp((current) => ({
+        ...current,
+        error: error.message || "OTP verification failed.",
+        message: "",
+      }));
+    } finally {
+      setOtpBusy(false);
+    }
+  }, [booking.email, emailOtp.challengeId, emailOtp.code, otpBusy]);
 
-const handleVerifyOtp = useCallback(async () => {
-  if (otpBusy) return;
-  setOtpBusy(true);
-  setEmailOtp((current) => ({ ...current, error: "", message: "" }));
-  try {
-    const response = await fetch("/api/appointments/email-otp/verify", {
-      method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
-      body: JSON.stringify({ email: String(booking.email || "").trim().toLowerCase(), challengeId: emailOtp.challengeId, otp: emailOtp.code }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.message || "OTP verification failed.");
-    setEmailOtp((current) => ({ ...current, verified: true, verificationToken: result.verificationToken, code: "", message: "Email verified. You can now confirm your appointment.", error: "" }));
-  } catch (error) {
-    setEmailOtp((current) => ({ ...current, error: error.message || "OTP verification failed.", message: "" }));
-  } finally { setOtpBusy(false); }
-}, [booking.email, emailOtp.challengeId, emailOtp.code, otpBusy]);
-
-const handleFinalSubmit = useCallback(async () => {
-  if (savingAppointment) return;
-  if (!booking.slotDetailId) {
-    setSubmitError("Please select an available appointment slot.");
-    return;
-  }
-  if (!emailOtp.verified || !emailOtp.verificationToken) {
-    setSubmitError("Please verify your email with OTP before booking.");
-    return;
-  }
-
-  setSavingAppointment(true);
-  setSubmitError("");
-
-  try {
-    const response = await fetch("/api/appointments/save", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        patientName: booking.patientName,
-        email: String(booking.email || "").trim().toLowerCase(),
-        emailVerificationToken: emailOtp.verificationToken,
-        ageValue: booking.ageValue,
-        ageUnit: booking.ageUnit,
-        gender: booking.gender,
-        contact: booking.contact,
-        whatsappNumber: booking.sameWhatsapp
-          ? booking.contact
-          : booking.whatsappNumber,
-        scheme: booking.scheme,
-        consultantId: booking.consultantId,
-        appointmentDate: booking.appointmentDate,
-        slotDetailId: booking.slotDetailId,
-        state: booking.state,
-        district: booking.district,
-        tehsil: booking.tehsil,
-        pinCode: booking.pinCode,
-        village: booking.village,
-        wardNumber: booking.wardNumber,
-        address: booking.address,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.status) {
-      throw new Error(
-        result.message || "Unable to book appointment."
-      );
+  const handleFinalSubmit = useCallback(async () => {
+    if (savingAppointment) return;
+    if (!booking.slotDetailId) {
+      setSubmitError("Please select an available appointment slot.");
+      return;
+    }
+    if (!emailOtp.verified || !emailOtp.verificationToken) {
+      setSubmitError("Please verify your email with OTP before booking.");
+      return;
     }
 
-    setSavedAppointmentId(result.data.book_id);
-    setPassId(makePassId());
-    setStep(3);
-    scrollToJourney();
-  } catch (error) {
-    setSubmitError(
-      error.message || "Unable to book appointment. Please try again."
-    );
-  } finally {
-    setSavingAppointment(false);
-  }
-}, [booking, emailOtp.verified, emailOtp.verificationToken, savingAppointment, scrollToJourney]);
+    setSavingAppointment(true);
+    setSubmitError("");
 
+    try {
+      const response = await fetch("/api/appointments/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patientName: booking.patientName,
+          email: String(booking.email || "")
+            .trim()
+            .toLowerCase(),
+          emailVerificationToken: emailOtp.verificationToken,
+          ageValue: booking.ageValue,
+          ageUnit: booking.ageUnit,
+          gender: booking.gender,
+          contact: booking.contact,
+          whatsappNumber: booking.sameWhatsapp
+            ? booking.contact
+            : booking.whatsappNumber,
+          scheme: booking.scheme,
+          consultantId: booking.consultantId,
+          appointmentDate: booking.appointmentDate,
+          slotDetailId: booking.slotDetailId,
+          state: booking.state,
+          district: booking.district,
+          tehsil: booking.tehsil,
+          pinCode: booking.pinCode,
+          village: booking.village,
+          wardNumber: booking.wardNumber,
+          address: booking.address,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.status) {
+        throw new Error(result.message || "Unable to book appointment.");
+      }
+
+      setSavedAppointmentId(result.data.book_id);
+      setPassId(makePassId());
+      setStep(3);
+      scrollToJourney();
+    } catch (error) {
+      setSubmitError(
+        error.message || "Unable to book appointment. Please try again.",
+      );
+    } finally {
+      setSavingAppointment(false);
+    }
+  }, [
+    booking,
+    emailOtp.verified,
+    emailOtp.verificationToken,
+    savingAppointment,
+    scrollToJourney,
+  ]);
 
   const goToStep1 = useCallback(() => {
     setStep(1);
@@ -2222,35 +2775,49 @@ const handleFinalSubmit = useCallback(async () => {
         scrollToJourney();
       }
     },
-    [step, scrollToJourney]
+    [step, scrollToJourney],
   );
 
   const handleReset = useCallback(() => {
-    setBooking({ ...INITIAL_BOOKING, appointmentDate: getLocalDateInputValue() });
+    setBooking({
+      ...INITIAL_BOOKING,
+      appointmentDate: getLocalDateInputValue(),
+    });
     setSavedAppointmentId(null);
     setSubmitError("");
     setPassId("");
-    setEmailOtp({ challengeId: "", code: "", verificationToken: "", verified: false, message: "", error: "" });
+    setEmailOtp({
+      challengeId: "",
+      code: "",
+      verificationToken: "",
+      verified: false,
+      message: "",
+      error: "",
+    });
     setStep(1);
     scrollToJourney();
   }, [scrollToJourney]);
 
- const handleSelectSlot = useCallback((slot) => {
-  setSubmitError("");
-  setBooking((current) => ({
-    ...current,
-    slot: slot.time,
-    slotDetailId: slot.id,
-    slotId: slot.slotId,
-  }));
-}, []);
+  const handleSelectSlot = useCallback((slot) => {
+    setSubmitError("");
+    setBooking((current) => ({
+      ...current,
+      slot: slot.time,
+      slotDetailId: slot.id,
+      slotId: slot.slotId,
+    }));
+  }, []);
 
   /* journey data shared by stepper, step list and timeline */
   const items = useMemo(
     () =>
       STEPS.map((s) => {
         const state =
-          step > s.n || (s.n === 3 && step === 3) ? "done" : step === s.n ? "active" : "upcoming";
+          step > s.n || (s.n === 3 && step === 3)
+            ? "done"
+            : step === s.n
+              ? "active"
+              : "upcoming";
 
         const status =
           state === "done"
@@ -2258,10 +2825,10 @@ const handleFinalSubmit = useCallback(async () => {
               ? "Generated"
               : "Completed"
             : state === "active"
-            ? "In progress"
-            : s.n === 3
-            ? "Locked"
-            : "Upcoming";
+              ? "In progress"
+              : s.n === 3
+                ? "Locked"
+                : "Upcoming";
 
         let short;
         let detail;
@@ -2276,15 +2843,20 @@ const handleFinalSubmit = useCallback(async () => {
               : "Fill in patient, address and consultation details.";
         } else if (s.n === 2) {
           short =
-            state === "done" ? "Appointment slot selected." : "Select an available slot.";
+            state === "done"
+              ? "Appointment slot selected."
+              : "Select an available slot.";
           detail =
             state === "done"
               ? `${formatDate(booking.appointmentDate)} • ${formatTime(booking.slot)}`
               : state === "active"
-              ? "Select an available slot for your consultation."
-              : "Choose your time after patient details.";
+                ? "Select an available slot for your consultation."
+                : "Choose your time after patient details.";
         } else {
-          short = state === "done" ? "Your digital pass is ready." : "Your digital pass.";
+          short =
+            state === "done"
+              ? "Your digital pass is ready."
+              : "Your digital pass.";
           detail =
             state === "done"
               ? `Pass ${passId} generated.`
@@ -2302,14 +2874,17 @@ const handleFinalSubmit = useCallback(async () => {
       booking.appointmentDate,
       booking.slot,
       passId,
-    ]
+    ],
   );
 
   return (
     <LazyMotion features={domAnimation} strict>
       <main className="relative min-h-screen bg-[#EEF5F9] text-slate-900 pt-28 sm:pt-36 xl:pt-40 pb-16 sm:pb-24 selection:bg-[#1D82A6] selection:text-white ">
         {/* static background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
           <div className="absolute -top-40 -left-40 w-[320px] sm:w-[600px] h-[320px] sm:h-[600px] rounded-full bg-gradient-to-br from-[#1D82A6]/25 via-[#0A5F7A]/15 to-transparent sm:blur-3xl" />
           <div className="absolute top-1/2 -right-40 w-[300px] sm:w-[550px] h-[300px] sm:h-[550px] rounded-full bg-gradient-to-br from-[#F6D98A]/35 via-[#C8952E]/15 to-transparent sm:blur-3xl" />
           <div
@@ -2333,13 +2908,16 @@ const handleFinalSubmit = useCallback(async () => {
           />
 
           {/* ───── journey ───── */}
-          <div ref={journeyRef} className="scroll-mt-28 sm:scroll-mt-36 xl:scroll-mt-40 space-y-4 sm:space-y-5">
+          <div
+            ref={journeyRef}
+            className="scroll-mt-28 sm:scroll-mt-36 xl:scroll-mt-40 space-y-4 sm:space-y-5"
+          >
             <TopStepper items={items} onGo={goTo} />
 
             <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_290px] gap-4 sm:gap-5 items-start">
               <div className="hidden lg:block lg:sticky lg:top-36 xl:top-40 self-start">
-  <StepList items={items} />
-</div>
+                <StepList items={items} />
+              </div>
 
               {/* center: form card */}
               <div className="min-w-0 space-y-4">
@@ -2351,7 +2929,9 @@ const handleFinalSubmit = useCallback(async () => {
                 >
                   <div className="flex items-start justify-between gap-4 pb-5 mb-6 border-b border-slate-100">
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-500 leading-normal">Appointment process</p>
+                      <p className="text-xs text-slate-500 leading-normal">
+                        Appointment process
+                      </p>
                       <h2
                         key={step}
                         className="ap-in font-serif-apollo text-2xl sm:text-3xl font-black text-[#0B3446] leading-snug"
@@ -2411,32 +2991,59 @@ const handleFinalSubmit = useCallback(async () => {
               </div>
 
               <div className="hidden xl:block xl:sticky xl:top-40 self-start">
-  <Timeline items={items} onGo={goTo} />
-</div>
+                <Timeline items={items} onGo={goTo} />
+              </div>
             </div>
           </div>
         </div>
 
         <style jsx global>{`
           @keyframes apIn {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+              opacity: 0;
+              transform: translateY(14px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          .ap-in { animation: apIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+          .ap-in {
+            animation: apIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+          }
 
-          @keyframes apSpin { to { transform: rotate(360deg); } }
-          .ap-spin { animation: apSpin 40s linear infinite; }
+          @keyframes apSpin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          .ap-spin {
+            animation: apSpin 40s linear infinite;
+          }
 
           @keyframes apFloat {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-8px); }
+            0%,
+            100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-8px);
+            }
           }
-          .ap-float  { animation: apFloat 6s ease-in-out infinite; }
-          .ap-float2 { animation: apFloat 5s ease-in-out infinite reverse; }
+          .ap-float {
+            animation: apFloat 6s ease-in-out infinite;
+          }
+          .ap-float2 {
+            animation: apFloat 5s ease-in-out infinite reverse;
+          }
 
           @keyframes apShimmerText {
-            from { background-position: 0% 0; }
-            to   { background-position: 200% 0; }
+            from {
+              background-position: 0% 0;
+            }
+            to {
+              background-position: 200% 0;
+            }
           }
           .ap-shimmer-text {
             background-size: 200% 100%;
@@ -2444,13 +3051,28 @@ const handleFinalSubmit = useCallback(async () => {
           }
 
           @keyframes apPop {
-            0%   { transform: scale(0.4); opacity: 0; }
-            70%  { transform: scale(1.12); opacity: 1; }
-            100% { transform: scale(1); }
+            0% {
+              transform: scale(0.4);
+              opacity: 0;
+            }
+            70% {
+              transform: scale(1.12);
+              opacity: 1;
+            }
+            100% {
+              transform: scale(1);
+            }
           }
-          .ap-pop { animation: apPop 0.28s ease-out both; display: inline-block; }
+          .ap-pop {
+            animation: apPop 0.28s ease-out both;
+            display: inline-block;
+          }
 
-          @keyframes apCheck { to { stroke-dashoffset: 0; } }
+          @keyframes apCheck {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }
           .ap-check {
             stroke-dasharray: 1;
             stroke-dashoffset: 1;
@@ -2458,37 +3080,73 @@ const handleFinalSubmit = useCallback(async () => {
           }
 
           @keyframes apRing {
-            0%   { transform: scale(1);   opacity: 0.6; }
-            100% { transform: scale(1.5); opacity: 0; }
+            0% {
+              transform: scale(1);
+              opacity: 0.6;
+            }
+            100% {
+              transform: scale(1.5);
+              opacity: 0;
+            }
           }
-          .ap-ring { animation: apRing 1.8s ease-out infinite; }
+          .ap-ring {
+            animation: apRing 1.8s ease-out infinite;
+          }
 
           @keyframes apConfetti {
-            0%   { transform: translate(0, -10px) rotate(0); opacity: 0; }
-            15%  { opacity: 1; }
-            100% { transform: translate(var(--x), 150px) rotate(360deg); opacity: 0; }
+            0% {
+              transform: translate(0, -10px) rotate(0);
+              opacity: 0;
+            }
+            15% {
+              opacity: 1;
+            }
+            100% {
+              transform: translate(var(--x), 150px) rotate(360deg);
+              opacity: 0;
+            }
           }
-          .ap-confetti { animation: apConfetti 1.8s ease-out both; }
+          .ap-confetti {
+            animation: apConfetti 1.8s ease-out both;
+          }
 
           .ap-btn-sheen {
             position: absolute;
-            top: 0; bottom: 0; left: -60%;
+            top: 0;
+            bottom: 0;
+            left: -60%;
             width: 40%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.5),
+              transparent
+            );
             transform: skewX(-20deg);
             transition: left 0.7s ease;
             pointer-events: none;
           }
-          .group:hover .ap-btn-sheen { left: 150%; }
-
-          @media (prefers-reduced-motion: reduce) {
-            .ap-in, .ap-spin, .ap-float, .ap-float2, .ap-shimmer-text,
-            .ap-pop, .ap-ring, .ap-confetti, .animate-ping {
-              animation: none !important;
-            }
-            .ap-check { stroke-dashoffset: 0; animation: none; }
+          .group:hover .ap-btn-sheen {
+            left: 150%;
           }
 
+          @media (prefers-reduced-motion: reduce) {
+            .ap-in,
+            .ap-spin,
+            .ap-float,
+            .ap-float2,
+            .ap-shimmer-text,
+            .ap-pop,
+            .ap-ring,
+            .ap-confetti,
+            .animate-ping {
+              animation: none !important;
+            }
+            .ap-check {
+              stroke-dashoffset: 0;
+              animation: none;
+            }
+          }
         `}</style>
       </main>
     </LazyMotion>
