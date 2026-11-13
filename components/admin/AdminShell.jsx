@@ -17,7 +17,7 @@ import {
   Bell,
   Search,
   Menu,
-  X,
+  
   ChevronDown,
   ChevronsLeft,
   ChevronsRight,
@@ -27,7 +27,15 @@ import {
   Users,
   Briefcase,
   MessageSquareText,
+  CalendarDays,
+
+MessageSquare,
+Globe,
+BriefcaseBusiness,
+AlertTriangle,
 } from "lucide-react";
+import { RefreshCw, X, Info } from "lucide-react";
+import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { ADMIN_BASE, NOTIFICATIONS } from "@/lib/admin-data";
 import { displayFont } from "./fonts";
 
@@ -61,6 +69,55 @@ export const NAV = [
   { label: "Specialties", href: `${ADMIN_BASE}/specialties`, icon: Sparkles },
   { label: "Settings", href: `${ADMIN_BASE}/settings`, icon: Settings },
 ];
+
+
+const NOTIFICATION_ICONS = {
+  appointment: CalendarDays,
+  doctor: Stethoscope,
+  enquiry: MessageSquare,
+  website: Globe,
+  career: BriefcaseBusiness,
+  system: AlertTriangle,
+};
+
+const NOTIFICATION_COLORS = {
+  info: "bg-sky-50 text-sky-600",
+  success: "bg-emerald-50 text-emerald-600",
+  warning: "bg-amber-50 text-amber-600",
+  error: "bg-rose-50 text-rose-600",
+};
+
+function getNotificationTime(date) {
+  const timestamp = new Date(date).getTime();
+
+  if (!Number.isFinite(timestamp)) return "";
+
+  const seconds = Math.max(
+    0,
+    Math.floor((Date.now() - timestamp) / 1000)
+  );
+
+  if (seconds < 60) return "Just now";
+
+  const minutes = Math.floor(seconds / 60);
+
+  if (minutes < 60) return `${minutes} min ago`;
+
+  const hours = Math.floor(minutes / 60);
+
+  if (hours < 24) return `${hours} hr ago`;
+
+  const days = Math.floor(hours / 24);
+
+  if (days < 7) return `${days} days ago`;
+
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 
 function useOutside(ref, onOut) {
   useEffect(() => {
@@ -245,6 +302,16 @@ function TopBar({ onMenu, onLogout, user }) {
   const bellRef = useRef(null);
   const profRef = useRef(null);
 
+  const {
+  notifications,
+  unreadCount,
+  loading: loadingNotifications,
+  fetchNotifications,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+} = useAdminNotifications();
+
   // Derive display values from the user prop
   const displayName = user?.name || "Admin";
   const displayEmail = user?.email || "";
@@ -359,45 +426,186 @@ function TopBar({ onMenu, onLogout, user }) {
       {/* Right utilities */}
       <div className="ml-auto flex items-center gap-2.5">
         {/* Notifications */}
-        <div ref={bellRef} className="relative">
+       
+{/* Notifications */}
+<div ref={bellRef} className="relative">
+  <button
+    onClick={() => {
+      const next = !bell;
+      setBell(next);
+
+      if (next) {
+        fetchNotifications(true);
+      }
+    }}
+    className={iconBtn}
+    aria-label={`Notifications (${unreadCount} unread)`}
+    aria-expanded={bell}
+  >
+    <Bell className="h-[18px] w-[18px]" />
+
+    {unreadCount > 0 && (
+      <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
+        {unreadCount > 99 ? "99+" : unreadCount}
+      </span>
+    )}
+  </button>
+
+  {bell && (
+    <div className={`${pop} w-[380px] max-w-[90vw] overflow-hidden`}>
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+        <div>
+          <p className="text-sm font-bold text-slate-900">
+            Notifications
+          </p>
+          <p className="text-[11px] text-slate-500">
+            {unreadCount > 0
+              ? `${unreadCount} unread`
+              : "You're all caught up"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllAsRead}
+              className="text-[11px] font-semibold text-[#0A5F7A] hover:underline"
+            >
+              Mark all read
+            </button>
+          )}
+
           <button
-            onClick={() => setBell(!bell)}
-            className={iconBtn}
-            aria-label="Notifications"
-            aria-expanded={bell}
+            onClick={() => fetchNotifications()}
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+            aria-label="Refresh notifications"
           >
-            <Bell className="h-[18px] w-[18px]" />
-            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
+            <RefreshCw
+              className={`h-4 w-4 ${
+                loadingNotifications ? "animate-spin" : ""
+              }`}
+            />
           </button>
-          {bell && (
-            <div className={`${pop} w-80 max-w-[85vw] p-2`}>
-              <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-                <p className="text-sm font-bold text-slate-900">
-                  Notifications
-                </p>
-                <span className="text-[11px] font-semibold text-[#0A5F7A]">
-                  3 new
-                </span>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="max-h-[380px] overflow-y-auto">
+        {loadingNotifications && notifications.length === 0 ? (
+          <div className="space-y-3 p-4">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="flex animate-pulse gap-3">
+                <div className="h-10 w-10 rounded-xl bg-slate-100" />
+                <div className="flex-1 space-y-2 py-1">
+                  <div className="h-3 w-3/4 rounded bg-slate-100" />
+                  <div className="h-3 w-full rounded bg-slate-100" />
+                </div>
               </div>
-              <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
-                {NOTIFICATIONS.map((n) => (
-                  <div
-                    key={n.id}
-                    className="rounded-xl px-3 py-2.5 transition hover:bg-slate-50"
-                  >
-                    <p className="text-sm font-semibold text-slate-900">
+            ))}
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center px-5 py-12 text-center">
+            <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-slate-50">
+              <Bell className="h-6 w-6 text-slate-300" />
+            </div>
+
+            <p className="text-sm font-bold text-slate-800">
+              No notifications yet
+            </p>
+
+            <p className="mt-1 text-xs text-slate-500">
+              New updates will appear here.
+            </p>
+          </div>
+        ) : (
+          notifications.map((n) => {
+            const Icon =
+              NOTIFICATION_ICONS[n.category] || Info;
+
+            const color =
+              NOTIFICATION_COLORS[n.type] ||
+              NOTIFICATION_COLORS.info;
+
+            return (
+              <div
+                key={n.id}
+                className={`group relative flex gap-3 border-b border-slate-100 px-4 py-3 transition hover:bg-slate-50 ${
+                  !n.is_read ? "bg-[#0A5F7A]/[0.035]" : ""
+                }`}
+              >
+                <div
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${color}`}
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                </div>
+
+                <button
+                  type="button"
+                  className="min-w-0 flex-1 text-left"
+                  onClick={async () => {
+                    await markAsRead(n.id);
+                    setBell(false);
+
+                    // Only navigate to internal admin paths.
+                    if (
+                      n.link &&
+                      n.link.startsWith("/") &&
+                      !n.link.startsWith("//")
+                    ) {
+                      router.push(n.link);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p
+                      className={`text-[13px] leading-5 ${
+                        n.is_read
+                          ? "font-medium text-slate-700"
+                          : "font-bold text-slate-900"
+                      }`}
+                    >
                       {n.title}
                     </p>
-                    <p className="text-xs text-slate-500">{n.text}</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-[#0A5F7A]">
-                      {n.time}
-                    </p>
+
+                    {!n.is_read && (
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0A5F7A]" />
+                    )}
                   </div>
-                ))}
+
+                  <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-slate-500">
+                    {n.message}
+                  </p>
+
+                  <p className="mt-1 text-[10px] font-semibold text-slate-400">
+                    {getNotificationTime(n.created_at)}
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => deleteNotification(n.id)}
+                  className="absolute right-2 top-2 hidden h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 group-hover:grid"
+                  aria-label="Delete notification"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
-            </div>
-          )}
-        </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-2.5">
+        <p className="text-center text-[10px] font-medium text-slate-400">
+          Automatically refreshes every 30 seconds
+        </p>
+      </div>
+    </div>
+  )}
+</div>
+
 
         {/* Profile menu */}
         <div ref={profRef} className="relative">
@@ -621,3 +829,4 @@ export default function AdminShell({ children, initialUser }) {
     </div>
   );
 }
+

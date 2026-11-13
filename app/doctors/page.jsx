@@ -1,7 +1,4 @@
 
-// Always fetch fresh data from DB - never serve a stale cached page
-export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Best Doctors in Jabalpur | Expert Specialists | Apollo Hospitals",
   description:
@@ -68,8 +65,12 @@ import { Btn, Head, Section } from "@/components/doctors/ui";
 import Steps from "@/components/doctors/Steps";
 import Cta from "@/components/doctors/Cta";
 
-import { getDoctors } from "@/lib/doctors-service";
-import { getActiveSpecialties } from "@/lib/specialties-service";
+// pehle:
+// import { getDoctors } from "@/lib/doctors-service";
+// import { getActiveSpecialties } from "@/lib/specialties-service";
+
+import { getDoctorCardsCached, getSpecialtiesCached } from "@/lib/doctors-cache";
+import { matchesSpeciality } from "@/lib/doctors-service";
 import { hospital } from "@/data/siteData";
 import DoctorsHero from "../../components/doctors/DoctorsHero"
 import DoctorsImageFlip from "@/components/doctors/DoctorsImageFlip";
@@ -170,20 +171,8 @@ const faqs = [
   },
 ];
 
-const specialtyKeywords = {
-  oncology: ["onco", "cancer"],
-  cardiology: ["cardi", "heart"],
-  gastroenterology: ["gastro", "hepat"],
-  neurology: ["neuro"],
-  nephrology: ["nephro", "renal"],
-  orthopaedics: ["ortho", "joint", "spine"],
-  "critical-care": ["critical", "icu", "intensiv"],
-  gynaecology: ["gynae", "gynec", "obstet", "women"],
-  paediatrics: ["paed", "pedia", "child"],
-  urology: ["urolog"],
-};
 
-function filterDoctors(doctors, search, specialty) {
+function filterDoctors(doctors, search, specialtySlug) {
   const query = search?.trim().toLowerCase();
 
   return doctors.filter((doctor) => {
@@ -196,23 +185,12 @@ function filterDoctors(doctors, search, specialty) {
       doctor.name?.toLowerCase().includes(query) ||
       haystack.includes(query);
 
-    const keywords = specialtyKeywords[specialty] || [
-      specialty?.replaceAll("-", " "),
-    ];
-    const matchesSpecialty =
-  !specialty ||
-  specialty === "all" ||
-  getSpecSlug(doctor) === specialty ||
-  doctor.specialitySlug === specialty ||
-  keywords.some((k) => k && haystack.includes(k));
+    const matchesSpec =
+      !specialtySlug ||
+      specialtySlug === "all" ||
+      matchesSpeciality(doctor, specialtySlug);
 
-    // const matchesSpecialty =
-    //   !specialty ||
-    //   specialty === "all" ||
-    //   doctor.specialitySlug === specialty ||
-    //   keywords.some((k) => k && haystack.includes(k));
-
-    return matchesSearch && matchesSpecialty;
+    return matchesSearch && matchesSpec;
   });
 }
 
@@ -227,19 +205,19 @@ function slugify(s = "") {
 
 const getSpecSlug = (d) => d.specialitySlug || slugify(d.speciality);
 
-function buildSpecialtyOptions(doctors) {
-  const map = new Map();
+// function buildSpecialtyOptions(doctors) {
+//   const map = new Map();
 
-  doctors.forEach((d) => {
-    const slug = getSpecSlug(d);
-    if (!slug) return;
-    const cur = map.get(slug) || { slug, label: d.speciality || slug, count: 0 };
-    cur.count += 1;
-    map.set(slug, cur);
-  });
+//   doctors.forEach((d) => {
+//     const slug = getSpecSlug(d);
+//     if (!slug) return;
+//     const cur = map.get(slug) || { slug, label: d.speciality || slug, count: 0 };
+//     cur.count += 1;
+//     map.set(slug, cur);
+//   });
 
-  return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
-}
+//   return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
+// }
 
 export default async function DoctorsPage({ searchParams }) {
   const params = await searchParams;
@@ -248,10 +226,14 @@ export default async function DoctorsPage({ searchParams }) {
   const specialty = params?.specialty || "all";
 
 
-   const [rawDoctors, dbSpecialties] = await Promise.all([
-    getDoctors(),
-    getActiveSpecialties(),
-  ]);
+  //  const [rawDoctors, dbSpecialties] = await Promise.all([
+  //   getDoctors(),
+  //   getActiveSpecialties(),
+  // ]);
+  const [rawDoctors, dbSpecialties] = await Promise.all([
+  getDoctorCardsCached(),
+  getSpecialtiesCached(),
+]);
 
   const specialties = [
     {
@@ -268,7 +250,7 @@ export default async function DoctorsPage({ searchParams }) {
   //-----------------
 
   const filteredDoctors = filterDoctors(rawDoctors, search, specialty);
-  const specialtyOptions = buildSpecialtyOptions(rawDoctors);
+  // const specialtyOptions = buildSpecialtyOptions(rawDoctors);
 
   const baseUrl = "https://www.apollohospitalsjbp.com";
 
@@ -368,14 +350,21 @@ export default async function DoctorsPage({ searchParams }) {
     ],
   };
 
-  const counts = Object.fromEntries(
-    specialties.map((s) => [
-      s.slug,
-      s.slug === "all"
-        ? rawDoctors.length
-        : filterDoctors(rawDoctors, "", s.slug).length,
-    ])
-  );
+ const counts = Object.fromEntries(
+  specialties.map((s) => [
+    s.slug,
+    s.slug === "all"
+      ? rawDoctors.length
+      : rawDoctors.filter((d) => matchesSpeciality(d, s.slug)).length,
+  ])
+);
+
+// DoctorFinder ke options: rail wali hi specialties table se
+const specialtyOptions = specialties
+  .filter((s) => s.slug !== "all")
+  .map((s) => ({ slug: s.slug, label: s.title, count: counts[s.slug] ?? 0 }))
+  .filter((o) => o.count > 0) // khaali specialty select hi na ho
+  .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <>
@@ -482,7 +471,8 @@ function SpecialtyRail({specialties, active, counts }) {
             </p>
           </div>
           <Link
-            href="/centres-of-excellence"
+          prefetch={false}
+            href="/ourspecialities"
             className="hidden items-center gap-1 text-xs font-bold text-[#0E526B] sm:flex"
           >
             View All Specialties <ArrowRight className="h-4 w-4" />
@@ -497,6 +487,7 @@ function SpecialtyRail({specialties, active, counts }) {
 
             return (
               <Link
+              prefetch={false}
                 key={item.slug}
                 scroll
                 href={
@@ -672,6 +663,7 @@ function DoctorFilters({ search, specialty,specialties  }) {
 
             {activeCount > 0 && (
               <Link
+              prefetch={false}
                 href="/doctors#expert-doctors"
                 className="inline-flex items-center gap-1 rounded-full bg-[#C8952E]/10 px-2.5 py-1 text-[10px] font-bold text-[#A87A1F] transition hover:bg-[#C8952E]/20"
               >
@@ -687,6 +679,7 @@ function DoctorFilters({ search, specialty,specialties  }) {
             <div className="mt-3 flex flex-wrap gap-2">
               {search && (
                 <Link
+                prefetch={false}
                   href={buildHref({ specialty: hasSpecialty ? specialty : "" })}
                   className="inline-flex items-center gap-1.5 rounded-full bg-[#0E526B]/10 py-1 pl-3 pr-2 text-[11px] font-semibold text-[#0E526B] transition hover:bg-[#0E526B]/15"
                 >
@@ -695,6 +688,7 @@ function DoctorFilters({ search, specialty,specialties  }) {
               )}
               {hasSpecialty && activeItem && (
                 <Link
+                prefetch={false}
                   href={buildHref({ search })}
                   className="inline-flex items-center gap-1.5 rounded-full bg-[#0E526B]/10 py-1 pl-3 pr-2 text-[11px] font-semibold text-[#0E526B] transition hover:bg-[#0E526B]/15"
                 >
@@ -717,6 +711,7 @@ function DoctorFilters({ search, specialty,specialties  }) {
                 return (
                   <Link
                     key={item.slug}
+                    prefetch={false}
                     href={href}
                     aria-current={checked ? "true" : undefined}
                     className={[

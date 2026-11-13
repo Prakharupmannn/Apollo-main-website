@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import pool from "@/lib/db";

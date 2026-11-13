@@ -1,6 +1,8 @@
+
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
+import { createAdminNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -209,6 +211,16 @@ export async function POST(request) {
         message,
       ]
     );
+
+    // Create admin notification after successful inquiry submission.
+    await createAdminNotification({
+      category: "enquiry",
+      title: "New Enquiry Received",
+      message: `A new inquiry has been received from ${fullName}.`,
+      type: "info",
+      link: "/admin/inquiries",
+      referenceId: String(result.insertId),
+    });
 
     return NextResponse.json(
       {

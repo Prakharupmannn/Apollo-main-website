@@ -5,51 +5,20 @@ import ResourcePage from "@/components/admin/ResourcePage";
 import useAdminDoctors from "@/hooks/useAdminDoctors";
 import DoctorModal from "@/components/admin/DoctorModal";
 
-const DEPARTMENTS = [
-  "Cardiology",
-  "Oncology",
-  "Gastro",
-  "Neuro",
-  "Orthopedics",
-  "Others",
-];
+const DEPARTMENTS = ["Cardiology", "Oncology", "Gastro", "Neuro", "Orthopedics", "Others"];
 
 const JSON_FIELDS = [
-  "about",
-  "languages",
-  "qualifications",
-  "highlights",
-  "expertise",
-  "experience_details",
-  "training",
-  "research",
-  "publications",
-  "faqs",
-  "podcasts",
-  "opd",
-  "expertise_categories",
-  "conditions",
-  "clinical_procedures",
-  "diagnostic_services",
-  "clinical_interests",
-  "specialized_interventions",
-  "areas_of_special_interest",
-  "why_choose",
-  "certifications",
-  "professional_memberships",
+  "about", "languages", "qualifications", "highlights", "expertise",
+  "experience_details", "training", "research", "publications", "faqs",
+  "podcasts", "opd", "expertise_categories", "conditions",
+  "clinical_procedures", "diagnostic_services", "clinical_interests",
+  "specialized_interventions", "areas_of_special_interest", "why_choose",
+  "certifications", "professional_memberships",
 ];
 
 const TEXT_FIELDS = [
-  "name",
-  "designation",
-  "speciality",
-  "department",
-  "image",
-  "summary",
-  "experience",
-  "tagline",
-  "professional_approach",
-  "research_details",
+  "name", "designation", "speciality", "department", "image", "summary",
+  "experience", "tagline", "professional_approach", "research_details",
 ];
 
 /* ---------- Premium UI: scoped styles (UI only) ---------- */
@@ -197,12 +166,7 @@ const PREMIUM_CSS = `
 
 // helper to build a textarea field
 const area = (name, label, placeholder = "Write here........", rows = 3) => ({
-  name,
-  label,
-  type: "textarea",
-  rows,
-  placeholder,
-  full: true,
+  name, label, type: "textarea", rows, placeholder, full: true,
 });
 
 const config = {
@@ -216,13 +180,7 @@ const config = {
   tabs: { field: "department", options: DEPARTMENTS },
   columns: [
     { key: "id", label: "ID", type: "id" },
-    {
-      key: "name",
-      label: "Doctor",
-      type: "person",
-      subKey: "designation",
-      imageKey: "image",
-    },
+    { key: "name", label: "Doctor", type: "person", subKey: "designation", imageKey: "image" },
     {
       key: "speciality",
       label: "Speciality",
@@ -240,69 +198,25 @@ const config = {
     {
       key: "department",
       label: "Department",
-      render: (row) => (
-        <span className={`dp-dept ${row.department}`}>{row.department}</span>
-      ),
+      render: (row) => <span className={`dp-dept ${row.department}`}>{row.department}</span>,
     },
     {
       key: "status",
       label: "Status",
       type: "status",
-      render: (row) => (
-        <span className={`dp-status ${row.status}`}>{row.status}</span>
-      ),
-    },
-    {
-      key: "display_order",
-      label: "Display Order",
-      render: (row) => ( <span className="dp-exp">{row.display_order}</span> ),
+      render: (row) => <span className={`dp-status ${row.status}`}>{row.status}</span>,
     },
   ],
   // No `required: true` anywhere → no validation
   fields: [
-    {
-      name: "name",
-      label: "Full name",
-      placeholder: "Dr. Full Name",
-      full: true,
-    },
-    {
-      name: "designation",
-      label: "Designation",
-      placeholder: "e.g. Senior Consultant",
-      full: true,
-    },
-    {
-      name: "speciality",
-      label: "Speciality",
-      placeholder: "e.g. Consultant Neurosurgery",
-    },
-    {
-      name: "department",
-      label: "Department",
-      type: "select",
-      options: DEPARTMENTS,
-    },
+    { name: "name", label: "Full name", placeholder: "Dr. Full Name", full: true },
+    { name: "designation", label: "Designation", placeholder: "e.g. Senior Consultant", full: true },
+    { name: "speciality", label: "Speciality", placeholder: "e.g. Consultant Neurosurgery" },
+    { name: "department", label: "Department", type: "select", options: DEPARTMENTS },
     { name: "experience", label: "Experience", placeholder: "e.g. 15+ Years" },
-    {
-      name: "display_order",
-      label: "Display Order",
-      type: "number",
-      placeholder: "e.g. 1",
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: ["Active", "Inactive"],
-    },
+    { name: "status", label: "Status", type: "select", options: ["Active", "Inactive"] },
     { name: "image", label: "Photo URL", placeholder: "https://…", full: true },
-    {
-      name: "tagline",
-      label: "Tagline",
-      placeholder: "Short tagline",
-      full: true,
-    },
+    { name: "tagline", label: "Tagline", placeholder: "Short tagline", full: true },
     area("summary", "Summary", "Short summary", 3),
     area("about", "About"),
     area("languages", "Languages", "e.g. English\nHindi"),
@@ -314,7 +228,7 @@ const config = {
     area("research", "Research"),
     area("research_details", "Research Details", "Plain text"),
     area("publications", "Publications"),
-    area("faqs", "FAQs", '[{"question":"...","answer":"..."}]', 4),
+    area("faqs", 'FAQs', '[{"question":"...","answer":"..."}]', 4),
     area("podcasts", "Podcasts"),
     area("opd", "OPD", '[{"day":"Mon","time":"10am-1pm"}]'),
     area("expertise_categories", "Expertise Categories"),
@@ -333,9 +247,7 @@ const config = {
 
 function normaliseDepartment(raw) {
   if (!raw) return "Others";
-  const match = DEPARTMENTS.find(
-    (d) => d.toLowerCase() === String(raw).toLowerCase(),
-  );
+  const match = DEPARTMENTS.find((d) => d.toLowerCase() === String(raw).toLowerCase());
   return match || "Others";
 }
 
@@ -356,22 +268,16 @@ export default function DoctorsPage() {
       // camelCase from API → snake_case form fields
       const map = {
         experience_details: doc.experienceDetails ?? doc.experience_details,
-        expertise_categories:
-          doc.expertiseCategories ?? doc.expertise_categories,
+        expertise_categories: doc.expertiseCategories ?? doc.expertise_categories,
         clinical_procedures: doc.clinicalProcedures ?? doc.clinical_procedures,
         diagnostic_services: doc.diagnosticServices ?? doc.diagnostic_services,
         clinical_interests: doc.clinicalInterests ?? doc.clinical_interests,
-        specialized_interventions:
-          doc.specializedInterventions ?? doc.specialized_interventions,
-        areas_of_special_interest:
-          doc.areasOfSpecialInterest ?? doc.areas_of_special_interest,
+        specialized_interventions: doc.specializedInterventions ?? doc.specialized_interventions,
+        areas_of_special_interest: doc.areasOfSpecialInterest ?? doc.areas_of_special_interest,
         why_choose: doc.whyChoose ?? doc.why_choose,
-        professional_approach:
-          doc.professionalApproach ?? doc.professional_approach,
-        professional_memberships:
-          doc.professionalMemberships ?? doc.professional_memberships,
+        professional_approach: doc.professionalApproach ?? doc.professional_approach,
+        professional_memberships: doc.professionalMemberships ?? doc.professional_memberships,
         research_details: doc.researchDetails ?? doc.research_details,
-        display_order: Number(doc.display_order ?? doc.displayOrder ?? 0),
       };
 
       const textified = {};
@@ -384,11 +290,7 @@ export default function DoctorsPage() {
         ...map,
         ...textified,
         databaseId: doc.databaseId,
-        id:
-          doc.id ||
-          (doc.databaseId
-            ? `DR${String(doc.databaseId).padStart(3, "0")}`
-            : ""),
+        id: doc.id || (doc.databaseId ? `DR${String(doc.databaseId).padStart(3, "0")}` : ""),
         name: doc.name || "Unknown Doctor",
         designation: doc.designation || doc.speciality || "",
         speciality: doc.speciality || "General",
@@ -406,18 +308,9 @@ export default function DoctorsPage() {
       payload[f] = form[f] ?? "";
     }
     payload.status = form.status;
-    const rawOrder =
-      form.display_order !== undefined && form.display_order !== ""
-        ? form.display_order
-        : form.displayOrder !== undefined && form.displayOrder !== ""
-        ? form.displayOrder
-        : undefined;
-    if (rawOrder !== undefined && !isNaN(Number(rawOrder))) {
-      payload.display_order = parseInt(rawOrder, 10);
-    }
     if (mode !== "add") payload.databaseId = form.databaseId;
 
-    const res = await fetch("/api/doctors", {
+    const res = await fetch("/api/admin/doctors", {
       method: mode === "add" ? "POST" : "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -428,7 +321,7 @@ export default function DoctorsPage() {
   };
 
   const handleDelete = async (row) => {
-    const res = await fetch("/api/doctors", {
+    const res = await fetch("/api/admin/doctors", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

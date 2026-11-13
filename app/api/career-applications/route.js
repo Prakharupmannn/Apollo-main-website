@@ -1,7 +1,9 @@
+
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import path from "node:path";
 import { uploadToBlob, deleteFromBlob } from "@/lib/blob";
+import { createAdminNotification } from "@/lib/notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -182,6 +184,16 @@ export async function POST(request) {
           originalName,
         ]
       );
+
+      // 🔔 Create admin notification
+      await createAdminNotification({
+        category: "career",
+        title: "New Career Application",
+        message: `A new application has been received for ${jobTitle}.`,
+        type: "success",
+        link: "/admin/careers",
+        referenceId: String(result.insertId),
+      });
 
       return NextResponse.json(
         {

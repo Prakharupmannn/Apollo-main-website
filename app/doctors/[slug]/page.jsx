@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import PodcastPlayer from "../../../components/podcast/PodcastPlayer";
 import {
   ArrowLeft,
@@ -34,10 +35,34 @@ import {
   MessageCircle,
 } from "lucide-react";
 
-import { getDoctors, getDoctorBySlug } from "@/lib/doctors-service";
+import {
+  getDoctorBySlugCached,
+  getDoctorCardsCached,
+  getDoctorSlugsCached,
+} from "@/lib/doctors-cache";
 import { hospital } from "@/data/siteData";
 import MobileBookingBar from "@/components/MobileBookingBar";
-export const dynamic = "force-dynamic";
+
+/* ------------------------------------------------------------------ */
+/* Rendering / caching                                                 */
+/* ------------------------------------------------------------------ */
+
+// Page statically generate hoga aur ek ghante me (ya admin save par) refresh hoga.
+// NOTE: dynamicParams = false mat lagana, warna naya doctor add hone par 404 aayega.
+export const revalidate = 3600;
+
+// Build time par saare doctor pages ban jaate hain
+export async function generateStaticParams() {
+  try {
+    const slugs = await getDoctorSlugsCached();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return []; // build ke time DB na mile to build na toote
+  }
+}
+
+// Ek request me metadata + page dono ke liye DB/cache sirf ek baar
+const getDoctor = cache((slug) => getDoctorBySlugCached(slug));
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -139,6 +164,7 @@ function PrimaryBtn({ href, children }) {
   return (
     <Link
       href={href}
+      prefetch={false}
       className="btn-shimmer group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0E526B] via-[#137A9A] to-[#0E526B] px-7 text-sm font-bold text-white shadow-[0_14px_30px_rgba(14,82,107,.30)] transition hover:-translate-y-0.5"
     >
       {children}
@@ -1255,6 +1281,7 @@ function Sidebar({ doctor }) {
 
         <Link
           href={bookHref}
+          prefetch={false}
           className="group relative mt-4 flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#E1B54A] to-[#C8952E] text-sm font-bold text-[#06202B] shadow-[0_12px_26px_rgba(200,149,46,.35)] transition hover:-translate-y-0.5 hover:brightness-105"
         >
           Book Appointment
@@ -1477,7 +1504,7 @@ function BottomCta({ doctor }) {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const doctor = await getDoctorBySlug(slug);
+  const doctor = await getDoctor(slug);
 
   if (!doctor) {
     return { title: "Doctor Not Found | Apollo Hospitals Jabalpur" };
@@ -1529,7 +1556,11 @@ export async function generateMetadata({ params }) {
 export default async function DoctorProfilePage({ params }) {
   const { slug } = await params;
 
-  const doctor = await getDoctorBySlug(slug);
+  // Doctor (cached, poora profile) + related ke liye halka card-list (cached) — parallel
+  const [doctor, doctors] = await Promise.all([
+    getDoctor(slug),
+    getDoctorCardsCached(),
+  ]);
 
   if (!doctor) notFound();
 
@@ -1577,15 +1608,13 @@ export default async function DoctorProfilePage({ params }) {
     ],
   };
 
-  const doctors = await getDoctors();
-
   const tone = getTone(doctor.specialitySlug || doctor.speciality);
   const education = toEducation(doctor.qualifications || doctor.qualification);
   const expertise = toList(doctor.expertise).map(aboutGetText).filter(Boolean);
-const languages = toList(doctor.languages).map(aboutGetText).filter(Boolean);
-const podcasts = Array.isArray(doctor.podcasts)
-  ? doctor.podcasts.filter((p) => p && typeof p === "object")
-  : [];
+  const languages = toList(doctor.languages).map(aboutGetText).filter(Boolean);
+  const podcasts = Array.isArray(doctor.podcasts)
+    ? doctor.podcasts.filter((p) => p && typeof p === "object")
+    : [];
   const about = getAbout(doctor);
   const highlights = (Array.isArray(doctor.highlights) ? doctor.highlights : [])
     .map((h) => {
@@ -1650,81 +1679,71 @@ const podcasts = Array.isArray(doctor.podcasts)
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className="bg-[#F8FCFD] pb-20 lg:pb-0">
-      <Hero
-        doctor={doctor}
-        tone={tone}
-        education={education}
-        languages={languages}
-        highlights={highlights}
-      />
+        <Hero
+          doctor={doctor}
+          tone={tone}
+          education={education}
+          languages={languages}
+          highlights={highlights}
+        />
 
-      <Facts doctor={doctor} education={education} highlights={highlights} />
+        <Facts doctor={doctor} education={education} highlights={highlights} />
 
-      <section className="px-6 py-10 lg:px-10">
-        <div className="mx-auto grid max-w-7xl items-start gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="space-y-6">
-            {/* <About about={about} highlights={highlights} />
-             */}
-            {/* <About
-  about={about}
-  highlights={highlights}
-  training={doctor.training}
-  research={doctor.research}
-  publications={doctor.publications}
-/> */}
+        <section className="px-6 py-10 lg:px-10">
+          <div className="mx-auto grid max-w-7xl items-start gap-6 lg:grid-cols-[1fr_340px]">
+            <div className="space-y-6">
+              <About
+                about={about}
+                highlights={highlights}
+                experience={doctor.experience}
+                experienceDetails={doctor.experienceDetails}
+                training={doctor.training}
+                certifications={doctor.certifications}
+                research={doctor.research}
+                researchDetails={doctor.researchDetails}
+                publications={doctor.publications}
+                tagline={doctor.tagline}
+                expertiseCategories={doctor.expertiseCategories}
+                conditions={doctor.conditions}
+                clinicalProcedures={doctor.clinicalProcedures}
+                diagnosticServices={doctor.diagnosticServices}
+                clinicalInterests={doctor.clinicalInterests}
+                specializedInterventions={doctor.specializedInterventions}
+                areasOfSpecialInterest={doctor.areasOfSpecialInterest}
+                whyChoose={doctor.whyChoose}
+                professionalApproach={doctor.professionalApproach}
+                professionalMemberships={doctor.professionalMemberships}
+                faqs={doctor.faqs}
+              />
 
-            <About
-              about={about}
-              highlights={highlights}
-              experience={doctor.experience}
-              experienceDetails={doctor.experienceDetails}
-              training={doctor.training}
-              certifications={doctor.certifications}
-              research={doctor.research}
-              researchDetails={doctor.researchDetails}
-              publications={doctor.publications}
-              tagline={doctor.tagline}
-              expertiseCategories={doctor.expertiseCategories}
-              conditions={doctor.conditions}
-              clinicalProcedures={doctor.clinicalProcedures}
-              diagnosticServices={doctor.diagnosticServices}
-              clinicalInterests={doctor.clinicalInterests}
-              specializedInterventions={doctor.specializedInterventions}
-              areasOfSpecialInterest={doctor.areasOfSpecialInterest}
-              whyChoose={doctor.whyChoose}
-              professionalApproach={doctor.professionalApproach}
-              professionalMemberships={doctor.professionalMemberships}
-              faqs={doctor.faqs}
-            />
+              {(expertise.length > 0 || education.length > 0) && (
+                <div className={`grid gap-6 ${twoCols ? "md:grid-cols-2" : ""}`}>
+                  {expertise.length > 0 && <Expertise items={expertise} />}
+                  {education.length > 0 && <Education items={education} />}
+                </div>
+              )}
 
-            {(expertise.length > 0 || education.length > 0) && (
-              <div className={`grid gap-6 ${twoCols ? "md:grid-cols-2" : ""}`}>
-                {expertise.length > 0 && <Expertise items={expertise} />}
-                {education.length > 0 && <Education items={education} />}
-              </div>
-            )}
+              <HowToBook />
+            </div>
 
-            <HowToBook />
+            <Sidebar doctor={doctor} />
           </div>
+        </section>
 
-          <Sidebar doctor={doctor} />
-        </div>
-      </section>
+        <Related doctors={related} />
+        {podcasts.length ? (
+          <div className="my-12">
+            <PodcastPlayer
+              podcasts={podcasts}
+              title={`Hear from ${doctor.name}`}
+            />
+          </div>
+        ) : null}
+        <BottomCta doctor={doctor} />
 
-      <Related doctors={related} />
-      {podcasts.length ? (
-  <div className="my-12">
-    <PodcastPlayer
-      podcasts={podcasts}
-            title={`Hear from ${doctor.name}`}
-          />
-        </div>
-      ) : null}
-      <BottomCta doctor={doctor} />
-
-      {/* mobile sticky booking bar */}
-      <MobileBookingBar phone={hospital?.phone} bookHref={bookHref} />
-    </main>
+        {/* mobile sticky booking bar */}
+        <MobileBookingBar phone={hospital?.phone} bookHref={bookHref} />
+      </main>
     </>
   );
 }

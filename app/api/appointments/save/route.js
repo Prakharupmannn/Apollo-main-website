@@ -1,8 +1,10 @@
+
 import { NextResponse } from "next/server";
 import {
   claimAppointmentEmailVerification,
   releaseAppointmentEmailVerification,
 } from "@/lib/appointment-email-otp";
+import { createAdminNotification } from "@/lib/notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -115,6 +117,15 @@ export async function POST(request) {
     const success = response.ok && String(result?.status) === "1";
 
     if (success) {
+      // Create admin notification only after HIS confirms booking success.
+      await createAdminNotification({
+        category: "appointment",
+        title: "New Appointment Booking",
+        message: "A new appointment has been booked successfully.",
+        type: "success",
+        link: "/admin/appointments",
+      });
+
       return NextResponse.json(
         {
           status: true,
@@ -159,7 +170,7 @@ export async function POST(request) {
 
     const statusCode =
       Number(error?.statusCode) >= 400 &&
-      Number(error?.statusCode) < 500
+      Number(error.statusCode) < 500
         ? Number(error.statusCode)
         : 502;
 
