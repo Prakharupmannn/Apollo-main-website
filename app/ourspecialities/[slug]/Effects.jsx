@@ -251,7 +251,7 @@ export function DoctorCard({ doctor }) {
             </div>
 
             <Link
-              href="/contact"
+              href="/patientcare/appointment"
               className="mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs font-black text-[#3A2B0A] shadow-[0_10px_26px_rgba(200,149,46,0.35)] group-hover:shadow-[0_14px_34px_rgba(200,149,46,0.55)] transition-all"
               style={gold}
             >

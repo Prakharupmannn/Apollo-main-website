@@ -189,7 +189,7 @@ export default async function SpecialityDetailPage({ params }) {
                 <Phone className="w-4 h-4" /> Consult Specialist
               </Link>
               <Link
-                href="/contact"
+                href="/patientcare/appointment"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold text-[#0E526B] bg-white border border-[#1D82A6]/25 shadow-md hover:bg-[#1D82A6] hover:text-white transition-all"
               >
                 Book Online <ArrowUpRight className="w-4 h-4" />
@@ -443,7 +443,7 @@ export default async function SpecialityDetailPage({ params }) {
               Prior appointments help you avoid waiting queues. Our care team will guide you at every step.
             </p>
             <Link
-              href="/contact"
+              href="/patientcare/appointment"
               className="anim-ring relative inline-flex items-center gap-2 px-9 py-4 rounded-full font-black text-sm text-[#3A2B0A] shadow-xl hover:-translate-y-1 hover:scale-105 transition-all"
               style={gold}
             >
