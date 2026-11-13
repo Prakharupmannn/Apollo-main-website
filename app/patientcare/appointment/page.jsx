@@ -39,6 +39,14 @@ import {
 
 // import appointmentData from "../../../data/appointmentData";
 
+function createDoctorSlug(name) {
+  return String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 /* ───────────────────────── constants ───────────────────────── */
 const goldGradientStyle = {
   background: "linear-gradient(135deg, #F6D98A 0%, #C8952E 100%)",
@@ -2551,14 +2559,32 @@ export default function MakeAppointmentPage() {
           throw new Error(result.message || "Unable to load consultants.");
         }
 
-        setDoctors(
-          result.data
-            .filter((doctor) => doctor?.id != null && doctor?.name)
-            .map((doctor) => ({
-              id: Number(doctor.id),
-              name: String(doctor.name),
-            })),
-        );
+        const mappedDoctors = result.data
+  .filter((doctor) => doctor?.id != null && doctor?.name)
+  .map((doctor) => ({
+    id: Number(doctor.id),
+    name: String(doctor.name),
+  }));
+
+setDoctors(mappedDoctors);
+
+// URL se doctor slug read karo
+const params = new URLSearchParams(window.location.search);
+const requestedSlug = params.get("doctor");
+
+if (requestedSlug) {
+  const selectedDoctor = mappedDoctors.find(
+    (doctor) => createDoctorSlug(doctor.name) === requestedSlug
+  );
+
+  if (selectedDoctor) {
+    setBooking((current) => ({
+      ...current,
+      consultantId: selectedDoctor.id,
+      consultant: selectedDoctor.name,
+    }));
+  }
+}
       } catch (error) {
         if (error.name !== "AbortError") {
           console.error("Load appointment doctors error:", error);
