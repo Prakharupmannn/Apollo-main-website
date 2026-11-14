@@ -35,7 +35,7 @@ const METRICS = [
 
 const QUICK_LINKS = [
   { label: "Home Page", href: "/" },
-  { label: "About Us", href: "/aboutus" },
+  { label: "About Us", href: "/about-us" },
   { label: "Our Specialities", href: "/ourspecialities" },
   { label: "Find a Doctor", href: "/doctors" },
   { label: "Patient Care", href: "/patientcare" },

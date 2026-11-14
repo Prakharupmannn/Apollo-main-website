@@ -51,6 +51,47 @@ const nextConfig: NextConfig = {
       "framer-motion",
     ],
   },
+
+   
+async redirects() {
+    return [
+      // Old About Us URL
+      // {
+      //   source: "/about-us",
+      //   destination: "/aboutus",
+      //   permanent: true,
+      // },
+
+      // Old Doctor listing URL
+      {
+        source: "/doctor",
+        destination: "/doctors",
+        permanent: true,
+      },
+
+      // Old Contact Us URL
+      {
+        source: "/contact-us",
+        destination: "/contact",
+        permanent: true,
+      },
+
+      // Old Careers URL
+      {
+        source: "/apollo-case-studies/pancreatitis-treatment/",
+        destination: "/patientcare/case-studies/pancreatitis",
+        permanent: true,
+      },
+
+      // Old doctor detail URLs
+      {
+        source: "/doctor",
+        destination: "/doctors",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
