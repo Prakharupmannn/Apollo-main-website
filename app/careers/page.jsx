@@ -1056,7 +1056,7 @@ export default function CareersPage() {
                 className="absolute top-6 right-6 sm:right-10"
               >
                 <a
-                  href="tel:18001236666"
+                  href="tel:7247777181"
                   className="relative flex items-center gap-2 bg-[#0E526B] text-white rounded-full pl-3 pr-4 py-2.5 shadow-lg hover:bg-[#0A5F7A] transition-colors"
                 >
                   <span className="relative flex h-8 w-8 items-center justify-center shrink-0">
@@ -1069,7 +1069,7 @@ export default function CareersPage() {
                     <div className="text-[9px] font-semibold text-sky-100">
                       HR Helpline
                     </div>
-                    <div className="text-[11px] font-black">1800-123-6666</div>
+                    <div className="text-[11px] font-black">7247777181</div>
                   </div>
                 </a>
               </motion.div>
@@ -1459,7 +1459,7 @@ export default function CareersPage() {
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
                     Email CV: Connect@apollojbphospitals.com • Phone:
-                    1800-123-6666.
+                    7247777181.
                   </p>
                 </div>
               </div>
