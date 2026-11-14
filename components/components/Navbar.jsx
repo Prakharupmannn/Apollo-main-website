@@ -164,7 +164,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
 
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "/aboutus" },
+    { label: "About Us", href: "/about-us" },
     {
       label: "Centres of Excellence",
       href: "/centres-of-excellence",
