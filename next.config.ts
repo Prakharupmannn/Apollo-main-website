@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.ytimg.com",
       },
+      
     ],
   },
   experimental: {
@@ -90,6 +91,11 @@ async redirects() {
         permanent: true,
       },
       {
+        source: "/doctor/page/2",
+        destination: "/doctors",
+        permanent: true,
+      },
+      {
         source: "/ambulance-number-in-jabalpur-apollo-hospitals",
         destination: "/patientcare/ambulance",
         permanent: true,
@@ -104,6 +110,42 @@ async redirects() {
         destination: "/patientcare/case-studies",
         permanent: true,
       },
+      {
+        source: "/?page_id=31",
+        destination: "/health-library",
+        permanent: true,
+      },
+      {
+        source: "/?page_id=31#",
+        destination: "/health-library",
+        permanent: true,
+      },
+      {
+        source: "/industries/orthopedic-doctor-in-jabalpur",
+        destination: "/ourspecialities/orthopaedics",
+        permanent: true,
+      },
+      {
+        source: "/industries/neurologist-in-jabalpur",
+        destination: "/ourspecialities/neurology",
+        permanent: true,
+      },
+      {
+        source: "/industries/neurologist-in-jabalpur",
+        destination: "/ourspecialities/neurology",
+        permanent: true,
+      },
+      {
+        source: "/doctor/cancer-specialist-in-jabalpur",
+        destination: "/centres-of-excellence/onco",
+        permanent: true,
+      },
+      {
+        source: "/doctor/best-orthopedic-surgeon-in-jabalpur",
+        destination: "/doctors?specialty=orthopaedics",
+        permanent: true,
+      },
+      
     ];
   },
 
