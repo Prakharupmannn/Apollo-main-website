@@ -78,7 +78,7 @@ async redirects() {
 
       // Old Careers URL
       {
-        source: "/apollo-case-studies/pancreatitis-treatment/",
+        source: "/apollo-case-studies/pancreatitis-treatment",
         destination: "/patientcare/case-studies/pancreatitis",
         permanent: true,
       },
