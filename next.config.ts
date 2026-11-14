@@ -155,6 +155,26 @@ async redirects() {
         destination: "/careers",
         permanent: true,
       },
+      {
+        source: "/service/critical-care-hospital-in-jabalpur",
+        destination: "/ourspecialities/critical-care-medicine",
+        permanent: true,
+      },
+      {
+        source: "/event/inauguration-of-apollo-jbp-hospitals-in-presence-of-pujya-shri-bagheswar-dham-sarkar",
+        destination: "/patientcare/events/inauguration-of-apollo-jbp-hospitals-in-presence-of-pujya-shri-bagheswar-dham-sarkar",
+        permanent: true,
+      },
+      {
+        source: "/doctor/best-urologist-in-jabalpur",
+        destination: "/doctors?search=urologist",
+        permanent: true,
+      },
+      {
+        source: "/doctor/best-urologist-in-jabalpur-2",
+        destination: "/doctors?search=urologist",
+        permanent: true,
+      },
     ];
   },
 
