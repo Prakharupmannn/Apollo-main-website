@@ -110,16 +110,16 @@ async redirects() {
         destination: "/patientcare/case-studies",
         permanent: true,
       },
-      // {
-      //   source: "/?page_id=31",
-      //   destination: "/health-library",
-      //   permanent: true,
-      // },
-      // {
-      //   source: "/?page_id=31#",
-      //   destination: "/health-library",
-      //   permanent: true,
-      // },
+      {
+        source: "/?page_id=31",
+        destination: "/health-library",
+        permanent: true,
+      },
+      {
+        source: "/?page_id=31#",
+        destination: "/health-library",
+        permanent: true,
+      },
       {
         source: "/industries/orthopedic-doctor-in-jabalpur",
         destination: "/ourspecialities/orthopaedics",
