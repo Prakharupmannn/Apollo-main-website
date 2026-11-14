@@ -89,6 +89,21 @@ async redirects() {
         destination: "/doctors",
         permanent: true,
       },
+      {
+        source: "/ambulance-number-in-jabalpur-apollo-hospitals",
+        destination: "/patientcare/ambulance",
+        permanent: true,
+      },
+      {
+        source: "/expert-doctors-in-jabalpur-at-apollo-hospital",
+        destination: "/doctors",
+        permanent: true,
+      },
+      {
+        source: "/case-studies",
+        destination: "/patientcare/case-studies",
+        permanent: true,
+      },
     ];
   },
 
