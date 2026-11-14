@@ -145,7 +145,16 @@ async redirects() {
         destination: "/doctors?specialty=orthopaedics",
         permanent: true,
       },
-      
+      {
+        source: "/make-appointment",
+        destination: "/patientcare/appointment",
+        permanent: true,
+      },
+      {
+        source: "/jobs",
+        destination: "/careers",
+        permanent: true,
+      },
     ];
   },
 
