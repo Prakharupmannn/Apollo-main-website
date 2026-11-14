@@ -8,6 +8,9 @@ export default function NavigationLoader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Admin panel mein navigation loader disable
+  const isAdminRoute = pathname.startsWith("/admin");
+
   const [isVisible, setIsVisible] = useState(false);
 
   const loadingRef = useRef(false);
@@ -115,6 +118,8 @@ export default function NavigationLoader() {
       clearTimers();
     };
   }, [startNavigation, stopNavigation, clearTimers]);
+
+  if (isAdminRoute) return null;
 
   if (!isVisible) return null;
 
