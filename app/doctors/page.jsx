@@ -252,7 +252,7 @@ export default async function DoctorsPage({ searchParams }) {
   const filteredDoctors = filterDoctors(rawDoctors, search, specialty);
   // const specialtyOptions = buildSpecialtyOptions(rawDoctors);
 
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
 
   const jsonLd = {
     "@context": "https://schema.org",

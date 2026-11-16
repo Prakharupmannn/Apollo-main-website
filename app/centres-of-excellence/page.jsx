@@ -47,7 +47,7 @@ const pad = (n) => String(n).padStart(2, "0");
 
 export default async function CentresOfExcellencePage() {
   const centresOfExcellence = await getActiveCentres();
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [

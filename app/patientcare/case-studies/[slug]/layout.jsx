@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
     study.summary ||
     `Clinical case study on ${study.title} successfully managed by specialist doctors at Apollo Hospitals Jabalpur.`;
 
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const imgUrl = study.images?.[0]
     ? (study.images[0].startsWith("http") ? study.images[0] : `${baseUrl}${study.images[0].startsWith("/") ? "" : "/"}${study.images[0]}`)
     : `${baseUrl}/apollologo.webp`;

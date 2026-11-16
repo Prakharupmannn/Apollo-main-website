@@ -34,7 +34,7 @@ export default function EmergencyLayout({ children }) {
     "@context": "https://schema.org",
     "@type": "EmergencyService",
     name: "Apollo Hospitals Jabalpur 24/7 Emergency & Trauma Centre",
-    url: "https://www.apollohospitalsjbp.com/emergency",
+    url: "https://www.apollojbphospitals.com/emergency",
     telephone: "1066",
     address: {
       "@type": "PostalAddress",

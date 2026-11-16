@@ -1,5 +1,5 @@
 export default function robots() {
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
 
   return {
     rules: [

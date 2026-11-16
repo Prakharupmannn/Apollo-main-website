@@ -831,7 +831,7 @@ export default async function CentrePage({ params }) {
 
   const related = centres.filter((centre) => centre.slug !== c.slug).slice(0, 3);
 
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [

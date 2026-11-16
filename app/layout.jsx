@@ -27,7 +27,7 @@ const deva = Noto_Sans_Devanagari({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://www.apollohospitalsjbp.com"),
+  metadataBase: new URL("https://www.apollojbphospitals.com"),
   title: {
     default: "Apollo Hospitals Jabalpur | Multispeciality Care & Doctors",
     template: "%s | Apollo Hospitals Jabalpur",
@@ -39,7 +39,7 @@ export const metadata = {
     title: "Apollo Hospitals Jabalpur | Leading Multispeciality Healthcare",
     description:
       "Apollo Hospitals Jabalpur offers 50+ specialist consultants, 24/7 emergency & trauma care, advanced diagnostics, and online appointment booking.",
-    url: "https://www.apollohospitalsjbp.com",
+    url: "https://www.apollojbphospitals.com",
     siteName: "Apollo Hospitals Jabalpur",
     locale: "en_IN",
     type: "website",
@@ -126,15 +126,15 @@ export default function RootLayout({ children }) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Hospital",
-              "@id": "https://www.apollohospitalsjbp.com/#hospital",
+              "@id": "https://www.apollojbphospitals.com/#hospital",
               name: "Apollo Hospitals Jabalpur",
               alternateName: [
                 "Apollo JBP Hospitals",
                 "Apollo Hospital Jabalpur",
               ],
-              url: "https://www.apollohospitalsjbp.com",
-              logo: "https://www.apollohospitalsjbp.com/apollologo.webp",
-              image: "https://www.apollohospitalsjbp.com/apollologo.webp",
+              url: "https://www.apollojbphospitals.com",
+              logo: "https://www.apollojbphospitals.com/apollologo.webp",
+              image: "https://www.apollojbphospitals.com/apollologo.webp",
               telephone: "+91 761 000 0000",
               emergencyTelephone: "1066",
               priceRange: "$$",

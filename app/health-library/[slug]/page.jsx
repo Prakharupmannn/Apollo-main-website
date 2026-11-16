@@ -122,7 +122,7 @@ export async function generateMetadata({ params }) {
 
   const title = `${art.title} | Apollo Hospitals Jabalpur`;
   const description = art.metaDescription || art.excerpt || art.title;
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const imgUrl = art.image
     ? (art.image.startsWith("http") ? art.image : `${baseUrl}${art.image.startsWith("/") ? "" : "/"}${art.image}`)
     : `${baseUrl}/apollologo.webp`;

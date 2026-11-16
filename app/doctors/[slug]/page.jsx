@@ -1516,7 +1516,7 @@ export async function generateMetadata({ params }) {
     doctor.designation ||
     `${doctor.name}, renowned ${doctor.speciality || "specialist"} consultant at Apollo Hospitals Jabalpur. View OPD timings, qualifications, and book an appointment.`;
 
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const imgUrl = doctor.image
     ? (doctor.image.startsWith("http")
         ? doctor.image
@@ -1564,7 +1564,7 @@ export default async function DoctorProfilePage({ params }) {
 
   if (!doctor) notFound();
 
-  const baseUrl = "https://www.apollohospitalsjbp.com";
+  const baseUrl = "https://www.apollojbphospitals.com";
   const docImg = doctor.image
     ? (doctor.image.startsWith("http")
         ? doctor.image

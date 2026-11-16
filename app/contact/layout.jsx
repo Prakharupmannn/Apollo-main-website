@@ -33,7 +33,7 @@ export default function ContactLayout({ children }) {
     "@context": "https://schema.org",
     "@type": "ContactPage",
     name: "Contact Apollo Hospitals Jabalpur",
-    url: "https://www.apollohospitalsjbp.com/contact",
+    url: "https://www.apollojbphospitals.com/contact",
     mainEntity: {
       "@type": "Hospital",
       name: "Apollo Hospitals Jabalpur",
