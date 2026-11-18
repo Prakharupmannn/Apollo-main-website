@@ -12,11 +12,10 @@ export const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-300 focus:border-[#0A5F7A] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#0A5F7A]/10";
 
 export const btnPrimary =
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0A5F7A] to-[#0E526B] hover:from-[#084C62] hover:to-[#0A4357] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(10,95,122,0.22)] transition hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#0A5F7A]/25 disabled:opacity-60";
+  "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#0A5F7A] to-[#0E526B] px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-60";
 
 export const btnGhost =
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-xs transition hover:text-slate-900 hover:border-slate-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#0A5F7A]/15";
-
+  "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50";
 /* ---------- Status badge ---------- */
 const TONES = {
   emerald: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
@@ -42,7 +41,7 @@ export function StatusBadge({ status }) {
   const tone = TONES[STATUS_TONE[status] || "slate"];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${tone}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${tone}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
       {status}
@@ -100,15 +99,15 @@ export function Thumb({ src, label = "" }) {
       <img
         src={src}
         alt={label}
-        className="h-11 w-14 rounded-lg object-cover ring-1 ring-slate-200 shadow-xs"
+        className="h-8 w-11 rounded-lg object-cover ring-1 ring-slate-200 shadow-xs"
       />
     );
   }
   return (
     <span
-      className={`grid h-11 w-14 place-items-center rounded-lg bg-gradient-to-br ${grad(
+      className={`grid h-8 w-11 place-items-center rounded-lg bg-gradient-to-br ${grad(
         label
-      )} font-serif text-lg font-bold text-white shadow-xs ring-1 ring-slate-200`}
+      )} font-serif text-sm font-bold text-white shadow-xs ring-1 ring-slate-200`}
     >
       {(label[0] || "A").toUpperCase()}
     </span>
@@ -164,24 +163,37 @@ export function SpotlightCard({ className = "", children, ...rest }) {
   );
 }
 
+
 export function PageHeader({ title, subtitle, children }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="mb-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+      {/* Title section */}
+      <div className="min-w-0">
         <h1
-          className={`${displayFont.className} text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl`}
+          className={`${displayFont.className} text-xl font-bold tracking-tight text-slate-900 sm:text-2xl`}
         >
           {title}
         </h1>
-        <span className="mt-2 block h-[3px] w-14 rounded-full bg-gradient-to-r from-[#0A5F7A] via-[#1D82A6] to-[#F59E0B]" />
-        {subtitle && <p className="mt-2 text-sm text-slate-500">{subtitle}</p>}
+
+        {subtitle && (
+          <p className="mt-0.5 text-xs text-slate-500 sm:text-[13px]">
+            {subtitle}
+          </p>
+        )}
+
+        <span className="mt-1.5 block h-[2px] w-10 rounded-full bg-gradient-to-r from-[#0A5F7A] to-[#F59E0B]" />
       </div>
+
+      {/* Action buttons */}
       {children && (
-        <div className="flex flex-wrap items-center gap-2.5">{children}</div>
+        <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
+          {children}
+        </div>
       )}
     </div>
   );
 }
+
 
 export function Tabs({ tabs, value, onChange }) {
   return (
@@ -255,7 +267,7 @@ export function Pagination({
     "grid h-8 min-w-8 cursor-pointer place-items-center rounded-lg px-2 text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]";
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200/80 bg-slate-50/50 px-5 py-3.5 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200/80 bg-slate-50/50 px-5 py-2.5 sm:flex-row">
       <p className="text-xs text-slate-500">
         Showing{" "}
         <span className="font-semibold text-slate-700">
@@ -425,3 +437,9 @@ export const fmtDate = (d) =>
         year: "numeric",
       })
     : "";
+
+
+
+export const thCls = "border-b border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-600 whitespace-nowrap";
+export const tdCls = "px-3 py-1.5 align-middle text-[12.5px] leading-tight text-slate-600";
+export const rowIconBtn = "grid h-7 w-7 cursor-pointer place-items-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]";

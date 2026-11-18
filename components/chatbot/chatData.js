@@ -222,7 +222,7 @@ export const SITE_ROUTES = [
   {
     name: "About Apollo JBP Hospitals",
     category: "About & Information",
-    path: "/aboutus",
+    path: "/about-us",
     desc: "Our mission, clinical heritage, NABH standards, leadership team & world-class hospital infrastructure.",
     keywords: ["about", "about us", "who we are", "history", "mission", "vision", "leadership", "infrastructure"],
   },
@@ -559,7 +559,7 @@ export const FLOW_RESPONSES = {
         desc: "Hospital history, NABH quality accreditations, infrastructure & medical leadership.",
         badge: "About Apollo",
         actionType: "link",
-        actionUrl: "/aboutus",
+        actionUrl: "/about-us",
         actionText: "Learn About Us",
       },
       {
@@ -812,7 +812,7 @@ export const FLOW_RESPONSES = {
         desc: "Discover our mission, hospital infrastructure, advanced modular operation theatres, clinical leadership, and patient-first ethos.",
         badge: "About Us",
         actionType: "link",
-        actionUrl: "/aboutus",
+        actionUrl: "/about-us",
         actionText: "Read Our Story",
       },
       {

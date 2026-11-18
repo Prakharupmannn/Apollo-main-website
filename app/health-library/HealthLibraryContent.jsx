@@ -42,7 +42,11 @@ import {
   Zap,
   ArrowLeft,
 } from "lucide-react";
-import { fetchHealthCareArticlesAction } from "./actions";
+// import { fetchHealthCareArticlesAction } from "./actions";
+import {
+  fetchHealthCareArticlesAction,
+  fetchHealthCareArticleBySlugAction,
+} from "./actions";
 
 /* ───────────── Static helpers (outside component) ───────────── */
 
@@ -762,7 +766,14 @@ export default function HealthLibraryContent({
   const [contentType, setContentType] = useState("all"); // 'all' | 'blog' | 'news'
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("articles"); // 'articles' | 'news' | 'calculators' | 'az-directory'
+  // const [selectedArticle, setSelectedArticle] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
+
+const [articleDetailLoading, setArticleDetailLoading] = useState(false);
+const [articleDetailError, setArticleDetailError] = useState("");
+
+const articleRequestRef = useRef(0);
+// --------------------
   const [subscribedEmail, setSubscribedEmail] = useState("");
   const [subscribedSuccess, setSubscribedSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -875,6 +886,46 @@ export default function HealthLibraryContent({
     const el = document.getElementById("hl-results");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // update
+  const openArticle = async (article) => {
+  const requestId = ++articleRequestRef.current;
+
+  // Show the existing modal immediately with listing information.
+  setSelectedArticle(article);
+  setArticleDetailLoading(true);
+  setArticleDetailError("");
+
+  try {
+    const detail = await fetchHealthCareArticleBySlugAction(article.slug);
+
+    // Ignore an older request if another article was opened.
+    if (requestId !== articleRequestRef.current) return;
+
+    if (detail) {
+      setSelectedArticle(detail);
+    } else {
+      setArticleDetailError("Unable to load this article.");
+    }
+  } catch (error) {
+    if (requestId !== articleRequestRef.current) return;
+
+    console.error("Article detail loading error:", error);
+    setArticleDetailError("Something went wrong while loading the article.");
+  } finally {
+    if (requestId === articleRequestRef.current) {
+      setArticleDetailLoading(false);
+    }
+  }
+};
+
+const closeArticle = () => {
+  articleRequestRef.current += 1;
+  setSelectedArticle(null);
+  setArticleDetailLoading(false);
+  setArticleDetailError("");
+};
+//update end
 
   const categorySliderRef = useRef(null);
 
@@ -991,7 +1042,7 @@ export default function HealthLibraryContent({
     return (
       <article
         key={art.id}
-        onClick={() => setSelectedArticle(art)}
+        onClick={() => openArticle(art)}
         style={{ animationDelay: `${i * 70}ms` }}
         className="hl-rise group relative p-[1.5px] rounded-[1.75rem] cursor-pointer bg-gradient-to-br from-[#1D82A6]/50 via-white to-[#C8952E]/60 shadow-[0_10px_30px_rgba(10,95,122,0.12)] hover:shadow-[0_25px_55px_rgba(10,95,122,0.3)] hover:-translate-y-2 transition-all duration-300"
       >
@@ -1113,7 +1164,7 @@ export default function HealthLibraryContent({
     return (
       <article
         key={art.id}
-        onClick={() => setSelectedArticle(art)}
+        onClick={() => openArticle(art)}
         className="hl-rise hl-shimmer group relative p-[1.5px] rounded-[2rem] cursor-pointer bg-gradient-to-r from-[#1D82A6] via-[#F6D98A] to-[#C8952E] shadow-[0_25px_60px_rgba(10,95,122,0.28)] hover:shadow-[0_35px_75px_rgba(10,95,122,0.38)] transition-shadow duration-300"
       >
         <div className="rounded-[calc(2rem-1.5px)] bg-white overflow-hidden grid grid-cols-1 md:grid-cols-2">
@@ -2501,49 +2552,36 @@ export default function HealthLibraryContent({
 
               {/* Article body */}
               <div className="space-y-4 text-slate-700 text-sm leading-relaxed mb-8">
-                {selectedArticle.content.map((paragraph, pIdx) => {
-                  if (paragraph.startsWith("### ")) {
-                    return (
-                      <h3
-                        key={pIdx}
-                        className="flex items-center gap-2.5 font-serif-apollo text-lg font-extrabold text-[#0B3446] pt-3"
-                      >
-                        <span className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#1D82A6] to-[#C8952E]" />
-                        {paragraph.replace("### ", "")}
-                      </h3>
-                    );
-                  }
-                  if (paragraph.startsWith("- ")) {
-                    return (
-                      <div
-                        key={pIdx}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-[#EDF6FB]/70 border border-[#1D82A6]/10"
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-[#1D82A6] shrink-0 mt-0.5" />
-                        <span>{renderInline(paragraph.replace("- ", ""))}</span>
-                      </div>
-                    );
-                  }
-                  const numbered = paragraph.match(/^(\d+)\.\s+(.*)$/);
-                  if (numbered) {
-                    return (
-                      <div
-                        key={pIdx}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-[#EDF6FB]/70 border border-[#1D82A6]/10"
-                      >
-                        <span
-                          className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black text-[#3A2B0A] shrink-0 shadow-sm"
-                          style={goldStyle}
-                        >
-                          {numbered[1]}
-                        </span>
-                        <span>{renderInline(numbered[2])}</span>
-                      </div>
-                    );
-                  }
-                  return <p key={pIdx}>{renderInline(paragraph)}</p>;
-                })}
-              </div>
+  {articleDetailLoading ? (
+    <div className="py-12 text-center">
+      <div className="w-9 h-9 mx-auto rounded-full border-4 border-[#1D82A6]/20 border-t-[#1D82A6] animate-spin" />
+      <p className="mt-4 text-sm font-semibold text-[#0E526B]">
+        Loading article...
+      </p>
+    </div>
+  ) : articleDetailError ? (
+    <div className="py-10 text-center">
+      <p className="text-sm font-semibold text-rose-600">
+        {articleDetailError}
+      </p>
+      <button
+        onClick={() => openArticle(selectedArticle)}
+        className="mt-4 px-5 py-2 rounded-full bg-[#EDF6FB] text-[#0E526B] text-xs font-bold"
+      >
+        Try Again
+      </button>
+    </div>
+  ) : Array.isArray(selectedArticle.content) ? (
+    selectedArticle.content.map((paragraph, pIdx) => {
+      // KEEP YOUR EXISTING CONTENT RENDERING LOGIC HERE.
+      // It already handles headings, bullet points and numbered points.
+    })
+  ) : (
+    <p className="py-8 text-center text-slate-500">
+      Article content is not available.
+    </p>
+  )}
+</div>
 
               {/* Tags footer */}
               <div className="pt-5 pb-6 flex flex-wrap items-center gap-2 border-t border-slate-100">
@@ -2570,7 +2608,7 @@ export default function HealthLibraryContent({
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <button
-                  onClick={() => setSelectedArticle(null)}
+                  onClick={() => closeArticle(null)}
                   className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#EDF6FB] text-[#0E526B] border border-[#1D82A6]/25 font-extrabold text-xs hover:bg-white hover:shadow-md transition-all cursor-pointer"
                 >
                   Close Article

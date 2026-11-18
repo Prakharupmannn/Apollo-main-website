@@ -9,14 +9,11 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
   AlertTriangle,
   MessageSquareText,
   Building2,
   FileText,
   Clock,
-  ChevronLeft,
-  ChevronRight,
   Filter,
 } from "lucide-react";
 import {
@@ -24,9 +21,13 @@ import {
   Card,
   Modal,
   Avatar,
+  Pagination,
   useToast,
   btnGhost,
   inputCls,
+  thCls,
+  tdCls,
+  rowIconBtn,
 } from "@/components/admin/ui";
 
 // Safely parse and format MySQL created_at timestamp into localized date & time
@@ -93,6 +94,7 @@ const DEPARTMENTS = [
 ];
 
 const ITEMS_PER_PAGE = 10;
+const inqId = (id) => `INQ${String(id ?? "").padStart(3, "0")}`;
 
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState([]);
@@ -140,12 +142,11 @@ export default function AdminInquiriesPage() {
         (inq.department || "").toLowerCase() === selectedDept.toLowerCase();
 
       if (!matchesDept) return false;
-
       if (!query) return true;
 
       const haystack = [
         String(inq.id || ""),
-        `INQ${String(inq.id || "").padStart(3, "0")}`,
+        inqId(inq.id),
         inq.full_name || "",
         inq.phone_number || "",
         inq.email_address || "",
@@ -166,8 +167,12 @@ export default function AdminInquiriesPage() {
     setPage(1);
   }, [q, selectedDept]);
 
-  // Pagination slice
+  // Keep the page valid after a delete / refresh
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   const paginated = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
@@ -214,8 +219,16 @@ export default function AdminInquiriesPage() {
     ).length;
   }, [inquiries]);
 
+  const stats = [
+    { icon: MessageSquareText, tone: "bg-teal-50 text-[#0A5F7A]", value: totalCount, label: "Total Inquiries" },
+    { icon: Clock, tone: "bg-emerald-50 text-emerald-700", value: todayCount, label: "Received Today" },
+    { icon: Building2, tone: "bg-amber-50 text-amber-700", value: generalCount, label: "General Inquiries" },
+  ];
+
+  const m = activeModalInquiry;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {toastNode}
 
       <PageHeader
@@ -236,7 +249,7 @@ export default function AdminInquiriesPage() {
 
       {/* Error banner */}
       {fetchErr && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-800">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
             <span className="font-medium">{fetchErr}</span>
@@ -250,55 +263,32 @@ export default function AdminInquiriesPage() {
         </div>
       )}
 
-      {/* Stats summary cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="flex items-center gap-4 px-5 py-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-teal-50 text-[#0A5F7A]">
-            <MessageSquareText className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-2xl font-bold text-slate-900">
-              {loading ? "—" : totalCount}
-            </p>
-            <p className="text-xs font-semibold text-slate-500">
-              Total Inquiries
-            </p>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-4 px-5 py-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
-            <Clock className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-2xl font-bold text-slate-900">
-              {loading ? "—" : todayCount}
-            </p>
-            <p className="text-xs font-semibold text-slate-500">
-              Received Today
-            </p>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-4 px-5 py-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700">
-            <Building2 className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-2xl font-bold text-slate-900">
-              {loading ? "—" : generalCount}
-            </p>
-            <p className="text-xs font-semibold text-slate-500">
-              General Inquiries
-            </p>
-          </div>
-        </Card>
+      {/* Stats: slimmer cards, three across even on phones */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        {stats.map(({ icon: Icon, tone, value, label }) => (
+          <Card
+            key={label}
+            className="flex flex-col items-start gap-2 px-3 py-2.5 sm:flex-row sm:items-center sm:gap-3 sm:px-4"
+          >
+            <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg sm:h-9 sm:w-9 ${tone}`}>
+              <Icon className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-lg font-bold leading-tight text-slate-900 sm:text-xl">
+                {loading ? "—" : value}
+              </p>
+              <p className="truncate text-[11px] font-semibold text-slate-500 sm:text-xs">
+                {label}
+              </p>
+            </div>
+          </Card>
+        ))}
       </div>
 
       {/* Main Table Card */}
       <Card className="overflow-hidden">
         {/* Search & Filter Bar */}
-        <div className="flex flex-col gap-3 border-b border-slate-200/90 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="flex flex-col gap-2.5 border-b border-slate-200/90 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
           <div className="relative w-full max-w-md">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -311,12 +301,12 @@ export default function AdminInquiriesPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400 shrink-0" />
+            <Filter className="h-4 w-4 shrink-0 text-slate-400" />
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
               aria-label="Filter by department"
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 focus:border-[#0A5F7A] focus:outline-none focus:ring-4 focus:ring-[#0A5F7A]/10"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 focus:border-[#0A5F7A] focus:outline-none focus:ring-4 focus:ring-[#0A5F7A]/10 sm:w-auto"
             >
               {DEPARTMENTS.map((dept) => (
                 <option key={dept} value={dept}>
@@ -329,28 +319,28 @@ export default function AdminInquiriesPage() {
 
         {/* Responsive Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-left text-sm">
+          <table className="w-full min-w-[980px] border-separate border-spacing-0 text-left">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                <th className="px-4 py-3.5">ID</th>
-                <th className="px-4 py-3.5">Full Name</th>
-                <th className="px-4 py-3.5">Phone Number</th>
-                <th className="px-4 py-3.5">Email Address</th>
-                <th className="px-4 py-3.5">Department</th>
-                <th className="px-4 py-3.5">City</th>
-                <th className="px-4 py-3.5">Subject</th>
-                <th className="px-4 py-3.5">Message / Details</th>
-                <th className="px-4 py-3.5">Submitted Date</th>
-                <th className="px-4 py-3.5 text-right">Actions</th>
+              <tr>
+                <th className={thCls}>ID</th>
+                <th className={thCls}>Full Name</th>
+                <th className={thCls}>Phone Number</th>
+                <th className={thCls}>Email Address</th>
+                <th className={thCls}>Department</th>
+                <th className={thCls}>City</th>
+                <th className={thCls}>Subject</th>
+                <th className={thCls}>Message</th>
+                <th className={thCls}>Submitted</th>
+                <th className={`${thCls} text-right`}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
+                Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     {Array.from({ length: 10 }).map((_, j) => (
-                      <td key={j} className="px-4 py-4">
-                        <div className="h-4 w-20 rounded-md bg-slate-200" />
+                      <td key={j} className={tdCls}>
+                        <div className="h-3.5 w-20 rounded bg-slate-200" />
                       </td>
                     ))}
                   </tr>
@@ -359,9 +349,9 @@ export default function AdminInquiriesPage() {
                 <tr>
                   <td
                     colSpan={10}
-                    className="py-14 text-center text-sm text-slate-500"
+                    className="py-12 text-center text-sm text-slate-500"
                   >
-                    <MessageSquareText className="mx-auto h-8 w-8 text-slate-300 mb-2" />
+                    <MessageSquareText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
                     {q || selectedDept !== "All Departments"
                       ? "No inquiries matching your criteria."
                       : "No patient inquiries received yet."}
@@ -369,37 +359,32 @@ export default function AdminInquiriesPage() {
                 </tr>
               ) : (
                 paginated.map((inq) => {
-                  const formattedId = `INQ${String(inq.id).padStart(3, "0")}`;
-                  const isLongMsg = (inq.message || "").length > 45;
-                  const shortMsg = isLongMsg
-                    ? `${inq.message.slice(0, 45)}…`
-                    : inq.message || "—";
+                  const msg = inq.message || "";
+                  const isLongMsg = msg.length > 45;
+                  const shortMsg = isLongMsg ? `${msg.slice(0, 45)}…` : msg || "—";
 
                   return (
                     <tr
                       key={inq.id}
                       className="transition-colors hover:bg-slate-50/70"
                     >
-                      {/* ID */}
-                      <td className="px-4 py-3.5 font-mono text-xs font-bold text-[#0A5F7A]">
-                        {formattedId}
+                      <td className={`${tdCls} whitespace-nowrap font-mono text-[11px] font-bold text-[#0A5F7A]`}>
+                        {inqId(inq.id)}
                       </td>
 
-                      {/* Full Name */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <Avatar name={inq.full_name} size="sm" />
+                      <td className={`${tdCls} whitespace-nowrap`}>
+                        <div className="flex items-center gap-2">
+                          <Avatar name={inq.full_name} size={24} />
                           <span className="font-semibold text-slate-900">
                             {inq.full_name}
                           </span>
                         </div>
                       </td>
 
-                      {/* Phone Number */}
-                      <td className="px-4 py-3.5 whitespace-nowrap">
+                      <td className={`${tdCls} whitespace-nowrap`}>
                         <a
                           href={`tel:${inq.phone_number}`}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-[#0A5F7A]"
+                          className="inline-flex items-center gap-1.5 font-medium text-slate-700 hover:text-[#0A5F7A]"
                           title="Call phone number"
                         >
                           <Phone className="h-3 w-3 text-teal-600" />
@@ -407,11 +392,10 @@ export default function AdminInquiriesPage() {
                         </a>
                       </td>
 
-                      {/* Email Address */}
-                      <td className="px-4 py-3.5 whitespace-nowrap">
+                      <td className={`${tdCls} whitespace-nowrap`}>
                         <a
                           href={`mailto:${inq.email_address}`}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-[#0A5F7A]"
+                          className="inline-flex items-center gap-1.5 font-medium text-slate-700 hover:text-[#0A5F7A]"
                           title="Send email"
                         >
                           <Mail className="h-3 w-3 text-amber-600" />
@@ -419,63 +403,62 @@ export default function AdminInquiriesPage() {
                         </a>
                       </td>
 
-                      {/* Department */}
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/20">
+                      <td className={`${tdCls} whitespace-nowrap`}>
+                        <span className="inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/20">
                           {inq.department || "General Inquiry"}
                         </span>
                       </td>
 
-                      {/* City */}
-                      <td className="px-4 py-3.5 text-xs text-slate-600 whitespace-nowrap">
+                      <td className={`${tdCls} whitespace-nowrap`}>
                         {inq.city || "—"}
                       </td>
 
-                      {/* Subject */}
-                      <td className="px-4 py-3.5 text-xs font-medium text-slate-800 max-w-[160px] truncate">
-                        {inq.subject || "—"}
+                      <td className={`${tdCls} font-medium text-slate-800`}>
+                        <div className="max-w-[160px] truncate" title={inq.subject}>
+                          {inq.subject || "—"}
+                        </div>
                       </td>
 
-                      {/* Message / Details */}
-                      <td className="px-4 py-3.5 text-xs text-slate-600 max-w-[200px]">
-                        <span>{shortMsg}</span>
-                        {isLongMsg && (
-                          <button
-                            type="button"
-                            onClick={() => setActiveModalInquiry(inq)}
-                            className="ml-1 text-[11px] font-bold text-[#0A5F7A] hover:underline cursor-pointer"
-                          >
-                            more
-                          </button>
-                        )}
+                      <td className={tdCls}>
+                        <div className="flex max-w-[220px] items-center gap-1 whitespace-nowrap">
+                          <span className="truncate" title={msg}>
+                            {shortMsg}
+                          </span>
+                          {isLongMsg && (
+                            <button
+                              type="button"
+                              onClick={() => setActiveModalInquiry(inq)}
+                              className="shrink-0 cursor-pointer text-[11px] font-bold text-[#0A5F7A] hover:underline"
+                            >
+                              more
+                            </button>
+                          )}
+                        </div>
                       </td>
 
-                      {/* Submitted Date */}
-                      <td className="px-4 py-3.5 text-xs text-slate-500 whitespace-nowrap">
+                      <td className={`${tdCls} whitespace-nowrap text-slate-500`}>
                         {formatSubmittedDate(inq.created_at)}
                       </td>
 
-                      {/* Actions */}
-                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className={`${tdCls} whitespace-nowrap text-right`}>
+                        <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
                             onClick={() => setActiveModalInquiry(inq)}
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-teal-50 hover:text-[#0A5F7A] hover:border-[#0A5F7A]/30 cursor-pointer"
+                            className={`${rowIconBtn} text-[#0A5F7A] hover:bg-teal-50`}
                             title="View full details"
                             aria-label="View details"
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="h-3.5 w-3.5" />
                           </button>
-
                           <button
                             type="button"
                             onClick={() => setDeletingInquiry(inq)}
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 cursor-pointer"
+                            className={`${rowIconBtn} text-rose-600 hover:bg-rose-50`}
                             title="Delete inquiry"
                             aria-label="Delete inquiry"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </td>
@@ -487,79 +470,63 @@ export default function AdminInquiriesPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-200/80 px-4 py-3 text-xs text-slate-600 sm:px-6">
-            <span>
-              Showing {(page - 1) * ITEMS_PER_PAGE + 1} to{" "}
-              {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of{" "}
-              {filtered.length} inquiries
-            </span>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-
-              <span className="px-2 font-semibold text-slate-800">
-                Page {page} of {totalPages}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          page={page}
+          pageSize={ITEMS_PER_PAGE}
+          total={filtered.length}
+          onChange={setPage}
+          noun="inquiries"
+        />
       </Card>
 
-      {/* Inquiry Details Modal */}
-      {activeModalInquiry && (
-        <Modal
-          title={`Inquiry Details — INQ${String(activeModalInquiry.id).padStart(3, "0")}`}
-          onClose={() => setActiveModalInquiry(null)}
-          maxWidth="max-w-2xl"
-        >
-          <div className="space-y-5 text-sm">
-            {/* Header with Avatar and Basic Info */}
-            <div className="flex items-center gap-3.5 rounded-2xl bg-slate-50 p-4 border border-slate-100">
-              <Avatar name={activeModalInquiry.full_name} size="lg" />
-              <div className="flex-1">
-                <h4 className="text-base font-bold text-slate-900">
-                  {activeModalInquiry.full_name}
-                </h4>
-                <p className="text-xs text-slate-500">
-                  Submitted on {formatSubmittedDate(activeModalInquiry.created_at)}
-                </p>
-              </div>
-              <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/20">
-                {activeModalInquiry.department || "General Inquiry"}
+      {/* Inquiry Details Modal (shared Modal needs `open`, `size` and `footer`) */}
+      <Modal
+        open={!!m}
+        onClose={() => setActiveModalInquiry(null)}
+        title={m ? `Inquiry ${inqId(m.id)}` : ""}
+        subtitle={m ? `Submitted on ${formatSubmittedDate(m.created_at)}` : ""}
+        size="lg"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeletingInquiry(m)}
+              className="mr-auto inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold text-rose-600 hover:text-rose-800"
+            >
+              <Trash2 className="h-4 w-4" /> Delete this record
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveModalInquiry(null)}
+              className={btnGhost}
+            >
+              Close
+            </button>
+          </>
+        }
+      >
+        {m && (
+          <div className="space-y-4 text-sm">
+            <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
+              <Avatar name={m.full_name} size={44} />
+              <h4 className="min-w-0 flex-1 truncate text-base font-bold text-slate-900">
+                {m.full_name}
+              </h4>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/20">
+                {m.department || "General Inquiry"}
               </span>
             </div>
 
-            {/* Info Grid */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-slate-200/80 bg-white p-3">
                 <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   <Phone className="h-3.5 w-3.5 text-teal-600" /> Phone Number
                 </span>
                 <a
-                  href={`tel:${activeModalInquiry.phone_number}`}
+                  href={`tel:${m.phone_number}`}
                   className="mt-1 block font-semibold text-slate-900 hover:text-[#0A5F7A]"
                 >
-                  {activeModalInquiry.phone_number}
+                  {m.phone_number}
                 </a>
               </div>
 
@@ -568,10 +535,10 @@ export default function AdminInquiriesPage() {
                   <Mail className="h-3.5 w-3.5 text-amber-600" /> Email Address
                 </span>
                 <a
-                  href={`mailto:${activeModalInquiry.email_address}`}
-                  className="mt-1 block font-semibold text-slate-900 hover:text-[#0A5F7A] break-all"
+                  href={`mailto:${m.email_address}`}
+                  className="mt-1 block break-all font-semibold text-slate-900 hover:text-[#0A5F7A]"
                 >
-                  {activeModalInquiry.email_address}
+                  {m.email_address}
                 </a>
               </div>
 
@@ -580,7 +547,7 @@ export default function AdminInquiriesPage() {
                   <MapPin className="h-3.5 w-3.5 text-rose-600" /> City / Location
                 </span>
                 <p className="mt-1 font-semibold text-slate-900">
-                  {activeModalInquiry.city || "Not specified"}
+                  {m.city || "Not specified"}
                 </p>
               </div>
 
@@ -589,81 +556,58 @@ export default function AdminInquiriesPage() {
                   <FileText className="h-3.5 w-3.5 text-indigo-600" /> Subject
                 </span>
                 <p className="mt-1 font-semibold text-slate-900">
-                  {activeModalInquiry.subject || "General Query"}
+                  {m.subject || "General Query"}
                 </p>
               </div>
             </div>
 
-            {/* Full Message Container */}
             <div>
-              <span className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Message / Query Details:
+              <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                Message / Query Details
               </span>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto">
-                {activeModalInquiry.message}
+              <div className="max-h-60 overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-xs leading-relaxed text-slate-800 sm:text-sm">
+                {m.message}
               </div>
             </div>
-
-            {/* Modal Actions */}
-            <div className="flex items-center justify-between border-t border-slate-200 pt-4">
-              <button
-                type="button"
-                onClick={() => setDeletingInquiry(activeModalInquiry)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 hover:text-rose-800 cursor-pointer"
-              >
-                <Trash2 className="h-4 w-4" /> Delete this record
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveModalInquiry(null)}
-                className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
-              >
-                Close
-              </button>
-            </div>
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {deletingInquiry && (
-        <Modal
-          title="Delete Patient Inquiry"
-          onClose={() => setDeletingInquiry(null)}
-          maxWidth="max-w-md"
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Are you sure you want to delete the inquiry from{" "}
-              <strong className="text-slate-900">
-                {deletingInquiry.full_name}
-              </strong>{" "}
-              (ID: INQ{String(deletingInquiry.id).padStart(3, "0")})? This action
-              cannot be undone.
-            </p>
-
-            <div className="flex items-center justify-end gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeletingInquiry(null)}
-                disabled={delSaving}
-                className={btnGhost}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={delSaving}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition disabled:opacity-60"
-              >
-                {delSaving ? "Deleting…" : "Yes, Delete Record"}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        open={!!deletingInquiry}
+        onClose={() => !delSaving && setDeletingInquiry(null)}
+        title="Delete patient inquiry?"
+        size="sm"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeletingInquiry(null)}
+              disabled={delSaving}
+              className={btnGhost}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={delSaving}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-rose-700 disabled:opacity-60"
+            >
+              {delSaving ? "Deleting…" : "Yes, delete record"}
+            </button>
+          </>
+        }
+      >
+        {deletingInquiry && (
+          <p className="text-sm leading-relaxed text-slate-600">
+            Are you sure you want to delete the inquiry from{" "}
+            <strong className="text-slate-900">{deletingInquiry.full_name}</strong>{" "}
+            ({inqId(deletingInquiry.id)})? This action cannot be undone.
+          </p>
+        )}
+      </Modal>
     </div>
   );
 }

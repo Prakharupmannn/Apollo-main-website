@@ -27,14 +27,23 @@ import {
   inputCls,
   btnPrimary,
   btnGhost,
+  thCls,
+  tdCls,
+  rowIconBtn,
 } from "./ui";
 
 function Cell({ col, row }) {
   const v = row[col.key];
+
+  // Execute custom column renderer if provided
+  if (typeof col.render === "function") {
+    return col.render(row);
+  }
+
   switch (col.type) {
     case "id":
       return (
-        <span className="inline-block rounded-md bg-teal-50 px-2 py-0.5 font-mono text-xs font-bold text-[#0A5F7A] ring-1 ring-teal-600/20">
+        <span className="inline-block rounded bg-teal-50 px-1.5 py-px font-mono text-[11px] font-bold text-[#0A5F7A] ring-1 ring-teal-600/20">
           {v}
         </span>
       );
@@ -52,12 +61,16 @@ function Cell({ col, row }) {
       return <span className="font-semibold text-slate-900">{v}</span>;
     case "person":
       return (
-        <div className="flex items-center gap-3">
-          <Avatar name={v} src={row[col.imageKey || "photo"]} />
+        <div className="flex items-center gap-2.5">
+          <Avatar name={v} src={row[col.imageKey || "photo"]} size={28} />
           <div className="min-w-0">
-            <p className="font-semibold text-slate-900">{v}</p>
+            <p className="text-[13px] font-semibold leading-tight text-slate-900">
+              {v}
+            </p>
             {col.subKey && (
-              <p className="text-xs text-slate-500">{row[col.subKey]}</p>
+              <p className="text-[11px] leading-tight text-slate-500">
+                {row[col.subKey]}
+              </p>
             )}
           </div>
         </div>
@@ -88,7 +101,7 @@ export default function ResourcePage({
     columns,
     fields,
     searchKeys,
-    pageSize = 6,
+    pageSize = 10, // compact rows fit more per page (was 6)
   } = config;
 
   const [items, setItems]     = useState(data || initial);
@@ -120,6 +133,12 @@ export default function ResourcePage({
       return okTab && okQ;
     });
   }, [items, q, tab, tabs, searchKeys]);
+
+  // Keep the page valid after a delete / refresh / filter shrinks the list
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
 
@@ -196,7 +215,7 @@ export default function ResourcePage({
     }
   };
 
-    /* ── Save used by the custom modal ──────────────── */
+  /* ── Save used by the custom modal ──────────────── */
   const saveCustom = async (form) => {
     await onSave(editing.mode, form); // throws on error, so the modal shows it
     toast(`${singular} ${editing.mode === "add" ? "added" : "updated"}.`);
@@ -277,9 +296,10 @@ export default function ResourcePage({
         </div>
       )}
 
-      <Card className="overflow-hidden">
-        {/* Search bar & Tabs */}
-        <div className="flex flex-col gap-3.5 border-b border-slate-200/90 p-4 sm:p-5">
+      <Card className="overflow-visible">
+        {/* Search bar & Tabs.
+            NOTE: keep the "gap-3.5" class, DoctorsPage CSS selects on it. */}
+        <div className="flex flex-col gap-3.5 border-b border-slate-200/90 p-3 sm:p-4">
           <div className="relative max-w-sm">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -306,29 +326,34 @@ export default function ResourcePage({
         </div>
 
         {/* Data table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+        <div className="overflow-x-auto lg:overflow-x-visible">
+          <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <tr>
                 {columns.map((c) => (
-                  <th key={c.key} className="px-5 py-3.5">
+                  <th
+                    key={c.key}
+                    className={`${thCls} static z-10 lg:sticky lg:top-0`}
+                  >
                     {c.label}
                   </th>
                 ))}
-                <th className="px-5 py-3.5 text-right">Actions</th>
+                <th className={`${thCls} static z-10 text-right lg:sticky lg:top-0`}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
+                Array.from({ length: 6 }).map((_, i) => (
                   <tr key={`skeleton-${i}`} className="animate-pulse">
                     {columns.map((c) => (
-                      <td key={c.key} className="px-5 py-4">
-                        <div className="h-4 w-28 rounded-md bg-slate-200" />
+                      <td key={c.key} className={tdCls}>
+                        <div className="h-3.5 w-24 rounded bg-slate-200" />
                       </td>
                     ))}
-                    <td className="px-5 py-4 text-right">
-                      <div className="ml-auto h-7 w-16 rounded-md bg-slate-200" />
+                    <td className={`${tdCls} text-right`}>
+                      <div className="ml-auto h-6 w-14 rounded bg-slate-200" />
                     </td>
                   </tr>
                 ))
@@ -339,27 +364,27 @@ export default function ResourcePage({
                     className="transition-colors hover:bg-slate-50/70"
                   >
                     {columns.map((c) => (
-                      <td key={c.key} className="px-5 py-3.5 align-middle">
+                      <td key={c.key} className={tdCls}>
                         <Cell col={c} row={row} />
                       </td>
                     ))}
-                    <td className="px-5 py-3.5 text-right">
-                      <div className="flex justify-end gap-1.5">
+                    <td className={`${tdCls} text-right`}>
+                      <div className="flex justify-end gap-1">
                         <button
                           onClick={() => openEdit(row)}
                           aria-label={`Edit ${row.id}`}
                           title="Edit record"
-                          className="grid h-9 w-9 cursor-pointer place-items-center rounded-xl text-[#0A5F7A] transition hover:bg-teal-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+                          className={`${rowIconBtn} text-[#0A5F7A] hover:bg-teal-50`}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => setDeleting(row)}
                           aria-label={`Delete ${row.id}`}
                           title="Delete record"
-                          className="grid h-9 w-9 cursor-pointer place-items-center rounded-xl text-rose-600 transition hover:bg-rose-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                          className={`${rowIconBtn} text-rose-600 hover:bg-rose-50`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </td>

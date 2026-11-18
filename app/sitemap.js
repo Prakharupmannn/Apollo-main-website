@@ -51,7 +51,7 @@ export default async function sitemap() {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/aboutus`,
+      url: `${baseUrl}/about-us`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.85,

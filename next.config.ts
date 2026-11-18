@@ -56,12 +56,6 @@ const nextConfig: NextConfig = {
    
 async redirects() {
     return [
-      // Old About Us URL
-      // {
-      //   source: "/about-us",
-      //   destination: "/aboutus",
-      //   permanent: true,
-      // },
 
       // Old Doctor listing URL
       {

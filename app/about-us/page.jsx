@@ -9,13 +9,13 @@ export const metadata = {
   description:
     "Apollo JBP Hospitals is a quaternary care centre in Jabalpur — a managed unit of Apollo Hospitals Enterprise Ltd, offering the region's only PET-CT facility, 12 modular operation theatres, and specialised critical care.",
   alternates: {
-    canonical: `${SITE_URL}/aboutus`,
+    canonical: `${SITE_URL}/about-us`,
   },
   openGraph: {
     title: "About Us | Apollo JBP Hospitals, Jabalpur",
     description:
       "Quaternary care built for Central India — the region's only PET-CT facility, 12 modular operation theatres, and 50+ specialists.",
-    url: `${SITE_URL}/aboutus`,
+    url: `${SITE_URL}/about-us`,
     siteName: "Apollo JBP Hospitals",
     images: [`${SITE_URL}${brand ? "" : ""}/image/operation.jpg`],
     type: "website",
@@ -26,7 +26,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Hospital",
   name: "Apollo JBP Hospitals, Jabalpur",
-  url: `${SITE_URL}/aboutus`,
+  url: `${SITE_URL}/about-us`,
   telephone: brand.generalPhone,
   address: {
     "@type": "PostalAddress",

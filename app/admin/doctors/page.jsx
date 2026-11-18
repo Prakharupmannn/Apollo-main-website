@@ -162,6 +162,110 @@ const PREMIUM_CSS = `
 }
 .dp-status.Active   { background:#ecfdf5; color:#059669; }
 .dp-status.Inactive { background:#fef2f2; color:#dc2626; }
+
+
+/* =========================================
+   COMPACT DOCTORS ADMIN UI
+========================================= */
+
+/* Compact search and department tabs toolbar */
+.doctors-premium [class~="gap-3.5"][class~="border-b"] {
+  padding: 10px 14px;
+  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Search input */
+.doctors-premium input {
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.doctors-premium [class~="max-w-sm"] {
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Compact table header */
+.doctors-premium thead th {
+  padding: 10px 14px;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+
+/* Compact table rows */
+.doctors-premium tbody td {
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+/* Doctor avatar */
+.doctors-premium tbody td:nth-child(2) img {
+  width: 38px;
+  height: 38px;
+}
+
+/* Doctor name */
+.doctors-premium tbody td:nth-child(2) p {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+/* Smaller department chips */
+.doctors-premium .dp-dept {
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+/* Smaller experience chip */
+.doctors-premium .dp-exp {
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+/* Smaller status chip */
+.doctors-premium .dp-status {
+  padding: 4px 9px;
+  gap: 6px;
+  font-size: 11px;
+}
+
+/* Compact action buttons */
+.doctors-premium tbody td:last-child button {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+
+/* Less visual movement on hover */
+.doctors-premium tbody tr:hover td:last-child button:hover {
+  transform: none;
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .doctors-premium [class~="gap-3.5"][class~="border-b"] {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .doctors-premium [class~="max-w-sm"] {
+    max-width: 100%;
+  }
+
+  .doctors-premium tbody td {
+    padding: 9px 10px;
+  }
+
+  .doctors-premium thead th {
+    padding: 10px;
+  }
+}
+
 `;
 
 // helper to build a textarea field
@@ -191,10 +295,25 @@ const config = {
       ),
     },
     {
-      key: "experience",
-      label: "Experience",
-      render: (row) => <span className="dp-exp">{row.experience}</span>,
-    },
+  key: "experience",
+  label: "Experience",
+  render: (row) => (
+    <div className="group relative w-fit max-w-[150px]">
+      <span className="dp-exp block max-w-[150px] truncate">
+        {row.experience || "N/A"}
+      </span>
+
+      {row.experience && (
+        <div
+  role="tooltip"
+  className="pointer-events-none invisible absolute left-1/2 top-full z-[9999] mt-2 w-max max-w-[260px] -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium leading-relaxed text-white opacity-0 shadow-xl transition-all duration-150 group-hover:visible group-hover:opacity-100"
+>
+  {row.experience}
+</div>
+      )}
+    </div>
+  ),
+},
     {
       key: "department",
       label: "Department",
