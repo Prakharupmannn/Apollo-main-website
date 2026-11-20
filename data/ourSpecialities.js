@@ -1,3 +1,4 @@
+// Git identity test - Pradeep
 export const specialitiesData = [
   {
     slug: "cardiology",
