@@ -481,7 +481,187 @@ export const specialitiesData = [
     image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
     intro: "Professional medical-legal documentation, trauma protocol compliance, and emergency legal coordination.",
     services: ["Emergency MLC Documentation", "Trauma & Accident Registry", "Police Coordination Support", "Medical Certification Services"]
-  }
+  },
+  {
+  slug: "neonatology",
+  name: "Neonatology",
+  category: "Pediatrics",
+  icon: "baby",
+  tagline: "Specialized Care for Newborns",
+  badge: "Advanced Newborn Care",
+  stat: "24/7",
+  statLabel: "Neonatal Care Support",
+  image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized medical care for newborn babies, including premature infants and newborns requiring advanced monitoring and clinical support.",
+  services: [
+    "Newborn Intensive Care",
+    "Premature Baby Care",
+    "Newborn Health Monitoring",
+    "Neonatal Emergency Care"
+  ]
+},
+{
+  slug: "medical-oncology",
+  name: "Medical Oncology",
+  category: "Cancer Care",
+  icon: "activity",
+  tagline: "Comprehensive Medical Cancer Care",
+  badge: "Advanced Cancer Care",
+  stat: "Expert Care",
+  statLabel: "Personalized Oncology Support",
+  image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized medical cancer care focused on personalized treatment planning, chemotherapy and supportive oncology services.",
+  services: [
+    "Medical Cancer Consultation",
+    "Chemotherapy",
+    "Immunotherapy",
+    "Supportive Cancer Care"
+  ]
+},
+{
+  slug: "surgical-oncology",
+  name: "Surgical Oncology",
+  category: "Cancer Care",
+  icon: "activity",
+  tagline: "Advanced Surgical Cancer Care",
+  badge: "Specialized Cancer Surgery",
+  stat: "Advanced Care",
+  statLabel: "Surgical Oncology Services",
+  image: "https://images.unsplash.com/photo-1551190822-a9333d879b1f?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized surgical care for cancer patients, focusing on tumor removal, cancer-related operations and advanced surgical treatment approaches.",
+  services: [
+    "Cancer Tumor Removal Surgery",
+    "Breast Cancer Surgery",
+    "Gastrointestinal Cancer Surgery",
+    "Minimally Invasive Cancer Surgery"
+  ]
+},
+{
+  slug: "radiation-oncology",
+  name: "Radiation Oncology",
+  category: "Cancer Care",
+  icon: "activity",
+  tagline: "Advanced Radiation-Based Cancer Care",
+  badge: "Precision Radiation Therapy",
+  stat: "Advanced Care",
+  statLabel: "Radiation Oncology Services",
+  image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized cancer treatment using advanced radiation techniques to target cancer cells while minimizing exposure to surrounding healthy tissues.",
+  services: [
+    "External Beam Radiation Therapy",
+    "Image-Guided Radiation Therapy (IGRT)",
+    "Intensity-Modulated Radiation Therapy (IMRT)",
+    "Cancer Radiation Treatment Planning"
+  ]
+},
+{
+  slug: "interventional-neurology",
+  name: "Interventional Neurology",
+  category: "Neurosciences",
+  icon: "brain",
+  tagline: "Advanced Minimally Invasive Neuro Care",
+  badge: "Neurovascular Interventions",
+  stat: "Advanced Care",
+  statLabel: "Interventional Neurology Services",
+  image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized neurological care using minimally invasive, image-guided procedures for conditions affecting the brain and blood vessels.",
+  services: [
+    "Mechanical Thrombectomy",
+    "Cerebral Aneurysm Coiling",
+    "Cerebral Angiography",
+    "Neurovascular Interventions"
+  ]
+},
+{
+  slug: "minimally-invasive-spine-surgery",
+  name: "Minimally Invasive Spine Surgery",
+  category: "Orthopedics",
+  icon: "bone",
+  tagline: "Advanced Minimally Invasive Spine Care",
+  badge: "Advanced Spine Surgery",
+  stat: "Specialized Care",
+  statLabel: "Spine Treatment Services",
+  image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized spine care using minimally invasive surgical techniques designed to treat spinal conditions while reducing tissue disruption.",
+  services: [
+    "Minimally Invasive Spine Surgery",
+    "Spinal Decompression",
+    "Spinal Disc Surgery",
+    "Spinal Stabilization Procedures"
+  ]
+},
+{
+  slug: "robotic-surgery",
+  name: "Robotic Surgery",
+  category: "Surgical Services",
+  icon: "activity",
+  tagline: "Precision Through Advanced Surgical Technology",
+  badge: "Robotic-Assisted Surgery",
+  stat: "Advanced Technology",
+  statLabel: "Robotic Surgical Care",
+  image: "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80",
+  intro: "Advanced surgical care using robotic-assisted technology to support precision, control and minimally invasive surgical procedures.",
+  services: [
+    "Robotic-Assisted Surgical Procedures",
+    "Minimally Invasive Surgery",
+    "Advanced Surgical Planning",
+    "Precision-Assisted Operations"
+  ]
+},
+{
+  slug: "sports-medicine-arthroscopy",
+  name: "Sports Medicine & Arthroscopy",
+  category: "Orthopedics",
+  icon: "bone",
+  tagline: "Advanced Sports Injury & Joint Care",
+  badge: "Sports Injury Specialists",
+  stat: "Advanced Care",
+  statLabel: "Sports Medicine Services",
+  image: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized care for sports-related injuries, joint conditions and musculoskeletal problems using advanced arthroscopic and minimally invasive treatment approaches.",
+  services: [
+    "Knee Arthroscopy",
+    "Shoulder Arthroscopy",
+    "Sports Injury Treatment",
+    "Ligament Reconstruction"
+  ]
+},
+{
+  slug: "emergency",
+  name: "Emergency",
+  category: "Emergency & ICU",
+  icon: "activity",
+  tagline: "Immediate Care When Every Second Matters",
+  badge: "24/7 Emergency Care",
+  stat: "24/7",
+  statLabel: "Emergency Medical Support",
+  image: "https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=800&q=80",
+  intro: "Immediate medical assessment and emergency care for patients experiencing acute illnesses, injuries and life-threatening conditions.",
+  services: [
+    "24/7 Emergency Medical Care",
+    "Trauma & Accident Management",
+    "Emergency Stabilization",
+    "Acute Medical Condition Management"
+  ]
+},
+{
+  slug: "sleep-medicine",
+  name: "Sleep Medicine",
+  category: "Sleep & Respiratory Care",
+  icon: "activity",
+  tagline: "Better Sleep, Better Health",
+  badge: "Comprehensive Sleep Care",
+  stat: "Expert Care",
+  statLabel: "Sleep Health Services",
+  image: "https://images.unsplash.com/photo-1511295742362-92c96b5d5b7e?auto=format&fit=crop&w=800&q=80",
+  intro: "Specialized evaluation and management of sleep-related disorders, focusing on improving sleep quality, breathing during sleep and overall sleep health.",
+  services: [
+    "Sleep Disorder Evaluation",
+    "Sleep Apnea Assessment",
+    "Insomnia Management",
+    "Sleep Study Consultation"
+  ]
+}
 ];
 
 export default specialitiesData;
