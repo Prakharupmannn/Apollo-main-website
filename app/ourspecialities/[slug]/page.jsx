@@ -7,7 +7,13 @@ import {
   ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, Award, Phone, HelpCircle,
   BadgeCheck, HeartPulse, CalendarCheck, ClipboardList, Zap, MapPin, Clock, Users,
 } from "lucide-react";
-import specialitiesData from "../../../data/ourSpecialities";
+// import specialitiesData from "../../../data/ourSpecialities";
+import {
+  getActiveSpecialties,
+  getSpecialityBySlug,
+  getSpecialityCards,
+} from "@/lib/specialties-service";
+
 import { getDoctorsForSpeciality } from "@/lib/doctors-service";
 import { ScrollProgress, Reveal, Counter, Tilt, FaqAccordion, DoctorCard, NoDoctors } from "./Effects";
 
@@ -42,19 +48,34 @@ const css = `
 @media (prefers-reduced-motion:reduce){.anim-float,.anim-float-slow,.anim-shimmer,.anim-marquee,.anim-ring,.anim-spin,.text-shine,.hero-in{animation:none!important}}
 `;
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
-  return specialitiesData.map((s) => ({ slug: s.slug }));
+  const specialties = await getActiveSpecialties();
+
+  return specialties.map((s) => ({
+    slug: s.slug,
+  }));
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const s = specialitiesData.find((x) => x.slug === slug);
-  if (!s) return { title: "Speciality | Apollo Hospitals Jabalpur" };
+
+  const s = await getSpecialityBySlug(slug);
+
+  if (!s) {
+    return {
+      title: "Speciality Not Found | Apollo Hospitals Jabalpur",
+    };
+  }
 
   const title = `${s.name} in Jabalpur | Best Specialists & Treatments | Apollo Hospitals`;
+
   const description =
     s.intro ||
     `${s.name} department at Apollo Hospitals Jabalpur. Experienced specialists, advanced diagnostics, and compassionate patient care.`;
+
+  const image = s.image || "/apollologo.webp";
 
   return {
     title,
@@ -70,7 +91,7 @@ export async function generateMetadata({ params }) {
       type: "website",
       images: [
         {
-          url: s.heroImage || "/apollologo.webp",
+          url: image,
           width: 1200,
           height: 630,
           alt: s.name,
@@ -81,21 +102,36 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title,
       description,
-      images: [s.heroImage || "/apollologo.webp"],
+      images: [image],
     },
   };
 }
 
 export default async function SpecialityDetailPage({ params }) {
   const { slug } = await params;
-  const s = specialitiesData.find((x) => x.slug === slug);
+
+  // Fetch speciality from MySQL
+  const s = await getSpecialityBySlug(slug);
+
   if (!s) notFound();
 
-  const Icon = iconMap[s.icon] || Activity;
-  const doctors = await getDoctorsForSpeciality(s.slug);
+const [specialitiesData, doctors] = await Promise.all([
+  getSpecialityCards(),
+  getDoctorsForSpeciality(s.slug),
+]);
 
-  const sameCategory = specialitiesData.filter((x) => x.slug !== s.slug && x.category === s.category);
-  const rest = specialitiesData.filter((x) => x.slug !== s.slug && x.category !== s.category);
+const services = Array.isArray(s.services) ? s.services : [];
+
+const Icon = iconMap[s.icon?.toLowerCase()] || Activity;
+  // Related specialities
+  const sameCategory = specialitiesData.filter(
+    (x) => x.slug !== s.slug && x.category === s.category
+  );
+
+  const rest = specialitiesData.filter(
+    (x) => x.slug !== s.slug && x.category !== s.category
+  );
+
   const related = [...sameCategory, ...rest].slice(0, 3);
 
   const why = [
@@ -118,8 +154,7 @@ export default async function SpecialityDetailPage({ params }) {
     { q: "Do I need to carry previous reports?", a: "Yes, please carry earlier prescriptions, test reports and scans so the doctor can plan better." },
   ];
 
-  const ticker = [...s.services, ...s.services, ...s.services, ...s.services];
-
+  const ticker = [...services, ...services, ...services, ...services];
   return (
     <main
       className="relative min-h-screen pt-32 pb-24 overflow-hidden text-slate-900"
@@ -285,7 +320,7 @@ export default async function SpecialityDetailPage({ params }) {
             <h2 className="font-serif-apollo text-2xl sm:text-4xl font-black text-[#0B3446]">Services & Treatments</h2>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {s.services.map((sv, i) => (
+            {services.map((sv, i) => (
               <Reveal key={sv} delay={i * 90}>
                 <div className="group flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-r from-white to-[#FFFBF1] border border-slate-100 shadow-md hover:border-[#C8952E]/60 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300">
                   <span className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-xs font-black text-[#3A2B0A] group-hover:rotate-[360deg] transition-transform duration-700" style={gold}>
