@@ -78,7 +78,7 @@ export default function SpecialitiesSection({ onOpenAppointmentModal }) {
     {
       id: "orthopaedics",
       num: "04",
-      name: "Orthopaedics",
+      name: "Orthopedics & Robotic Joint Replacement",
       tagline: "Helping You Move Towards a Healthier Life",
       desc: "Mako robotic joint replacements, sports injury arthroscopy, pediatric orthopedics, and complex trauma care.",
       icon: Bone,
