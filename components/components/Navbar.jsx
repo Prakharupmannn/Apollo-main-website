@@ -217,7 +217,7 @@ export default function Navbar({ onOpenAppointmentModal, onOpenSearchModal }) {
         {
           name: "Our Specialities",
           href: "/ourspecialities",
-          desc: "37+ Clinical Specialty Departments",
+          desc: "30+ Clinical Specialty Departments",
         },
         {
           name: "Make Appointment",
