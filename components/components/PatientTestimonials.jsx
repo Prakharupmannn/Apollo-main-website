@@ -13,6 +13,7 @@ import {
   Users,
   ShieldCheck,
   Play,
+  Stethoscope,
 } from "lucide-react";
 
 export default function PatientTestimonials() {
@@ -73,7 +74,8 @@ export default function PatientTestimonials() {
 
   const stats = [
     { icon: Users, value: "150,000+", label: "Happy Patients" },
-    { icon: Award, value: "99.4%", label: "Success Rate" },
+    // { icon: Award, value: "99.4%", label: "Success Rate" },
+    { icon: Stethoscope, value: "Expert Doctors", label: "Experienced Medical Team" },
     { icon: Heart, value: "24/7", label: "Compassionate Care" },
     { icon: ShieldCheck, value: "JCI Accredited", label: "Global Standards" },
   ];

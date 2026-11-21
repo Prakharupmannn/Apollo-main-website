@@ -12,7 +12,7 @@ export default function WhyChooseApollo() {
   const advantages = [
     {
       title: "World-Class Infrastructure",
-      desc: "State-of-the-art DaVinci robotic surgical suites, 3T MRI, PET-CT, and 24/7 dedicated ICU units.",
+      desc: "Advanced medical infrastructure, including SSI and MAKO robotic systems, supported by specialised diagnostic and critical-care facilities.",
       icon: Building2,
       tag: "Technological Edge",
       num: "01",
@@ -80,17 +80,19 @@ export default function WhyChooseApollo() {
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl xl:text-[2.6rem] font-extrabold text-[#0B3446] tracking-tight leading-tight">
-            Why Millions Choose{" "}
+            Why People Choose{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(90deg, #C8952E 0%, #E8C173 50%, #C8952E 100%)" }}
             >
-              Apollo JBP Hospitals
+              Apollo JBP Hospitals?
             </span>
           </h2>
           <p className="text-slate-500 mt-3 text-sm sm:text-base leading-relaxed">
-            Four decades of clinical mastery, human compassion, and relentless investment in the
-            technology that saves lives.
+            Advanced medical technology, experienced 
+specialists and patient-centred care — 
+bringing comprehensive healthcare together 
+in Central India.
           </p>
         </div>
 
