@@ -483,11 +483,11 @@ export default function AppointmentsPage() {
               <table className="w-full min-w-[1150px] border-separate border-spacing-0 text-left text-[13px]">
                 <thead>
                   <tr>
-                    <th className={`${thBase} sticky left-0 top-0 z-40 w-[96px] min-w-[96px]`}>
+                    <th className={`${thBase} sticky left-0 top-0 z-10 w-[96px] min-w-[96px]`}>
                       ID
                     </th>
                     <th
-                      className={`${thBase} sticky left-[96px] top-0 z-40 w-[200px] min-w-[200px] shadow-[4px_0_6px_-4px_rgba(15,23,42,0.25)]`}
+                      className={`${thBase} sticky left-[96px] top-0 z-10 w-[200px] min-w-[200px] shadow-[4px_0_6px_-4px_rgba(15,23,42,0.25)]`}
                     >
                       Patient
                     </th>
@@ -503,11 +503,11 @@ export default function AppointmentsPage() {
                       "Booked on",
                       "Status",
                     ].map((h) => (
-                      <th key={h} className={`${thBase} sticky top-0 z-30`}>
+                      <th key={h} className={`${thBase} sticky top-0 z-10`}>
                         {h}
                       </th>
                     ))}
-                    <th className={`${thBase} sticky right-0 top-0 z-40 text-right`}>
+                    <th className={`${thBase} sticky right-0 top-0 z-10 text-right`}>
                       Actions
                     </th>
                   </tr>
