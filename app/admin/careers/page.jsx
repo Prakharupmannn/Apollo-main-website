@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Briefcase,
@@ -21,15 +21,19 @@ import {
   Inbox,
   Mail,
   Phone,
-  Tag,
+  RotateCw,
 } from "lucide-react";
 import {
   Card,
-  SpotlightCard,
   IconTile,
   Avatar,
+  Pagination,
+  useToast,
   btnGhost,
   fmtDate,
+  thCls,
+  tdCls,
+  rowIconBtn,
 } from "@/components/admin/ui";
 import { displayFont, numFont } from "@/components/admin/fonts";
 import { ADMIN_BASE } from "@/lib/admin-data";
@@ -41,6 +45,8 @@ const API_KEY = "apollo54321";
 const JOBS_API = "/api/career";
 const APPLICATIONS_API = "/api/career-applications";
 const API_HEADERS = { "x-api-key": API_KEY };
+
+const PAGE_SIZE = 10;
 
 const DEFAULT_DEPARTMENTS = [
   "Cardiology",
@@ -67,6 +73,10 @@ const APP_BADGE = {
   Hired: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
   Rejected: "bg-rose-50 text-rose-700 ring-rose-600/20",
 };
+const STATUS_DOT = {
+  Open: "bg-emerald-500",
+  Closed: "bg-slate-400",
+};
 
 const EMPTY_FORM = {
   id: "", // job_code (empty = new job)
@@ -91,7 +101,7 @@ const inputCls =
 function Pill({ className = "", children }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${className}`}
     >
       {children}
     </span>
@@ -309,7 +319,12 @@ function JobModal({ initial, onClose, onSave, categories, departments }) {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && !saving && onClose();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [onClose, saving]);
 
   const submit = async () => {
@@ -359,8 +374,8 @@ function JobModal({ initial, onClose, onSave, categories, departments }) {
       aria-modal="true"
       aria-label={editing ? "Edit job" : "Add job"}
     >
-      <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-4 backdrop-blur">
+      <div className="max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-4 py-3.5 backdrop-blur sm:px-6 sm:py-4">
           <div>
             <h2
               className={`${displayFont.className} text-xl font-bold text-slate-900`}
@@ -381,7 +396,7 @@ function JobModal({ initial, onClose, onSave, categories, departments }) {
           </button>
         </div>
 
-        <div className="grid gap-4 p-6 sm:grid-cols-2">
+        <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
           {editing && (
             <div>
               <label className={label}>Job code</label>
@@ -545,14 +560,14 @@ function JobModal({ initial, onClose, onSave, categories, departments }) {
           {error && (
             <p
               role="alert"
-              className="sm:col-span-2 rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-700"
+              className="rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-700 sm:col-span-2"
             >
               {error}
             </p>
           )}
         </div>
 
-        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-100 bg-white/95 px-6 py-4 backdrop-blur">
+        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-100 bg-white/95 px-4 py-3.5 backdrop-blur sm:px-6 sm:py-4">
           <button onClick={onClose} disabled={saving} className={btnGhost}>
             Cancel
           </button>
@@ -569,7 +584,7 @@ function JobModal({ initial, onClose, onSave, categories, departments }) {
   );
 }
 
-/* ── Job table ────────────────────────────────────── */
+/* ── Jobs: desktop table + mobile cards ───────────── */
 const TYPE_BADGE = {
   fulltime: "bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-600/20",
   parttime: "bg-sky-50 text-sky-700 ring-sky-600/20",
@@ -580,244 +595,189 @@ const typeBadge = (t) =>
   TYPE_BADGE[String(t || "").toLowerCase().replace(/[^a-z]/g, "")] ||
   "bg-slate-100 text-slate-600 ring-slate-500/20";
 
-const STATUS_DOT = {
-  Open: "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.2)]",
-  Closed: "bg-slate-400 shadow-[0_0_0_3px_rgba(148,163,184,0.25)]",
-};
-
-const th =
-  "sticky top-0 z-20 bg-slate-100 px-5 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500 whitespace-nowrap shadow-[inset_0_-1px_0_0_rgb(226,232,240)]";
-const iconBtn =
-  "grid h-9 w-9 cursor-pointer place-items-center rounded-xl text-slate-400 transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]";
-
-const SCROLL_CSS = `
-.pro-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #0A5F7A #eef2f7;
-}
-.pro-scroll::-webkit-scrollbar {
-  height: 12px;
-  width: 12px;
-}
-.pro-scroll::-webkit-scrollbar-track {
-  background: linear-gradient(180deg, #f1f5f9, #e8edf4);
-  border-radius: 9999px;
-  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.12);
-}
-.pro-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #0A5F7A 0%, #0e7a9a 55%, #F59E0B 130%);
-  border-radius: 9999px;
-  border: 3px solid #eef2f7;
-  box-shadow: 0 2px 6px rgba(10, 95, 122, 0.35);
-  transition: background 0.25s ease;
-}
-.pro-scroll::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-}
-.pro-scroll::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, #D97706 0%, #b45309 100%);
-}
-.pro-scroll::-webkit-scrollbar-corner {
-  background: transparent;
-}
-`;
-
-function JobsTable({ jobs, total, countFor, onEdit, onDelete, onToggle }) {
-  const topRef = useRef(null);
-  const bodyRef = useRef(null);
-  const [scrollW, setScrollW] = useState(1100);
-
-  useEffect(() => {
-    const el = bodyRef.current;
-    if (!el) return;
-    const update = () => setScrollW(el.scrollWidth);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    if (el.firstElementChild) ro.observe(el.firstElementChild);
-    return () => ro.disconnect();
-  }, [jobs.length]);
-
+function StatusPill({ status }) {
   return (
-    <Card className="overflow-hidden p-0">
-      <style>{SCROLL_CSS}</style>
-      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
-        <p className="text-xs text-slate-500">
-          Showing{" "}
-          <strong className="font-bold text-slate-900">{jobs.length}</strong> of{" "}
-          <strong className="font-bold text-slate-900">{total}</strong> jobs
-        </p>
-        <span className="hidden items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-[11px] font-bold text-[#0A5F7A] ring-1 ring-inset ring-teal-600/20 sm:inline-flex">
-          <Sparkles className="h-3 w-3" /> Live on careers page
-        </span>
-      </div>
+    <Pill className={JOB_BADGE[status]}>
+      <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
+      {status}
+    </Pill>
+  );
+}
 
-      <div
-        ref={topRef}
-        onScroll={() => {
-          if (
-            bodyRef.current &&
-            bodyRef.current.scrollLeft !== topRef.current.scrollLeft
-          )
-            bodyRef.current.scrollLeft = topRef.current.scrollLeft;
-        }}
-        className="pro-scroll overflow-x-auto overflow-y-hidden border-b border-slate-100 bg-slate-50/60 py-1"
-      >
-        <div style={{ width: scrollW }} className="h-0.5" />
-      </div>
+function ApplicantCount({ count, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={count === 0}
+      title={count ? "View applicants" : "No applicants yet"}
+      className="inline-flex cursor-pointer items-center gap-1 rounded-full bg-slate-50 px-2 py-0.5 text-[11px] font-bold text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-teal-50 hover:text-[#0A5F7A] disabled:cursor-default disabled:opacity-60 disabled:hover:bg-slate-50 disabled:hover:text-slate-700"
+    >
+      <Users className="h-3 w-3 text-[#0A5F7A]" />
+      <span className={numFont.className}>{count}</span>
+    </button>
+  );
+}
 
-      <div
-        ref={bodyRef}
-        onScroll={() => {
-          if (
-            topRef.current &&
-            topRef.current.scrollLeft !== bodyRef.current.scrollLeft
-          )
-            topRef.current.scrollLeft = bodyRef.current.scrollLeft;
-        }}
-        className="max-h-[90vh] overflow-auto"
+function JobActions({ job, onEdit, onDelete, onToggle }) {
+  const isOpen = job.status === "Open";
+  return (
+    <div className="flex justify-end gap-1">
+      <button
+        onClick={() => onToggle(job)}
+        aria-label={isOpen ? "Close job" : "Publish job"}
+        title={isOpen ? "Close job" : "Publish job"}
+        className={`${rowIconBtn} text-slate-500 hover:bg-teal-50 hover:text-[#0A5F7A]`}
       >
-        <table className="w-full min-w-[1020px] border-separate border-spacing-0 text-left text-sm">
-          <thead>
-            <tr className="bg-gradient-to-b from-slate-50 to-slate-100/70">
-              <th className={th}>Job role</th>
-              <th className={th}>Category</th>
-              <th className={th}>Department</th>
-              <th className={th}>Location</th>
-              <th className={th}>Employment</th>
-              <th className={`${th} text-center`}>Applicants</th>
-              <th className={th}>Status</th>
-              <th className={`${th} text-right`}>Action</th>
+        {isOpen ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+      </button>
+      <button
+        onClick={() => onEdit(job)}
+        aria-label="Edit job"
+        title="Edit"
+        className={`${rowIconBtn} text-[#0A5F7A] hover:bg-teal-50`}
+      >
+        <Pencil className="h-3.5 w-3.5" />
+      </button>
+      <button
+        onClick={() => onDelete(job)}
+        aria-label="Delete job"
+        title="Delete"
+        className={`${rowIconBtn} text-rose-600 hover:bg-rose-50`}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function JobsTable({ jobs, countFor, onEdit, onDelete, onToggle, onApplicants }) {
+  return (
+    <div className="hidden max-h-[calc(100dvh-17rem)] min-h-[320px] overflow-auto overscroll-contain lg:block">
+      <table className="w-full min-w-[960px] border-separate border-spacing-0 text-left">
+        <thead>
+          <tr>
+            <th className={`${thCls} sticky top-0 z-10`}>Job role</th>
+            <th className={`${thCls} sticky top-0 z-10`}>Category</th>
+            <th className={`${thCls} sticky top-0 z-10`}>Department</th>
+            <th className={`${thCls} sticky top-0 z-10`}>Location</th>
+            <th className={`${thCls} sticky top-0 z-10`}>Employment</th>
+            <th className={`${thCls} sticky top-0 z-10 text-center`}>Applicants</th>
+            <th className={`${thCls} sticky top-0 z-10`}>Status</th>
+            <th className={`${thCls} sticky top-0 z-10 text-right`}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {jobs.map((job) => (
+            <tr key={job.id} className="group hover:bg-teal-50/40">
+              <td className={`${tdCls} border-b border-slate-100`}>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className={`${displayFont.className} max-w-[260px] truncate text-[15px] font-bold text-slate-900`}
+                    title={job.title}
+                  >
+                    {job.title}
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-400">
+                    {job.id}
+                  </span>
+                </div>
+              </td>
+              <td className={`${tdCls} whitespace-nowrap border-b border-slate-100`}>
+                {job.category || "—"}
+              </td>
+              <td className={`${tdCls} whitespace-nowrap border-b border-slate-100 text-slate-700`}>
+                {job.department || "—"}
+              </td>
+              <td className={`${tdCls} whitespace-nowrap border-b border-slate-100`}>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3 text-slate-400" />
+                  {job.location || "—"}
+                </span>
+              </td>
+              <td className={`${tdCls} whitespace-nowrap border-b border-slate-100`}>
+                <Pill className={typeBadge(job.jobType)}>{job.jobType}</Pill>
+              </td>
+              <td className={`${tdCls} border-b border-slate-100 text-center`}>
+                <ApplicantCount
+                  count={countFor(job.id)}
+                  onClick={() => onApplicants(job)}
+                />
+              </td>
+              <td className={`${tdCls} whitespace-nowrap border-b border-slate-100`}>
+                <StatusPill status={job.status} />
+              </td>
+              <td className={`${tdCls} border-b border-slate-100`}>
+                <JobActions
+                  job={job}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onToggle={onToggle}
+                />
+              </td>
             </tr>
-          </thead>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-          <tbody>
-            {jobs.map((job) => (
-              <tr
-                key={job.id}
-                className="group transition-colors duration-200 hover:bg-gradient-to-r hover:from-teal-50/70 hover:via-white hover:to-white"
+function JobCards({ jobs, countFor, onEdit, onDelete, onToggle, onApplicants }) {
+  return (
+    <ul className="grid gap-3 bg-slate-50/60 p-3 sm:grid-cols-2 sm:p-4 lg:hidden">
+      {jobs.map((job) => (
+        <li
+          key={job.id}
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p
+                className={`${displayFont.className} truncate text-[15px] font-bold text-slate-900`}
               >
-                {/* ROLE */}
-                <td className="relative border-b border-slate-100 px-5 py-4 group-last:border-b-0">
-                  <span className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#0A5F7A] to-[#F59E0B] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-                  <div className="flex items-center gap-3.5">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50 text-[#0A5F7A] ring-1 ring-inset ring-sky-200/70 shadow-sm transition duration-200 group-hover:scale-105 group-hover:shadow-md">
-                      <Briefcase className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p
-                        className={`${displayFont.className} max-w-[260px] truncate text-[15px] font-bold text-slate-900`}
-                        title={job.title}
-                      >
-                        {job.title}
-                      </p>
-                      <p className="mt-0.5 truncate text-[11px] font-medium tracking-wide text-slate-400">
-                        {job.id}
-                      </p>
-                    </div>
-                  </div>
-                </td>
+                {job.title}
+              </p>
+              <p className="font-mono text-[10px] text-slate-400">{job.id}</p>
+            </div>
+            <StatusPill status={job.status} />
+          </div>
 
-                {/* CATEGORY */}
-                <td className="whitespace-nowrap border-b border-slate-100 px-5 py-4 text-slate-600 group-last:border-b-0">
-                  <span className="inline-flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-slate-400" />
-                    {job.category || "—"}
-                  </span>
-                </td>
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[12px] text-slate-600">
+            {job.department && (
+              <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium">
+                {job.department}
+              </span>
+            )}
+            {job.category && (
+              <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium">
+                {job.category}
+              </span>
+            )}
+            <Pill className={typeBadge(job.jobType)}>{job.jobType}</Pill>
+            {job.location && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-slate-400" />
+                {job.location}
+              </span>
+            )}
+          </div>
 
-                {/* DEPARTMENT */}
-                <td className="whitespace-nowrap border-b border-slate-100 px-5 py-4 group-last:border-b-0">
-                  <span className="inline-flex items-center gap-2.5 text-slate-700">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-50 text-violet-600 ring-1 ring-inset ring-violet-200/70">
-                      <Layers className="h-4 w-4" />
-                    </span>
-                    {job.department || "—"}
-                  </span>
-                </td>
-
-                {/* LOCATION */}
-                <td className="whitespace-nowrap border-b border-slate-100 px-5 py-4 text-slate-600 group-last:border-b-0">
-                  <span className="inline-flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-slate-400" />
-                    {job.location || "—"}
-                  </span>
-                </td>
-
-                {/* EMPLOYMENT */}
-                <td className="whitespace-nowrap border-b border-slate-100 px-5 py-4 group-last:border-b-0">
-                  <Pill className={typeBadge(job.jobType)}>{job.jobType}</Pill>
-                </td>
-
-                {/* APPLICANTS */}
-                <td className="border-b border-slate-100 px-5 py-4 text-center group-last:border-b-0">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 ring-1 ring-inset ring-slate-200">
-                    <Users className="h-3.5 w-3.5 text-[#0A5F7A]" />
-                    <span className={numFont.className}>
-                      {countFor(job.id)}
-                    </span>
-                  </span>
-                </td>
-
-                {/* STATUS */}
-                <td className="whitespace-nowrap border-b border-slate-100 px-5 py-4 group-last:border-b-0">
-                  <Pill className={`gap-2 px-3 ${JOB_BADGE[job.status]}`}>
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[job.status]}`}
-                    />
-                    {job.status}
-                  </Pill>
-                </td>
-
-                {/* ACTION */}
-                <td className="border-b border-slate-100 px-5 py-4 group-last:border-b-0">
-                  <div className="flex justify-end gap-1">
-                    <button
-                      onClick={() => onToggle(job)}
-                      aria-label={
-                        job.status === "Open" ? "Close job" : "Publish job"
-                      }
-                      title={job.status === "Open" ? "Close job" : "Publish job"}
-                      className={`${iconBtn} hover:text-[#0A5F7A]`}
-                    >
-                      {job.status === "Open" ? (
-                        <EyeOff className="h-[18px] w-[18px]" />
-                      ) : (
-                        <Eye className="h-[18px] w-[18px]" />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => onEdit(job)}
-                      aria-label="Edit job"
-                      title="Edit"
-                      className={`${iconBtn} hover:text-[#0A5F7A]`}
-                    >
-                      <Pencil className="h-[18px] w-[18px]" />
-                    </button>
-                    <button
-                      onClick={() => onDelete(job)}
-                      aria-label="Delete job"
-                      title="Delete"
-                      className={`${iconBtn} hover:bg-rose-50 hover:text-rose-600`}
-                    >
-                      <Trash2 className="h-[18px] w-[18px]" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-slate-100 bg-gradient-to-b from-slate-50/60 to-slate-50 px-6 py-3.5 text-xs text-slate-500">
-        <span>
-          Total Jobs:{" "}
-          <strong className="font-bold text-slate-900">{total}</strong>
-        </span>
-        <span className="font-semibold text-slate-400">Career Management</span>
-      </div>
-    </Card>
+          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+            <ApplicantCount
+              count={countFor(job.id)}
+              onClick={() => onApplicants(job)}
+            />
+            <JobActions
+              job={job}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onToggle={onToggle}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -838,18 +798,14 @@ export default function CareersPage() {
   const [dept, setDept] = useState("All");
   const [status, setStatus] = useState("All");
   const [appFilter, setAppFilter] = useState("All");
+  const [jobPage, setJobPage] = useState(1);
+  const [appPage, setAppPage] = useState(1);
   const [modal, setModal] = useState(null); // null | job object
   const [confirm, setConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [notice, setNotice] = useState(null); // { type, text }
+  const [toast, toastNode] = useToast();
 
-  const flash = (text, type = "success") => setNotice({ type, text });
-
-  useEffect(() => {
-    if (!notice) return;
-    const t = setTimeout(() => setNotice(null), 4000);
-    return () => clearTimeout(t);
-  }, [notice]);
+  const flash = (text, type = "success") => toast(text, type);
 
   /* ── API call for create / update / delete ── */
   const request = async (method, data) => {
@@ -880,7 +836,6 @@ export default function CareersPage() {
       setJobs(list.map(normalizeAdminJob));
     } catch (err) {
       if (axios.isCancel(err) || err?.code === "ERR_CANCELED") return;
-      console.log("Error fetching career data:", err);
       setLoadError(true);
     } finally {
       if (!signal?.aborted) setLoading(false);
@@ -906,7 +861,6 @@ export default function CareersPage() {
       setApplicants(list.map(normalizeApplication));
     } catch (err) {
       if (axios.isCancel(err) || err?.code === "ERR_CANCELED") return;
-      console.log("Error fetching career applications:", err);
       setAppsError(true);
     } finally {
       if (!signal?.aborted) setAppsLoading(false);
@@ -919,6 +873,11 @@ export default function CareersPage() {
     loadApplications(controller.signal);
     return () => controller.abort();
   }, []);
+
+  const refreshAll = () => {
+    loadJobs();
+    loadApplications();
+  };
 
   const countFor = (id) => applicants.filter((a) => sameId(a.jobId, id)).length;
 
@@ -958,22 +917,62 @@ export default function CareersPage() {
     [jobs, applicants],
   );
 
-  const filteredJobs = jobs.filter(
-    (j) =>
-      (dept === "All" || j.department === dept) &&
-      (status === "All" || j.status === status) &&
-      `${j.title} ${j.fullTitle} ${j.department} ${j.category} ${j.location}`
-        .toLowerCase()
-        .includes(q.toLowerCase()),
-  );
+  const filteredJobs = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return jobs.filter(
+      (j) =>
+        (dept === "All" || j.department === dept) &&
+        (status === "All" || j.status === status) &&
+        `${j.title} ${j.fullTitle} ${j.department} ${j.category} ${j.location}`
+          .toLowerCase()
+          .includes(needle),
+    );
+  }, [jobs, q, dept, status]);
 
-  const filteredApps = applicants.filter(
-    (a) =>
-      (appFilter === "All" || a.status === appFilter) &&
-      `${a.name} ${a.email} ${jobTitle(a)}`
-        .toLowerCase()
-        .includes(q.toLowerCase()),
-  );
+  // newest applications first
+  const filteredApps = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return applicants
+      .filter(
+        (a) =>
+          (appFilter === "All" || a.status === appFilter) &&
+          `${a.name} ${a.email} ${jobTitle(a)}`.toLowerCase().includes(needle),
+      )
+      .sort((a, b) => String(b.applied).localeCompare(String(a.applied)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applicants, jobs, q, appFilter]);
+
+  // reset to page 1 whenever the filters change
+  useEffect(() => setJobPage(1), [q, dept, status, tab]);
+  useEffect(() => setAppPage(1), [q, appFilter, tab]);
+
+  // keep pages valid after deletes / refreshes
+  const jobPages = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
+  const appPages = Math.max(1, Math.ceil(filteredApps.length / PAGE_SIZE));
+  useEffect(() => {
+    if (jobPage > jobPages) setJobPage(jobPages);
+  }, [jobPage, jobPages]);
+  useEffect(() => {
+    if (appPage > appPages) setAppPage(appPages);
+  }, [appPage, appPages]);
+
+  const pagedJobs = filteredJobs.slice((jobPage - 1) * PAGE_SIZE, jobPage * PAGE_SIZE);
+  const pagedApps = filteredApps.slice((appPage - 1) * PAGE_SIZE, appPage * PAGE_SIZE);
+
+  const hasJobFilters = q || dept !== "All" || status !== "All";
+  const clearJobFilters = () => {
+    setQ("");
+    setDept("All");
+    setStatus("All");
+  };
+
+  /* ── Delete dialog: Escape to close ── */
+  useEffect(() => {
+    if (!confirm) return;
+    const onKey = (e) => e.key === "Escape" && !deleting && setConfirm(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirm, deleting]);
 
   /* ── create / update ── */
   const saveJob = async (data) => {
@@ -1022,40 +1021,90 @@ export default function CareersPage() {
       l.map((a) => (sameId(a.id, id) ? { ...a, status: s } : a)),
     );
 
-  const h2 = `${displayFont.className} text-2xl font-bold text-slate-900`;
+  // jump from a job row to that job's applications
+  const showApplicants = (job) => {
+    setTab("apps");
+    setAppFilter("All");
+    setQ(job.title);
+  };
 
+  const h2 = `${displayFont.className} text-xl font-bold text-slate-900`;
+
+  // KPI cards double as shortcuts into the matching list
   const kpis = [
-    { label: "Open positions", value: stats.open, icon: Briefcase, tone: "teal" },
-    { label: "Total applicants", value: stats.applicants, icon: Users, tone: "gold" },
-    { label: "Departments hiring", value: stats.depts, icon: Layers, tone: "violet" },
-    { label: "Closed positions", value: stats.closed, icon: EyeOff, tone: "rose" },
+    {
+      label: "Open positions",
+      value: stats.open,
+      icon: Briefcase,
+      tone: "teal",
+      onClick: () => {
+        setTab("jobs");
+        clearJobFilters();
+        setStatus("Open");
+      },
+    },
+    {
+      label: "Total applicants",
+      value: stats.applicants,
+      sub: stats.newApps ? `${stats.newApps} new` : "",
+      icon: Users,
+      tone: "gold",
+      onClick: () => {
+        setTab("apps");
+        setQ("");
+        setAppFilter("All");
+      },
+    },
+    {
+      label: "Departments hiring",
+      value: stats.depts,
+      icon: Layers,
+      tone: "violet",
+      onClick: () => {
+        setTab("jobs");
+        clearJobFilters();
+      },
+    },
+    {
+      label: "Closed positions",
+      value: stats.closed,
+      icon: EyeOff,
+      tone: "rose",
+      onClick: () => {
+        setTab("jobs");
+        clearJobFilters();
+        setStatus("Closed");
+      },
+    },
   ];
 
+  const selectCls = `${inputCls} !h-9 !px-2.5 !py-0 text-xs`;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {toastNode}
+
       {/* HERO */}
-      <section className="relative overflow-hidden rounded-3xl border border-[#0A5F7A]/20 bg-gradient-to-br from-[#062E3C] via-[#0A4D62] to-[#0A5F7A] p-6 text-white shadow-xl sm:p-8">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-400/10 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-6">
-          <div>
+      <section className="relative overflow-hidden rounded-2xl border border-[#0A5F7A]/20 bg-gradient-to-br from-[#062E3C] via-[#0A4D62] to-[#0A5F7A] p-4 text-white shadow-lg sm:p-5">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-400/10 blur-3xl" />
+
+        <div className="relative flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
             <Link
               href={ADMIN_BASE}
-              className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-100 transition hover:text-white"
+              className="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-100 transition hover:text-white"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to dashboard
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to dashboard
             </Link>
-            <div className="flex">
-              <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-200">
-                <Sparkles className="h-3.5 w-3.5" /> Apollo Jabalpur careers
-              </span>
-            </div>
+
             <h1
-              className={`${displayFont.className} mt-3 text-4xl font-bold leading-tight tracking-tight sm:text-5xl`}
+              className={`${displayFont.className} text-2xl font-bold leading-tight tracking-tight sm:text-3xl`}
             >
               Careers &amp; hiring
             </h1>
-            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-teal-50/90 sm:text-base">
-              You have{" "}
+
+            <p className="mt-1 max-w-xl text-xs leading-relaxed text-teal-50/90 sm:text-sm">
               <strong className="font-bold text-amber-300">
                 {stats.open} open positions
               </strong>{" "}
@@ -1066,280 +1115,360 @@ export default function CareersPage() {
               waiting for review.
             </p>
           </div>
+
           <button
             onClick={() => setModal(EMPTY_FORM)}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] px-5 py-3 text-sm font-bold text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40"
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] px-4 py-2.5 text-xs font-bold text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40 sm:w-auto"
           >
-            <Plus className="h-4 w-4" /> Add job opening
+            <Plus className="h-4 w-4" />
+            Add job opening
           </button>
         </div>
       </section>
 
-      {/* NOTICE */}
-      {notice && (
-        <div
-          role="status"
-          className={`rounded-xl px-4 py-3 text-sm font-semibold ${
-            notice.type === "error"
-              ? "bg-rose-50 text-rose-700"
-              : "bg-emerald-50 text-emerald-700"
-          }`}
-        >
-          {notice.text}
-        </div>
-      )}
-
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      {/* KPIs (click to filter) */}
+      <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
         {kpis.map((k) => (
-          <SpotlightCard key={k.label} className="p-5">
-            <IconTile icon={k.icon} tone={k.tone} size="lg" />
-            <p className="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">
-              {k.label}
-            </p>
-            <p
-              className={`${numFont.className} mt-1 text-4xl font-bold tracking-tight text-slate-900`}
-            >
-              {k.value}
-            </p>
-          </SpotlightCard>
+          <button
+            key={k.label}
+            type="button"
+            onClick={k.onClick}
+            className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-[#0A5F7A]/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+          >
+            <IconTile icon={k.icon} tone={k.tone} size="sm" />
+            <div className="min-w-0">
+              <p
+                className={`${numFont.className} flex items-baseline gap-1.5 text-xl font-bold leading-none text-slate-900`}
+              >
+                {k.value}
+                {k.sub && (
+                  <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
+                    {k.sub}
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 truncate text-[11px] font-semibold text-slate-500">
+                {k.label}
+              </p>
+            </div>
+          </button>
         ))}
       </div>
 
       {/* TOOLBAR */}
-      <Card className="p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex rounded-xl bg-slate-100 p-1" role="tablist">
-            {[
-              { id: "jobs", label: `Job openings (${jobs.length})` },
-              { id: "apps", label: `Applications (${applicants.length})` },
-            ].map((t) => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={tab === t.id}
-                onClick={() => {
-                  setTab(t.id);
-                  setQ("");
-                }}
-                className={`cursor-pointer rounded-lg px-4 py-2 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${
+      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+        <div
+          className="flex w-full shrink-0 rounded-lg bg-slate-100 p-1 lg:w-auto"
+          role="tablist"
+        >
+          {[
+            { id: "jobs", label: "Job openings", count: jobs.length },
+            { id: "apps", label: "Applications", count: applicants.length },
+          ].map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => {
+                setTab(t.id);
+                setQ("");
+              }}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] font-bold transition lg:flex-none ${
+                tab === t.id
+                  ? "bg-white text-[#0A5F7A] shadow-sm"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              {t.label}
+              <span
+                className={`rounded px-1.5 py-0.5 text-[10px] ${
                   tab === t.id
-                    ? "bg-white text-slate-900 shadow-xs"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "bg-[#0A5F7A]/10 text-[#0A5F7A]"
+                    : "bg-slate-200 text-slate-600"
                 }`}
               >
-                {t.label}
-              </button>
-            ))}
+                {t.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <div className="relative col-span-2 min-w-0 sm:col-span-1 sm:w-56">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={tab === "jobs" ? "Search jobs…" : "Search applicants…"}
+              aria-label="Search"
+              className={`${inputCls} !h-9 !py-0 pl-8 pr-2 text-xs`}
+            />
           </div>
 
-          <div className="flex w-full flex-wrap gap-3 sm:w-auto">
-            <div className="relative min-w-[200px] flex-1 sm:flex-none">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={tab === "jobs" ? "Search jobs" : "Search applicants"}
-                aria-label="Search"
-                className={`${inputCls} pl-10`}
-              />
-            </div>
-            {tab === "jobs" ? (
-              <>
-                <select
-                  aria-label="Filter by department"
-                  value={dept}
-                  onChange={(e) => setDept(e.target.value)}
-                  className={`${inputCls} w-auto`}
-                >
-                  <option>All</option>
-                  {filterDepartments.map((d) => (
-                    <option key={d}>{d}</option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Filter by status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className={`${inputCls} w-auto`}
-                >
-                  <option>All</option>
-                  {JOB_STATUSES.map((d) => (
-                    <option key={d}>{d}</option>
-                  ))}
-                </select>
-              </>
-            ) : (
+          {tab === "jobs" ? (
+            <>
               <select
-                aria-label="Filter by status"
-                value={appFilter}
-                onChange={(e) => setAppFilter(e.target.value)}
-                className={`${inputCls} w-auto`}
+                aria-label="Filter by department"
+                value={dept}
+                onChange={(e) => setDept(e.target.value)}
+                className={`${selectCls} min-w-0 sm:w-40`}
               >
-                <option>All</option>
-                {APP_STATUSES.map((d) => (
+                <option value="All">All departments</option>
+                {filterDepartments.map((d) => (
                   <option key={d}>{d}</option>
                 ))}
               </select>
-            )}
-          </div>
+
+              <select
+                aria-label="Filter by status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className={`${selectCls} min-w-0 sm:w-32`}
+              >
+                <option value="All">All status</option>
+                {JOB_STATUSES.map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <select
+              aria-label="Filter by status"
+              value={appFilter}
+              onChange={(e) => setAppFilter(e.target.value)}
+              className={`${selectCls} col-span-2 min-w-0 sm:col-span-1 sm:w-40`}
+            >
+              <option value="All">All status</option>
+              {APP_STATUSES.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+          )}
+
+          {((tab === "jobs" && hasJobFilters) ||
+            (tab === "apps" && (q || appFilter !== "All"))) && (
+            <button
+              type="button"
+              onClick={() => {
+                if (tab === "jobs") clearJobFilters();
+                else {
+                  setQ("");
+                  setAppFilter("All");
+                }
+              }}
+              className="inline-flex cursor-pointer items-center gap-1 px-1 text-xs font-bold text-slate-500 hover:text-slate-800"
+            >
+              <X className="h-3.5 w-3.5" /> Clear
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={refreshAll}
+            title="Refresh"
+            aria-label="Refresh"
+            className="grid h-9 w-9 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+          >
+            <RotateCw
+              className={`h-4 w-4 ${loading || appsLoading ? "animate-spin text-[#0A5F7A]" : ""}`}
+            />
+          </button>
         </div>
-      </Card>
+      </div>
 
       {/* JOBS */}
       {tab === "jobs" &&
         (loading ? (
-          <Card className="grid place-items-center px-6 py-16 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0A5F7A]/30 border-t-[#0A5F7A]" />
-            <p className="mt-4 text-sm font-semibold text-slate-900">
-              Loading job openings...
+          <Card className="grid place-items-center px-4 py-10 text-center">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#0A5F7A]/30 border-t-[#0A5F7A]" />
+            <p className="mt-3 text-sm font-semibold text-slate-900">
+              Loading job openings…
             </p>
           </Card>
         ) : loadError ? (
-          <Card className="grid place-items-center px-6 py-16 text-center">
-            <IconTile icon={Briefcase} tone="rose" size="lg" />
-            <h2 className={`${h2} mt-4`}>Could not load jobs</h2>
-            <p className="mt-1 max-w-sm text-sm text-slate-500">
+          <Card className="grid place-items-center px-4 py-10 text-center">
+            <IconTile icon={Briefcase} tone="rose" size="sm" />
+            <h2 className={`${h2} mt-3`}>Could not load jobs</h2>
+            <p className="mt-1 max-w-sm text-xs text-slate-500">
               Check your connection and make sure you are signed in as admin.
             </p>
-            <button onClick={() => loadJobs()} className={`${btnGhost} mt-5`}>
+            <button onClick={() => loadJobs()} className={`${btnGhost} mt-3`}>
               Try again
             </button>
           </Card>
         ) : filteredJobs.length ? (
-          <JobsTable
-            jobs={filteredJobs}
-            total={jobs.length}
-            countFor={countFor}
-            onEdit={setModal}
-            onDelete={setConfirm}
-            onToggle={toggleJob}
-          />
+          <Card className="overflow-hidden p-0">
+            <JobsTable
+              jobs={pagedJobs}
+              countFor={countFor}
+              onEdit={setModal}
+              onDelete={setConfirm}
+              onToggle={toggleJob}
+              onApplicants={showApplicants}
+            />
+            <JobCards
+              jobs={pagedJobs}
+              countFor={countFor}
+              onEdit={setModal}
+              onDelete={setConfirm}
+              onToggle={toggleJob}
+              onApplicants={showApplicants}
+            />
+            <Pagination
+              page={jobPage}
+              pageSize={PAGE_SIZE}
+              total={filteredJobs.length}
+              onChange={setJobPage}
+              noun="jobs"
+            />
+          </Card>
         ) : (
-          <Card className="grid place-items-center px-6 py-16 text-center">
-            <IconTile icon={Briefcase} tone="teal" size="lg" />
-            <h2 className={`${h2} mt-4`}>No jobs found</h2>
-            <p className="mt-1 max-w-sm text-sm text-slate-500">
-              Change your search or filters, or add a new opening to start
-              hiring.
+          <Card className="grid place-items-center px-4 py-10 text-center">
+            <IconTile icon={Briefcase} tone="teal" size="sm" />
+            <h2 className={`${h2} mt-3`}>
+              {hasJobFilters ? "No jobs match your filters" : "No jobs yet"}
+            </h2>
+            <p className="mt-1 max-w-sm text-xs text-slate-500">
+              {hasJobFilters
+                ? "Change your search or filters to see more."
+                : "Add a new opening to start hiring."}
             </p>
-            <button
-              onClick={() => setModal(EMPTY_FORM)}
-              className={`${btnGhost} mt-5`}
-            >
-              <Plus className="h-4 w-4" /> Add job opening
-            </button>
+            <div className="mt-3 flex gap-2">
+              {hasJobFilters && (
+                <button onClick={clearJobFilters} className={btnGhost}>
+                  Clear filters
+                </button>
+              )}
+              <button onClick={() => setModal(EMPTY_FORM)} className={btnGhost}>
+                <Plus className="h-4 w-4" />
+                Add job opening
+              </button>
+            </div>
           </Card>
         ))}
 
       {/* APPLICATIONS */}
       {tab === "apps" && (
         <Card className="overflow-hidden">
-          <div className="border-b border-slate-100 px-6 py-4">
+          <div className="border-b border-slate-100 px-4 py-3">
             <h2 className={h2}>Applications</h2>
-            <p className="text-xs text-slate-500">
-              Update the status as you move candidates through hiring.
+            <p className="text-[11px] text-slate-500">
+              Newest first. Change a candidate’s status from the dropdown on each row.
             </p>
           </div>
 
           {appsLoading ? (
-            <div className="grid place-items-center px-6 py-16 text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0A5F7A]/30 border-t-[#0A5F7A]" />
-              <p className="mt-4 text-sm font-semibold text-slate-900">
-                Loading applications...
+            <div className="grid place-items-center px-4 py-10 text-center">
+              <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#0A5F7A]/30 border-t-[#0A5F7A]" />
+              <p className="mt-3 text-sm font-semibold text-slate-900">
+                Loading applications…
               </p>
             </div>
           ) : appsError ? (
-            <div className="grid place-items-center px-6 py-16 text-center">
-              <IconTile icon={Inbox} tone="rose" size="lg" />
-              <h2 className={`${h2} mt-4`}>Could not load applications</h2>
-              <p className="mt-1 max-w-sm text-sm text-slate-500">
+            <div className="grid place-items-center px-4 py-10 text-center">
+              <IconTile icon={Inbox} tone="rose" size="sm" />
+              <h2 className={`${h2} mt-3`}>Could not load applications</h2>
+              <p className="mt-1 max-w-sm text-xs text-slate-500">
                 Check your connection and try again.
               </p>
               <button
                 onClick={() => loadApplications()}
-                className={`${btnGhost} mt-5`}
+                className={`${btnGhost} mt-3`}
               >
                 Try again
               </button>
             </div>
           ) : filteredApps.length ? (
-            <ul className="divide-y divide-slate-100">
-              {filteredApps.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 transition hover:bg-slate-50/80"
-                >
-                  <div className="flex min-w-0 items-center gap-3.5">
-                    <Avatar name={a.name} size={44} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">
-                        {a.name}
-                      </p>
-                      <p className="truncate text-xs text-slate-500">
-                        Applied for{" "}
-                        <span className="font-semibold text-[#0A5F7A]">
-                          {jobTitle(a)}
-                        </span>
-                        {a.applied && <> on {fmtDate(a.applied)}</>}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                        {a.email && (
-                          <a
-                            href={`mailto:${a.email}`}
-                            className="inline-flex items-center gap-1 hover:text-[#0A5F7A]"
-                          >
-                            <Mail className="h-3 w-3" />
-                            {a.email}
-                          </a>
-                        )}
-                        {a.phone && (
-                          <a
-                            href={`tel:${a.phone.replace(/\s/g, "")}`}
-                            className="inline-flex items-center gap-1 hover:text-[#0A5F7A]"
-                          >
-                            <Phone className="h-3 w-3" />
-                            {a.phone}
-                          </a>
-                        )}
+            <>
+              <ul className="divide-y divide-slate-100">
+                {pagedApps.map((a) => (
+                  <li
+                    key={a.id}
+                    className="flex flex-col gap-2 px-4 py-2.5 transition hover:bg-slate-50/80 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar name={a.name} size={32} />
+
+                      <div className="min-w-0">
+                        <p className="truncate text-[13px] font-semibold leading-tight text-slate-900">
+                          {a.name}
+                        </p>
+
+                        <p className="truncate text-[11px] text-slate-500">
+                          <span className="font-semibold text-[#0A5F7A]">
+                            {jobTitle(a)}
+                          </span>
+                          {a.applied && <> · {fmtDate(a.applied)}</>}
+                        </p>
+
+                        <div className="flex flex-wrap gap-x-3 text-[11px] text-slate-500">
+                          {a.email && (
+                            <a
+                              href={`mailto:${a.email}`}
+                              className="inline-flex items-center gap-1 hover:text-[#0A5F7A]"
+                            >
+                              <Mail className="h-3 w-3" />
+                              {a.email}
+                            </a>
+                          )}
+                          {a.phone && (
+                            <a
+                              href={`tel:${a.phone.replace(/\s/g, "")}`}
+                              className="inline-flex items-center gap-1 hover:text-[#0A5F7A]"
+                            >
+                              <Phone className="h-3 w-3" />
+                              {a.phone}
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    {a.resumePath && (
-                      <a
-                        href={a.resumePath}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-[#0A5F7A] shadow-sm hover:bg-[#EDF7FA] transition"
-                        title={a.resumeOriginalName || "View Resume"}
+
+                    <div className="flex shrink-0 items-center gap-2 pl-11 sm:pl-0">
+                      {a.resumePath && (
+                        <a
+                          href={a.resumePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-[#0A5F7A] transition hover:bg-[#EDF7FA]"
+                          title={a.resumeOriginalName || "View resume"}
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          Resume
+                        </a>
+                      )}
+
+                      {/* one control: the select is coloured by status */}
+                      <select
+                        aria-label={`Change status for ${a.name}`}
+                        value={a.status}
+                        onChange={(e) => setAppStatus(a.id, e.target.value)}
+                        className={`cursor-pointer rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${APP_BADGE[a.status]}`}
                       >
-                        <FileText className="h-3.5 w-3.5 text-[#0A5F7A]" />
-                        <span className="hidden sm:inline">Resume</span>
-                      </a>
-                    )}
-                    <Pill className={APP_BADGE[a.status]}>{a.status}</Pill>
-                    <select
-                      aria-label={`Change status for ${a.name}`}
-                      value={a.status}
-                      onChange={(e) => setAppStatus(a.id, e.target.value)}
-                      className="cursor-pointer rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0A5F7A] focus:outline-none focus:ring-4 focus:ring-[#0A5F7A]/15"
-                    >
-                      {APP_STATUSES.map((s) => (
-                        <option key={s}>{s}</option>
-                      ))}
-                    </select>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                        {APP_STATUSES.map((s) => (
+                          <option key={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <Pagination
+                page={appPage}
+                pageSize={PAGE_SIZE}
+                total={filteredApps.length}
+                onChange={setAppPage}
+                noun="applications"
+              />
+            </>
           ) : (
-            <div className="grid place-items-center px-6 py-16 text-center">
-              <IconTile icon={Inbox} tone="gold" size="lg" />
-              <p className="mt-4 text-sm font-semibold text-slate-900">
+            <div className="grid place-items-center px-4 py-10 text-center">
+              <IconTile icon={Inbox} tone="gold" size="sm" />
+              <p className="mt-3 text-sm font-semibold text-slate-900">
                 No applications match
               </p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs text-slate-500">
                 Try a different status or search term.
               </p>
             </div>
@@ -1360,21 +1489,24 @@ export default function CareersPage() {
 
       {confirm && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-6 backdrop-blur-sm"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4 backdrop-blur-sm"
           onMouseDown={(e) =>
             e.target === e.currentTarget && !deleting && setConfirm(null)
           }
           role="alertdialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <IconTile icon={Trash2} tone="rose" size="lg" />
-            <h2 className={`${h2} mt-4`}>Delete this job?</h2>
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+            <IconTile icon={Trash2} tone="rose" size="sm" />
+
+            <h2 className={`${h2} mt-3`}>Delete this job?</h2>
+
             <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
               “{confirm.title}” and its {countFor(confirm.id)} applications will
               be removed. This can’t be undone.
             </p>
-            <div className="mt-6 flex justify-end gap-3">
+
+            <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setConfirm(null)}
                 disabled={deleting}
@@ -1382,10 +1514,11 @@ export default function CareersPage() {
               >
                 Keep job
               </button>
+
               <button
                 onClick={removeJob}
                 disabled={deleting}
-                className="cursor-pointer rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-rose-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/30 disabled:opacity-60"
+                className="cursor-pointer rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-rose-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/30 disabled:opacity-60"
               >
                 {deleting ? "Deleting…" : "Delete job"}
               </button>
