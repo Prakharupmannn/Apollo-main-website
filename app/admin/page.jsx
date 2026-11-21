@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CalendarCheck,
   Stethoscope,
   Megaphone,
   ClipboardList,
-  TrendingUp,
   BookOpen,
   ArrowRight,
+  ArrowUpRight,
   Sparkles,
   Plus,
   Layers,
@@ -17,198 +17,26 @@ import {
   ShieldCheck,
   Briefcase,
   MessageSquareText,
+  Clock,
+  Inbox,
+  BarChart3,
+  PieChart,
+  CalendarClock,
+  Activity,
 } from "lucide-react";
-import AreaChart from "@/components/admin/AreaChart";
-import { Sparkline, DonutChart, RadialGauge } from "@/components/admin/Charts";
-import {
-  Card,
-  SpotlightCard,
-  IconTile,
-  StatusBadge,
-  Avatar,
-  btnGhost,
-  fmtDate,
-} from "@/components/admin/ui";
+import { DonutChart, RadialGauge } from "@/components/admin/Charts";
+import { Card, StatusBadge, Avatar, btnGhost, fmtDate } from "@/components/admin/ui";
 import { displayFont, numFont } from "@/components/admin/fonts";
-import {
-  ADMIN_BASE,
-  STATS,
-  CHART_MONTHLY,
-  CHART_WEEKLY,
-  APPOINTMENTS,
-  EVENTS,
-  DOCTORS,
-} from "@/lib/admin-data";
+import { ADMIN_BASE, EVENTS, DOCTORS } from "@/lib/admin-data";
 import useDashboardStats from "@/hooks/useDashboardStats";
 import useDoctors from "@/hooks/useDoctors";
 import useAppointments from "@/hooks/useAppointments";
 
-/* ─────────────────────────────────────────────────────
-   LOGGED-IN USER HELPERS (shows the FULL NAME)
-
-   BEST FIX: set AUTH_STORAGE_KEY to the exact key where your
-   login saves the user (find it with the console snippet).
-   Example: const AUTH_STORAGE_KEY = "adminUser";
-   When it is set, ONLY that key is read.
-────────────────────────────────────────────────────── */
-const AUTH_STORAGE_KEY = "";
-
-// Used only when AUTH_STORAGE_KEY is empty
-const USER_STORAGE_KEYS = [
-  "user",
-  "adminUser",
-  "admin",
-  "authUser",
-  "currentUser",
-  "loggedInUser",
-  "userInfo",
-  "userData",
-];
-
-// Full-name fields first, short/handle fields last
-const USER_NAME_FIELDS = [
-  "fullName",
-  "full_name",
-  "fullname",
-  "name",
-  "displayName",
-  "userName",
-  "username",
-];
-
-// "pradeep   kumar" -> "Pradeep Kumar"
-const toFullName = (value) =>
-  String(value ?? "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-
-const nameFromUser = (u) => {
-  if (!u) return "";
-  if (typeof u === "string") return toFullName(u);
-  if (typeof u !== "object") return "";
-
-  // 1) a single full-name field
-  for (const f of USER_NAME_FIELDS) {
-    if (u?.[f]) return toFullName(u[f]);
-  }
-
-  // 2) first + last name fields
-  const combined = [u.firstName ?? u.first_name, u.lastName ?? u.last_name]
-    .filter(Boolean)
-    .join(" ");
-  if (combined) return toFullName(combined);
-
-  // 3) last resort: the part before @ in the email
-  if (u?.email) return toFullName(String(u.email).split("@")[0]);
-  return "";
-};
-
-// How much an object looks like a real person/account (not site settings)
-const userScore = (u) => {
-  if (!u || typeof u !== "object") return 0;
-  let s = 0;
-  if (u.role || u.roles || u.userType) s += 3;
-  if (u.email) s += 2;
-  if (u.username || u.userName) s += 2;
-  if (u._id || u.userId || u.user_id) s += 1;
-  return s;
-};
-
-const safeParse = (raw) => {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return raw;
-  }
-};
-
-// Decode a JWT payload (used only as a fallback)
-const decodeJwt = (token) => {
-  try {
-    const part = String(token).split(".")[1];
-    if (!part) return null;
-    const json = decodeURIComponent(
-      atob(part.replace(/-/g, "+").replace(/_/g, "/"))
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(""),
-    );
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-};
-
-function readLoggedInName() {
-  if (typeof window === "undefined") return "";
-
-  const stores = [];
-  try {
-    stores.push(window.localStorage, window.sessionStorage);
-  } catch {
-    /* storage blocked */
-  }
-
-  // 1) Exact key chosen by you
-  if (AUTH_STORAGE_KEY) {
-    for (const store of stores) {
-      const raw = store.getItem(AUTH_STORAGE_KEY);
-      if (!raw) continue;
-      const parsed = safeParse(raw);
-      const name = nameFromUser(parsed?.user ?? parsed);
-      if (name) return name;
-    }
-    return "";
-  }
-
-  // 2) Auto-detect: pick the object that looks most like a user account
-  let best = { score: 0, name: "" };
-  for (const store of stores) {
-    for (const key of USER_STORAGE_KEYS) {
-      try {
-        const raw = store.getItem(key);
-        if (!raw) continue;
-        const parsed = safeParse(raw);
-        const obj = parsed?.user ?? parsed;
-        const name = nameFromUser(obj);
-        const score = userScore(obj);
-        // ignore anything with no account-like fields (e.g. site settings)
-        if (name && score > best.score) best = { score, name };
-      } catch {
-        /* ignore */
-      }
-    }
-  }
-  if (best.name) return best.name;
-
-  // 3) Fallback: token stored in storage or cookie
-  const tokens = [];
-  for (const store of stores) {
-    for (const key of ["token", "accessToken", "authToken", "jwt"]) {
-      const t = store.getItem(key);
-      if (t) tokens.push(t);
-    }
-  }
-  document.cookie.split(";").forEach((c) => {
-    const [k, ...v] = c.trim().split("=");
-    if (/token|jwt|auth/i.test(k)) tokens.push(v.join("="));
-  });
-  for (const t of tokens) {
-    const payload = decodeJwt(t);
-    const name = nameFromUser(payload?.user ?? payload);
-    if (name) return name;
-  }
-
-  return "";
-}
-
 /* ── Animated count-up hook ───────────────────────── */
-function useCountUp(target, ms = 1000) {
+function useCountUp(target, ms = 900) {
   const [v, setV] = useState(0);
   useEffect(() => {
+    if (typeof target !== "number") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setV(target);
       return;
@@ -226,209 +54,69 @@ function useCountUp(target, ms = 1000) {
   return v;
 }
 
-/* ── Shared premium style tokens (design only) ────── */
-const PREMIUM_CARD =
-  "relative overflow-hidden rounded-3xl border border-white/70 bg-white/80 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_20px_50px_-24px_rgba(6,46,60,0.28)] ring-1 ring-slate-900/[0.04] backdrop-blur-xl transition-shadow duration-300 hover:shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_28px_60px_-24px_rgba(6,46,60,0.35)]";
+/* ── Helpers ──────────────────────────────────────── */
+const localKey = (d) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD
+const hm = (d) =>
+  `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 
-const DOT_PATTERN = {
-  backgroundImage:
-    "radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)",
-  backgroundSize: "22px 22px",
-};
+// Glossy gradient used for every icon chip, so all cards share one look
+const chipStyle = (c) => ({
+  background: `linear-gradient(140deg, color-mix(in srgb, ${c} 70%, white), ${c})`,
+  boxShadow: `0 6px 14px -6px color-mix(in srgb, ${c} 80%, transparent), inset 0 1px 0 rgb(255 255 255 / .35)`,
+});
 
-/* Small gold→teal accent bar used beside section titles */
-function TitleAccent() {
-  return (
-    <span
-      aria-hidden="true"
-      className="inline-block h-6 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-[#F59E0B] via-[#14A6C9] to-[#0A5F7A] shadow-[0_0_12px_rgba(245,158,11,0.45)]"
-    />
-  );
+// Map a raw appointment row (hospital API or legacy shape) to what the UI needs
+function normalizeAppointment(a, i) {
+  const rawDate = String(a.book_apdate ?? a.date ?? "");
+  return {
+    id: String(a.book_id ?? a.id ?? `AP${i + 1}`),
+    patient: a.book_name ?? a.patient ?? "Unknown patient",
+    doctor: a.doctor_name ?? a.book_drnam ?? a.doctor ?? "",
+    dateKey: rawDate.slice(0, 10),
+    time: a.slot_time ? String(a.slot_time).substring(0, 5) : (a.time ?? ""),
+    entry: String(a.book_entrydt ?? ""),
+    status: a.status || "Confirmed",
+  };
 }
 
-/* Soft decorative glow in a card corner */
-function CornerGlow({ color = "#0A5F7A", className = "" }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`pointer-events-none absolute rounded-full blur-3xl ${className}`}
-      style={{ backgroundColor: color, opacity: 0.12 }}
-    />
-  );
+// Counts per day (last 7 days) or per month (last 6 months), from real data
+function buildSeries(list, range, now) {
+  if (!now) return [];
+  if (range === "Weekly") {
+    return Array.from({ length: 7 }, (_, n) => {
+      const d = new Date(now);
+      d.setDate(now.getDate() - (6 - n));
+      const key = localKey(d);
+      return {
+        label: d.toLocaleDateString("en-IN", { weekday: "short" }),
+        full: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        value: list.filter((a) => a.dateKey === key).length,
+      };
+    });
+  }
+  return Array.from({ length: 6 }, (_, n) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - n), 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return {
+      label: d.toLocaleDateString("en-IN", { month: "short" }),
+      full: d.toLocaleDateString("en-IN", { month: "long", year: "numeric" }),
+      value: list.filter((a) => a.dateKey.slice(0, 7) === key).length,
+    };
+  });
 }
 
-/* ── KPI stat card ────────────────────────────────── */
-function StatCard({ icon, label, stat, tone, color, href }) {
-  const n = useCountUp(stat.value);
-  const maxSpark = Math.max(...(stat.spark || [1]));
-  const lastSpark = stat.spark ? stat.spark[stat.spark.length - 1] : 1;
-  const pct = maxSpark > 0 ? Math.round((lastSpark / maxSpark) * 100) : 0;
-
-  return (
-      <SpotlightCard
-        className={`group relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-b from-white to-slate-50/80 p-5.5 shadow-[0_1px_0_0_rgba(255,255,255,0.95)_inset,0_18px_40px_-22px_rgba(6,46,60,0.3)] ring-1 ring-slate-900/[0.04] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_1px_0_0_rgba(255,255,255,0.95)_inset,0_26px_50px_-20px_rgba(6,46,60,0.4)] cursor-pointer`}
-      >
-        {/* top accent line */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-1"
-          style={{
-            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-            opacity: 0.85,
-          }}
-        />
-        {/* corner glow */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full blur-3xl transition-opacity duration-500 group-hover:opacity-30"
-          style={{ backgroundColor: color, opacity: 0.14 }}
-        />
-
-        <Link
-          href={href}
-          aria-label={`Open ${label}`}
-          className="absolute inset-0 z-20 cursor-pointer rounded-3xl focus:outline-none focus-visible:ring-4 focus-visible:ring-[#0A5F7A]/20"
-        />
-        <div className="pointer-events-none relative flex items-start justify-between">
-          <span
-            className="rounded-2xl p-1 shadow-sm ring-1 ring-inset ring-white/60"
-            style={{
-              background: `linear-gradient(135deg, ${color}1F, ${color}0A)`,
-            }}
-          >
-            <IconTile icon={icon} tone={tone} size="lg" />
-          </span>
-          {stat.error ? (
-            <span
-              className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 shadow-sm ring-1 ring-inset ring-rose-600/20"
-              title={stat.error}
-            >
-              {stat.delta || "Offline"}
-            </span>
-          ) : stat.loading ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200 animate-pulse">
-              Loading…
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 shadow-sm ring-1 ring-inset ring-emerald-600/20">
-              <TrendingUp className="h-3.5 w-3.5" /> {stat.delta}
-            </span>
-          )}
-        </div>
-
-        <p className="pointer-events-none relative mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
-          {label}
-        </p>
-        <div className="pointer-events-none relative mt-1.5 flex items-end justify-between gap-3">
-          {stat.loading ? (
-            <div className="my-1.5 h-10 w-24 animate-pulse rounded-lg bg-slate-200" />
-          ) : (
-            <p
-  className={`${numFont.className} bg-gradient-to-b from-slate-900 to-slate-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl`}          >
-              {n}
-            </p>
-          )}
-          <Sparkline data={stat.spark} color={color} />
-        </div>
-
-        <div className="pointer-events-none relative mt-5 h-2 overflow-hidden rounded-full bg-slate-100 shadow-inner">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${pct}%`,
-              background: `linear-gradient(90deg, ${color}99, ${color})`,
-              boxShadow: `0 0 12px ${color}66`,
-            }}
-          />
-        </div>
-      </SpotlightCard>
-  );
-}
-
-/* ── KPI definitions ──────────────────────────────── */
+/* ── Constants ────────────────────────────────────── */
 const KPIS = [
-  {
-    key: "appointments",
-    label: "Total appointments",
-    icon: CalendarCheck,
-    tone: "teal",
-    color: "#0A5F7A",
-    href: `${ADMIN_BASE}/appointments`,
-  },
-  {
-    key: "doctors",
-    label: "Total doctors",
-    icon: Stethoscope,
-    tone: "gold",
-    color: "#D97706",
-    href: `${ADMIN_BASE}/doctors`,
-  },
-  {
-    key: "specialties",
-    label: "Total specialties",
-    icon: Layers,
-    tone: "teal",
-    color: "#0D9488",
-    href: `${ADMIN_BASE}/specialties`,
-  },
-  {
-    key: "events",
-    label: "Total events",
-    icon: Megaphone,
-    tone: "rose",
-    color: "#E11D48",
-    href: `${ADMIN_BASE}/events`,
-  },
-  {
-    key: "caseStudies",
-    label: "Total case studies",
-    icon: ClipboardList,
-    tone: "violet",
-    color: "#4F46E5",
-    href: `${ADMIN_BASE}/case-studies`,
-  },
-  {
-    key: "articles",
-    label: "Health articles",
-    icon: BookOpen,
-    tone: "gold",
-    color: "#B45309",
-    href: `${ADMIN_BASE}/health-library`,
-  },
-  {
-    key: "users",
-    label: "Admin users",
-    icon: ShieldCheck,
-    tone: "violet",
-    color: "#7C3AED",
-    href: `${ADMIN_BASE}/users`,
-  },
-  {
-    key: "careers",
-    label: "Careers",
-    icon: Briefcase,
-    tone: "teal",
-    color: "#0891B2",
-    href: `${ADMIN_BASE}/careers`,
-  },
-  {
-    key: "inquiries",
-    label: "Inquiries",
-    icon: MessageSquareText,
-    tone: "gold",
-    color: "#D97706",
-    href: `${ADMIN_BASE}/inquiries`,
-  },
+  { key: "appointments", label: "Appointments", icon: CalendarCheck, color: "#0A5F7A", href: `${ADMIN_BASE}/appointments` },
+  { key: "doctors", label: "Doctors", icon: Stethoscope, color: "#D97706", href: `${ADMIN_BASE}/doctors` },
+  { key: "specialties", label: "Specialties", icon: Layers, color: "#0D9488", href: `${ADMIN_BASE}/specialties` },
+  { key: "events", label: "Events", icon: Megaphone, color: "#E11D48", href: `${ADMIN_BASE}/events` },
+  { key: "caseStudies", label: "Case studies", icon: ClipboardList, color: "#4F46E5", href: `${ADMIN_BASE}/case-studies` },
+  { key: "articles", label: "Health articles", icon: BookOpen, color: "#B45309", href: `${ADMIN_BASE}/health-library` },
+  { key: "users", label: "Admin users", icon: ShieldCheck, color: "#7C3AED", href: `${ADMIN_BASE}/users` },
+  { key: "careers", label: "Careers", icon: Briefcase, color: "#0891B2", href: `${ADMIN_BASE}/careers` },
+  { key: "inquiries", label: "Inquiries", icon: MessageSquareText, color: "#D97706", href: `${ADMIN_BASE}/inquiries` },
 ];
-
-// Fallback spark/delta for keys not in STATS
-const STAT_FALLBACK = {
-  specialties: { delta: "Live", spark: [4, 5, 5, 6, 7, 7, 8] },
-  articles: { delta: "Live", spark: [10, 12, 15, 18, 20, 22, 24] },
-  users: { delta: "Live", spark: [1, 1, 1, 1, 1, 1, 1] },
-  careers: { delta: "Live", spark: [2, 3, 3, 4, 5, 5, 6] },
-  inquiries: { delta: "Live", spark: [1, 2, 4, 3, 5, 4, 6] },
-};
 
 const STATUS_COLORS = {
   Confirmed: "#059669",
@@ -437,15 +125,344 @@ const STATUS_COLORS = {
   Completed: "#64748B",
   Cancelled: "#E11D48",
 };
+const DEPT_COLORS = ["#D97706", "#0A5F7A", "#0D9488", "#4F46E5", "#E11D48", "#0891B2"];
 
-/* ── Dashboard page ───────────────────────────────── */
+const QUICK = [
+  { label: "Add doctor", href: `${ADMIN_BASE}/doctors`, icon: Stethoscope, color: "#0A5F7A" },
+  { label: "New event", href: `${ADMIN_BASE}/events`, icon: Megaphone, color: "#E11D48" },
+  { label: "Publish article", href: `${ADMIN_BASE}/health-library`, icon: BookOpen, color: "#7C3AED" },
+  { label: "Post a job", href: `${ADMIN_BASE}/careers`, icon: Briefcase, color: "#0891B2" },
+  { label: "View inquiries", href: `${ADMIN_BASE}/inquiries`, icon: MessageSquareText, color: "#D97706" },
+  { label: "Manage users", href: `${ADMIN_BASE}/users`, icon: Users, color: "#4F46E5" },
+];
+
+/* ── Building blocks ──────────────────────────────── */
+
+/** Section card: soft coloured top edge + overflow clipped */
+/* Soft decorative glow in a card corner */
+function CornerGlow({ color = "#0A5F7A", className = "" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute -z-10 rounded-full blur-3xl ${className}`}
+      style={{ backgroundColor: color, opacity: 0.12 }}
+    />
+  );
+}
+
+function Panel({ color = "#0A5F7A", glow = "-right-16 -top-16", className = "", children }) {
+  return (
+    <Card className={`isolate overflow-hidden ${className}`}>
+      <CornerGlow color={color} className={`h-52 w-52 ${glow}`} />
+      {children}
+    </Card>
+  );
+}
+
+function SectionHeader({ title, subtitle, href, hrefLabel = "View all", icon: Icon, color = "#0A5F7A" }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        {Icon && (
+          <span
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white"
+            style={chipStyle(color)}
+          >
+            <Icon className="h-[17px] w-[17px]" strokeWidth={2.2} />
+          </span>
+        )}
+        <div className="min-w-0">
+          <h2
+            className={`${displayFont.className} truncate text-base font-bold tracking-tight text-slate-900 sm:text-lg`}
+          >
+            {title}
+          </h2>
+          {subtitle && <p className="truncate text-xs text-slate-500">{subtitle}</p>}
+        </div>
+      </div>
+      {href && (
+        <Link
+          href={href}
+          className="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold text-[#0A5F7A] transition hover:bg-teal-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+        >
+          {hrefLabel} <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function EmptyNote({ icon: Icon = Inbox, children }) {
+  return (
+    <div className="grid place-items-center px-4 py-10 text-center">
+      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-400">
+        <Icon className="h-5 w-5" />
+      </span>
+      <p className="mt-2 max-w-xs text-xs text-slate-500">{children}</p>
+    </div>
+  );
+}
+
+/* ── Sparkline (real data, smooth curve) ──────────── */
+function Sparkline({ data }) {
+  const gid = useId().replace(/:/g, "");
+  const W = 240,
+    H = 64;
+  const max = Math.max(1, ...data);
+  const pts = data.map((v, i) => [
+    (i / Math.max(1, data.length - 1)) * W,
+    H - 8 - (v / max) * (H - 18),
+  ]);
+  if (pts.length < 2) return <div className="h-16" />;
+
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    const mx = (x0 + x1) / 2;
+    d += ` C ${mx} ${y0}, ${mx} ${y1}, ${x1} ${y1}`;
+  }
+  const last = pts[pts.length - 1];
+
+  return (
+    <div className="relative h-16 w-full">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full overflow-visible"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`${d} L ${W} ${H} L 0 ${H} Z`} fill={`url(#${gid})`} />
+        <path
+          d={d}
+          fill="none"
+          stroke="#FCD34D"
+          strokeWidth="2"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <span
+        className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2"
+        style={{ left: "100%", top: `${(last[1] / H) * 100}%` }}
+      >
+        <span className="absolute inset-0 animate-ping rounded-full bg-amber-300/60 motion-reduce:hidden" />
+        <span className="absolute inset-0 rounded-full bg-amber-300 ring-2 ring-[#0A5F7A]" />
+      </span>
+    </div>
+  );
+}
+
+/* ── Featured KPI (Appointments) ──────────────────── */
+function FeaturedStat({ item, stat, series, pending, today, loading }) {
+  const n = useCountUp(stat.value);
+  const hasValue = typeof stat.value === "number";
+  const Icon = item.icon;
+
+  return (
+    <Link
+      href={item.href}
+      aria-label={`Open ${item.label}`}
+      className="group relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-[#06303F] via-[#0A5F7A] to-[#0E7FA3] p-4 text-white shadow-[0_14px_36px_-16px_rgba(10,95,122,0.7)] ring-1 ring-inset ring-white/10 transition duration-300 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-5"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+          maskImage: "radial-gradient(ellipse at 80% 0%, black, transparent 70%)",
+          WebkitMaskImage: "radial-gradient(ellipse at 80% 0%, black, transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-amber-300/25 blur-3xl"
+      />
+
+      <div className="relative flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 py-1 pl-1.5 pr-2.5 text-[11px] font-bold ring-1 ring-inset ring-white/20 backdrop-blur">
+          <span className="grid h-5 w-5 place-items-center rounded-full bg-amber-300 text-[#06303F]">
+            <Icon className="h-3 w-3" strokeWidth={2.6} />
+          </span>
+          {item.label}
+        </span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-white/10 ring-1 ring-inset ring-white/20 transition group-hover:bg-amber-300 group-hover:text-[#06303F]">
+          <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-px group-hover:-translate-y-px" />
+        </span>
+      </div>
+
+      <div className="relative mt-3 flex items-end justify-between gap-3">
+        <div>
+          {stat.loading ? (
+            <div className="h-11 w-24 animate-pulse rounded-lg bg-white/20" />
+          ) : hasValue ? (
+            <p className={`${numFont.className} text-5xl font-extrabold leading-none tracking-tight`}>
+              {n.toLocaleString("en-IN")}
+            </p>
+          ) : (
+            <p className="text-5xl font-extrabold leading-none text-white/40">—</p>
+          )}
+          <p className="mt-1.5 text-[11px] font-medium text-teal-100/90">
+            {stat.error && !hasValue ? "Offline" : "total bookings"}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end gap-1.5 text-[11px] font-bold">
+          <span className="rounded-full bg-amber-300/15 px-2.5 py-1 text-amber-200 ring-1 ring-inset ring-amber-300/30">
+            {loading ? "…" : pending} pending
+          </span>
+          <span className="rounded-full bg-white/10 px-2.5 py-1 ring-1 ring-inset ring-white/20">
+            {loading ? "…" : today} today
+          </span>
+        </div>
+      </div>
+
+      <div className="relative mt-3">
+        <Sparkline data={series.map((s) => s.value)} />
+        <div className="mt-1 flex justify-between text-[9px] font-semibold uppercase tracking-wider text-teal-100/70">
+          {series.map((s) => (
+            <span key={s.full}>{s.label}</span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ── Compact KPI tile with gradient hairline border ── */
+function StatTile({ item, stat }) {
+  const n = useCountUp(stat.value);
+  const hasValue = typeof stat.value === "number";
+  const Icon = item.icon;
+
+  return (
+    <Link
+      href={item.href}
+      aria-label={`Open ${item.label}`}
+      style={{ "--c": item.color }}
+      className="group block h-full rounded-2xl bg-gradient-to-br from-slate-200 via-slate-200/70 to-slate-100 p-px transition duration-300 hover:-translate-y-0.5 hover:from-[color:var(--c)] hover:via-[color:color-mix(in_srgb,var(--c)_30%,white)] hover:to-slate-100 hover:shadow-[0_12px_28px_-14px_color-mix(in_srgb,var(--c)_70%,transparent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--c)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-[15px] bg-white p-3">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-2 -top-2 h-16 w-16 opacity-60 transition-opacity group-hover:opacity-100"
+          style={{
+            backgroundImage:
+              "radial-gradient(color-mix(in srgb, var(--c) 45%, transparent) 1px, transparent 1.2px)",
+            backgroundSize: "7px 7px",
+            maskImage: "radial-gradient(circle at 100% 0%, black, transparent 70%)",
+            WebkitMaskImage: "radial-gradient(circle at 100% 0%, black, transparent 70%)",
+          }}
+        />
+
+        <span
+          className="relative grid h-9 w-9 place-items-center rounded-xl text-white"
+          style={chipStyle("var(--c)")}
+        >
+          <Icon className="h-[17px] w-[17px]" strokeWidth={2.2} />
+        </span>
+
+        <div className="relative min-w-0">
+          {stat.loading ? (
+            <div className="h-6 w-10 animate-pulse rounded bg-slate-200" />
+          ) : hasValue ? (
+            <p className={`${numFont.className} text-2xl font-extrabold leading-none tracking-tight text-slate-900`}>
+              {n.toLocaleString("en-IN")}
+            </p>
+          ) : (
+            <p className="text-2xl font-extrabold leading-none text-slate-300">—</p>
+          )}
+          <p className="mt-1 truncate text-[11px] font-semibold text-slate-500">
+            {item.label}
+            {stat.error && !hasValue && (
+              <span className="ml-1 font-bold text-rose-600">· Offline</span>
+            )}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ── Bar chart: ghost tracks, gridlines, peak highlighted ── */
+function BarChart({ data, animate }) {
+  const max = Math.max(1, ...data.map((d) => d.value));
+  const peakIdx = data.some((d) => d.value > 0)
+    ? data.findIndex((d) => d.value === Math.max(...data.map((x) => x.value)))
+    : -1;
+
+  return (
+    <div
+      className="relative"
+      role="img"
+      aria-label={`Appointments: ${data.map((d) => `${d.full} ${d.value}`).join(", ")}`}
+    >
+      {/* gridlines */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex h-40 flex-col justify-between sm:h-48">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className="block h-px w-full border-t border-dashed border-slate-200" />
+        ))}
+      </div>
+
+      <div className="relative flex items-end gap-2 sm:gap-4">
+        {data.map((d, i) => {
+          const isPeak = i === peakIdx;
+          const pct = animate ? Math.max((d.value / max) * 100, d.value ? 5 : 0) : 0;
+          return (
+            <div
+              key={d.full}
+              className="group flex min-w-0 flex-1 flex-col items-center gap-2"
+              title={`${d.full}: ${d.value}`}
+            >
+              <div className="relative flex h-40 w-full items-end sm:h-48">
+                <div className="absolute inset-x-0 bottom-0 top-0 rounded-t-xl bg-slate-50 transition-colors group-hover:bg-slate-100/80" />
+                <div
+                  className={`relative w-full rounded-t-xl transition-all duration-700 ease-out motion-reduce:transition-none ${
+                    isPeak
+                      ? "bg-gradient-to-t from-[#D97706] to-[#FBBF24] shadow-[0_8px_18px_-8px_rgba(217,119,6,0.7)]"
+                      : "bg-gradient-to-t from-[#0A5F7A] to-[#2BA3C8] group-hover:from-[#084a60] group-hover:to-[#0A5F7A]"
+                  }`}
+                  style={{ height: `${pct}%`, transitionDelay: `${i * 60}ms` }}
+                >
+                  <span
+                    className={`${numFont.className} absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-bold ${
+                      isPeak ? "text-amber-600" : "text-slate-600"
+                    }`}
+                  >
+                    {d.value}
+                  </span>
+                </div>
+              </div>
+              <span
+                className={`text-[10px] font-semibold sm:text-[11px] ${
+                  isPeak ? "text-amber-600" : "text-slate-500"
+                }`}
+              >
+                {d.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Page ─────────────────────────────────────────── */
 export default function DashboardPage({ initialUser }) {
-  const [range, setRange] = useState("Monthly");
+  const [range, setRange] = useState("Weekly");
   const [now, setNow] = useState(null);
   const [mounted, setMounted] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState(initialUser?.name || "");
 
-  // Live stats from API
   const { stats, loading: statsLoading, error: statsError } = useDashboardStats();
   const { doctors: liveDoctors } = useDoctors();
   const {
@@ -457,13 +474,10 @@ export default function DashboardPage({ initialUser }) {
   useEffect(() => {
     setNow(new Date());
 
-    // Fetch the logged-in user directly from your API session
     fetch("/api/admin/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data?.success && data.user?.name) {
-          setUserName(data.user.name);
-        }
+        if (data?.success && data.user?.name) setUserName(data.user.name);
       })
       .catch(() => {});
 
@@ -476,48 +490,75 @@ export default function DashboardPage({ initialUser }) {
   }, []);
 
   const hour = now ? now.getHours() : 9;
-  const greet =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const timeStr = now
     ? now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
     : "--:--";
   const dateStr = now
-    ? now.toLocaleDateString("en-IN", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
+    ? now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
     : "";
 
-  const pending = APPOINTMENTS.filter((a) => a.status === "Pending").length;
-  const liveEvents = EVENTS.filter((e) => e.status === "Published").length;
+  /* ── Appointments (live) ── */
+  const appts = useMemo(
+    () => (Array.isArray(liveAppointments) ? liveAppointments.map(normalizeAppointment) : []),
+    [liveAppointments],
+  );
+  const apptsLoading = appointmentsLoading && !appts.length;
 
-  const chart = range === "Monthly" ? CHART_MONTHLY : CHART_WEEKLY;
-  const chartTotal = chart.reduce((s, d) => s + d.value, 0);
-  const chartPeak = Math.max(...chart.map((d) => d.value));
-  const chartAvg = Math.round(chartTotal / chart.length);
+  const pending = appts.filter((a) => a.status === "Pending").length;
+  const todayCount = now ? appts.filter((a) => a.dateKey === localKey(now)).length : 0;
+
+  // next appointment still to come today
+  const nowHM = now ? hm(now) : "";
+  const nextUp = useMemo(() => {
+    if (!now) return null;
+    const key = localKey(now);
+    return (
+      appts
+        .filter(
+          (a) =>
+            a.dateKey === key &&
+            a.time &&
+            a.time >= nowHM &&
+            !["Cancelled", "Completed"].includes(a.status),
+        )
+        .sort((a, b) => a.time.localeCompare(b.time))[0] || null
+    );
+  }, [appts, now, nowHM]);
+
+  const recent = useMemo(
+    () =>
+      [...appts]
+        .sort((a, b) => (b.entry || b.dateKey).localeCompare(a.entry || a.dateKey))
+        .slice(0, 6),
+    [appts],
+  );
+
+  const series = useMemo(() => buildSeries(appts, range, now), [appts, range, now]);
+  const weekSeries = useMemo(() => buildSeries(appts, "Weekly", now), [appts, now]);
+
+  const chartTotal = series.reduce((s, d) => s + d.value, 0);
+  const chartPeak = Math.max(0, ...series.map((d) => d.value));
+  const chartAvg = series.length ? Math.round((chartTotal / series.length) * 10) / 10 : 0;
 
   const segments = Object.keys(STATUS_COLORS)
     .map((k) => ({
       label: k,
-      value: APPOINTMENTS.filter((a) => a.status === k).length,
+      value: appts.filter((a) => a.status === k).length,
       color: STATUS_COLORS[k],
     }))
     .filter((s) => s.value > 0);
 
-  // Doctors data: prefer live API, fall back to static
-  const doctorsData =
-    liveDoctors && liveDoctors.length > 0 ? liveDoctors : DOCTORS;
+  /* ── Doctors: prefer live API, fall back to static ── */
+  const doctorsLive = Boolean(liveDoctors && liveDoctors.length > 0);
+  const doctorsData = doctorsLive ? liveDoctors : DOCTORS;
 
   const byDept = Object.entries(
-    doctorsData.reduce(
-      (a, d) => ({
-        ...a,
-        [d.department || "Others"]: (a[d.department || "Others"] || 0) + 1,
-      }),
-      {},
-    ),
+    doctorsData.reduce((acc, d) => {
+      const k = d.department || "Others";
+      acc[k] = (acc[k] || 0) + 1;
+      return acc;
+    }, {}),
   )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
@@ -526,509 +567,472 @@ export default function DashboardPage({ initialUser }) {
   const activeDocs = doctorsData.filter(
     (d) => d.status === "Active" || d.status === 1 || !d.status,
   ).length;
+  const offDocs = doctorsData.length - activeDocs;
   const dutyPct = Math.round((activeDocs / (doctorsData.length || 1)) * 100);
 
-  // Build stat for each KPI key — overlay real count when available
+  /* ── KPI values ── */
   const buildStat = (key) => {
     if (key === "appointments") {
-      const liveCount =
-        liveAppointments && Array.isArray(liveAppointments)
-          ? liveAppointments.length
-          : stats?.appointments;
-
-      const base = STATS[key] || {
-        delta: "Live",
-        spark: [1, 1, 1, 1, 1, 1, 1],
-      };
-      const hasLiveCount = liveCount !== undefined;
-
-      return {
-        value: hasLiveCount
-          ? liveCount
-          : appointmentsLoading
-            ? 0
-            : (base.value ?? 0),
-        delta: appointmentsError
-          ? "API Offline"
-          : appointmentsLoading
-            ? "Loading…"
-            : "Live",
-        spark: base.spark ?? [1, 1, 1, 1, 1, 1, 1],
-        loading: appointmentsLoading && !hasLiveCount,
-        error: appointmentsError,
-      };
+      const value = Array.isArray(liveAppointments) ? liveAppointments.length : stats?.appointments;
+      return { value, loading: appointmentsLoading && value === undefined, error: appointmentsError };
     }
-
-    const liveCount = stats?.[key];
-    const base = STATS[key] ||
-      STAT_FALLBACK[key] || { delta: "Live", spark: [1, 1, 1, 1, 1, 1, 1] };
-    const hasLiveCount = liveCount !== undefined;
-
-    return {
-      value: hasLiveCount ? liveCount : 0,
-      delta: statsError
-        ? "Offline"
-        : statsLoading && !hasLiveCount
-          ? "Loading…"
-          : (base.delta ?? "Live"),
-      spark: base.spark ?? [1, 1, 1, 1, 1, 1, 1],
-      loading: statsLoading && !hasLiveCount,
-      error: statsError,
-    };
+    const value = stats?.[key];
+    return { value, loading: statsLoading && value === undefined, error: statsError };
   };
 
-  const quick = [
-    {
-      label: "Add doctor",
-      href: `${ADMIN_BASE}/doctors`,
-      icon: Stethoscope,
-      tone: "teal",
-    },
-    {
-      label: "New event",
-      href: `${ADMIN_BASE}/events`,
-      icon: Megaphone,
-      tone: "rose",
-    },
-    {
-      label: "Publish article",
-      href: `${ADMIN_BASE}/health-library`,
-      icon: BookOpen,
-      tone: "violet",
-    },
-    {
-      label: "Manage users",
-      href: `${ADMIN_BASE}/users`,
-      icon: Users,
-      tone: "violet",
-    },
-    {
-      label: "Post a job",
-      href: `${ADMIN_BASE}/careers`,
-      icon: Briefcase,
-      tone: "gold",
-    },
-  ];
-
-  const h2 = `${displayFont.className} text-2xl font-bold tracking-tight text-slate-900`;
+  const upcomingEvents = EVENTS.filter((e) => e.status === "Published").slice(0, 3);
 
   return (
-    <div className="space-y-7">
-      {/* EXECUTIVE WELCOME HERO */}
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#041F29] via-[#08485E] to-[#0A6A88] p-6 text-white shadow-[0_30px_70px_-25px_rgba(6,46,60,0.7)] sm:p-9">
-        {/* decorative layers */}
+    <div className="space-y-5 sm:space-y-6">
+      {/* ───────────── HERO ───────────── */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#041F29] via-[#08485E] to-[#0A6A88] p-5 text-white shadow-[0_24px_50px_-28px_rgba(4,31,41,0.9)] sm:p-8">
+        {/* texture, glow and ECG line */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-60"
-          style={DOT_PATTERN}
+          className="pointer-events-none absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+            maskImage: "radial-gradient(ellipse at 15% 0%, black, transparent 65%)",
+            WebkitMaskImage: "radial-gradient(ellipse at 15% 0%, black, transparent 65%)",
+          }}
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-amber-400/25 blur-3xl"
+          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl"
         />
-        <div
+        <svg
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"
-        />
+          viewBox="0 0 800 64"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-14 w-full opacity-[0.14]"
+        >
+          <path
+            d="M0 38 H150 L168 38 L180 10 L196 60 L210 24 L220 38 H420 L438 38 L450 10 L466 60 L480 24 L490 38 H800"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
 
-        <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-gradient-to-r from-amber-400/20 to-amber-300/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-amber-200 shadow-[0_0_24px_-6px_rgba(251,191,36,0.5)] backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Apollo Jabalpur · Executive Administration</span>
-            </div>
+        <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-10">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-400/15 px-3 py-1 text-[11px] font-bold text-amber-200">
+              <Sparkles className="h-3 w-3" />
+              Apollo Jabalpur · Administration
+            </span>
+
             <h1
-              className={`${displayFont.className} mt-4 bg-gradient-to-r from-white via-white to-teal-100 bg-clip-text text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-6xl`}
+              className={`${displayFont.className} mt-3 text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl`}
             >
-              {greet}, {userName || "Admin"}
+              {greet},
+              <span className="block bg-gradient-to-r from-white via-teal-100 to-amber-200 bg-clip-text text-transparent">
+                {userName || "Admin"}
+              </span>
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-teal-50/90 sm:text-base">
-              You currently have{" "}
-              <strong className="font-bold text-amber-300">
-                {pending} appointments
-              </strong>{" "}
-              pending review and{" "}
-              <strong className="font-bold text-amber-300">
-                {liveEvents} events
-              </strong>{" "}
-              active on the hospital website.
-              {stats && (
-                <>
-                  {" "}
-                  Managing{" "}
-                  <strong className="font-bold text-amber-300">
-                    {stats.doctors}
-                  </strong>{" "}
-                  doctors across{" "}
-                  <strong className="font-bold text-amber-300">
-                    {stats.specialties}
-                  </strong>{" "}
-                  specialties.
-                </>
-              )}
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-teal-50/85">
+              {apptsLoading
+                ? "Loading today’s numbers…"
+                : pending > 0
+                  ? `${pending} appointment${pending === 1 ? " is" : "s are"} waiting for your review.`
+                  : "You’re all caught up. No appointments are waiting for review."}
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+
+            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
               <Link
                 href={`${ADMIN_BASE}/appointments`}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] px-6 py-3 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-10px_rgba(245,158,11,0.8)] ring-1 ring-inset ring-white/40 transition hover:-translate-y-0.5 hover:brightness-110"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FBBF24] to-[#D97706] px-5 py-2.5 text-sm font-bold text-slate-950 shadow-[0_10px_24px_-10px_rgba(245,158,11,0.9)] transition hover:-translate-y-0.5 hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 Review appointments <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href={`${ADMIN_BASE}/doctors`}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white shadow-xs backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 <Plus className="h-4 w-4" /> Add doctor
               </Link>
             </div>
           </div>
 
-          <div className="relative rounded-3xl border border-white/20 bg-gradient-to-b from-white/20 to-white/5 p-6 text-center shadow-[0_20px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:min-w-[230px]">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"
-            />
-            <p
-              className={`${numFont.className} text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)] sm:text-5xl`}
-            >
-              {timeStr}
-            </p>
-            <p className="mt-2 text-xs font-medium text-teal-100">
-              {dateStr || "\u00A0"}
-            </p>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-950/40 px-3.5 py-1.5 text-[11px] font-semibold text-amber-200 ring-1 ring-inset ring-white/10">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>{" "}
-              Jabalpur · IST
-            </p>
+          {/* clock + next appointment */}
+          <div className="rounded-2xl border border-white/15 bg-white/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md lg:w-[300px]">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p
+                  className={`${numFont.className} text-3xl font-bold leading-none tracking-tight sm:text-4xl`}
+                >
+                  {timeStr}
+                </p>
+                <p className="mt-1.5 text-[11px] font-medium text-teal-100/85">
+                  {dateStr || "\u00A0"}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-bold text-emerald-200 ring-1 ring-inset ring-emerald-300/25">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70 motion-reduce:hidden" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                </span>
+                IST
+              </span>
+            </div>
+
+            <div className="mt-3.5 border-t border-white/15 pt-3.5">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-100/80">
+                <Clock className="h-3 w-3" /> Next appointment
+              </p>
+              {apptsLoading ? (
+                <div className="mt-2 h-9 animate-pulse rounded-lg bg-white/10" />
+              ) : nextUp ? (
+                <div className="mt-2 flex items-center gap-3">
+                  <span
+                    className={`${numFont.className} grid h-9 min-w-[3.25rem] place-items-center rounded-lg bg-amber-300 px-2 text-sm font-extrabold text-[#06303F]`}
+                  >
+                    {nextUp.time}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-bold">{nextUp.patient}</p>
+                    <p className="truncate text-[11px] text-teal-100/80">
+                      {nextUp.doctor || "Doctor not set"}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-teal-100/80">
+                  No more appointments scheduled today.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* KPI METRICS - 2 rows on desktop (5 + 4, last card stretches to fill) */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-        {KPIS.map((k, i) => (
-          <div
-            key={k.key}
-            className={`flex [&>*]:w-full ${
-              i === KPIS.length - 1 ? "lg:col-span-1" : ""
-            }`}
-          >
-            <StatCard
-              icon={k.icon}
-              label={k.label}
-              stat={buildStat(k.key)}
-              tone={k.tone}
-              color={k.color}
-              href={k.href}
-            />
-          </div>
+      {/* ───────────── KPI BENTO ───────────── */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-6">
+        <div className="col-span-2 sm:row-span-2">
+          <FeaturedStat
+            item={KPIS[0]}
+            stat={buildStat("appointments")}
+            series={weekSeries}
+            pending={pending}
+            today={todayCount}
+            loading={apptsLoading}
+          />
+        </div>
+        {KPIS.slice(1).map((k) => (
+          <StatTile key={k.key} item={k} stat={buildStat(k.key)} />
         ))}
       </div>
 
-      {/* CHARTS ROW */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {/* Area chart card */}
-        <Card className={`${PREMIUM_CARD} p-6 sm:p-7 xl:col-span-2`}>
-          <CornerGlow color="#0A5F7A" className="-right-16 -top-16 h-56 w-56" />
-          <div className="relative flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <TitleAccent />
-                <h2 className={h2}>Appointments overview</h2>
-              </div>
-              <p className="mt-1 pl-4 text-xs text-slate-500">
-                Patient volume trajectory and consultation trends.
-              </p>
-            </div>
-            <div className="flex rounded-2xl bg-slate-100/80 p-1 shadow-inner ring-1 ring-slate-200/60">
-              {["Monthly", "Weekly"].map((r) => (
+      {/* ───────────── TREND + STATUS ───────────── */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
+        <Panel color="#0A5F7A" className="p-4 sm:p-6 lg:col-span-2">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <SectionHeader
+              icon={BarChart3}
+              color="#0A5F7A"
+              title="Appointments trend"
+              subtitle="Counted by appointment date"
+            />
+            <div className="flex rounded-xl bg-slate-100 p-1" role="tablist">
+              {[
+                { k: "Weekly", l: "7 days" },
+                { k: "Monthly", l: "6 months" },
+              ].map((r) => (
                 <button
-                  key={r}
-                  onClick={() => setRange(r)}
-                  className={`cursor-pointer rounded-xl px-4 py-1.5 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${
-                    range === r
-                      ? "bg-white text-[#0A5F7A] shadow-[0_4px_12px_-4px_rgba(10,95,122,0.35)] ring-1 ring-slate-200/70"
+                  key={r.k}
+                  role="tab"
+                  aria-selected={range === r.k}
+                  onClick={() => setRange(r.k)}
+                  className={`cursor-pointer rounded-lg px-3 py-1.5 text-[11px] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A] ${
+                    range === r.k
+                      ? "bg-white text-[#0A5F7A] shadow-sm"
                       : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
-                  {r}
+                  {r.l}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="relative mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
             {[
-              { l: "Total Visits", v: chartTotal },
-              { l: "Peak Day/Month", v: chartPeak },
-              { l: "Average", v: chartAvg },
+              { l: "Total", v: chartTotal, c: "#0A5F7A" },
+              { l: "Busiest", v: chartPeak, c: "#D97706" },
+              { l: "Average", v: chartAvg, c: "#7C3AED" },
             ].map((s) => (
               <div
                 key={s.l}
-                className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50 px-4 py-3.5 shadow-sm"
+                className="rounded-xl px-3 py-2"
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${s.c} 7%, white)`,
+                  border: `1px solid color-mix(in srgb, ${s.c} 18%, transparent)`,
+                }}
               >
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-gradient-to-b from-[#F59E0B] to-[#0A5F7A]"
-                />
-                <p className="pl-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-[11px] font-bold" style={{ color: s.c }}>
                   {s.l}
                 </p>
-                <p
-                  className={`${numFont.className} mt-0.5 pl-2 text-2xl font-bold text-slate-900`}
-                >
-                  {s.v}
+                <p className={`${numFont.className} text-xl font-bold leading-tight text-slate-900`}>
+                  {apptsLoading ? "…" : s.v}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="relative mt-5 rounded-2xl border border-slate-100 bg-gradient-to-b from-slate-50/60 to-white p-2">
-            <AreaChart key={range} data={chart} />
+          <div className="mt-7">
+            {appointmentsError && !appts.length ? (
+              <EmptyNote>Couldn’t load appointments. Try refreshing the page.</EmptyNote>
+            ) : (
+              <BarChart key={range} data={series} animate={mounted} />
+            )}
           </div>
-        </Card>
+        </Panel>
 
-        {/* Donut chart card */}
-        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
-          <CornerGlow
+        <Panel color="#D97706" className="p-4 sm:p-6">
+          <SectionHeader
+            icon={PieChart}
             color="#D97706"
-            className="-left-16 -bottom-16 h-56 w-56"
+            title="Status breakdown"
+            subtitle={`${appts.length} bookings in total`}
           />
-          <div className="relative">
-            <div className="flex items-center gap-2.5">
-              <TitleAccent />
-              <h2 className={h2}>Appointments by status</h2>
-            </div>
-            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
-              Real-time status breakdown.
-            </p>
-            <DonutChart segments={segments} centerLabel="Appointments" />
+          <div className="mt-4">
+            {segments.length ? (
+              <DonutChart segments={segments} centerLabel="Appointments" />
+            ) : (
+              <EmptyNote icon={CalendarCheck}>
+                {appointmentsLoading ? "Loading appointments…" : "No appointments to show yet."}
+              </EmptyNote>
+            )}
           </div>
-        </Card>
+        </Panel>
       </div>
 
-      {/* RECENT RECORDS & UPCOMING EVENTS */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {/* Recent appointments */}
-        <Card className={`${PREMIUM_CARD} xl:col-span-2`}>
-          <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-white px-6 py-5">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <TitleAccent />
-                <h2 className={h2}>Recent appointments</h2>
-              </div>
-              <p className="mt-1 pl-4 text-xs text-slate-500">
-                Latest patients scheduled for consultation
-              </p>
-            </div>
-            <Link
+      {/* ───────────── RECENT + EVENTS ───────────── */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
+        <Panel color="#0D9488" className="lg:col-span-2">
+          <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
+            <SectionHeader
+              icon={CalendarClock}
+              color="#0D9488"
+              title="Recent appointments"
+              subtitle="Newest bookings first"
               href={`${ADMIN_BASE}/appointments`}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#0A5F7A]/8 px-3.5 py-1.5 text-xs font-bold text-[#0A5F7A] ring-1 ring-inset ring-[#0A5F7A]/15 transition hover:bg-[#0A5F7A] hover:text-white"
-            >
-              View all <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            />
           </div>
-          <ul className="divide-y divide-slate-100/80">
-            {APPOINTMENTS.slice(0, 5).map((a) => (
-              <li
-                key={a.id}
-                className="group relative flex items-center justify-between gap-3 px-6 py-4 transition hover:bg-gradient-to-r hover:from-teal-50/60 hover:to-transparent"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 top-3 bottom-3 w-1 origin-center scale-y-0 rounded-r-full bg-gradient-to-b from-[#F59E0B] to-[#0A5F7A] transition-transform duration-300 group-hover:scale-y-100"
-                />
-                <div className="flex min-w-0 items-center gap-4">
-                  <span className="rounded-full p-0.5 ring-2 ring-[#0A5F7A]/15 shadow-sm">
-                    <Avatar name={a.patient} size={40} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">
-                      {a.patient}
-                    </p>
-                    <p className="truncate text-xs text-slate-500">
-                      {a.doctor}
-                    </p>
-                  </div>
-                </div>
-                <div className="hidden text-right sm:block">
-                  <p className="text-xs font-semibold text-slate-700">
-                    {fmtDate(a.date)}
-                  </p>
-                  <p className="text-xs text-slate-400">{a.time}</p>
-                </div>
-                <StatusBadge status={a.status} />
-              </li>
-            ))}
-          </ul>
-        </Card>
 
-        {/* Upcoming events */}
-        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
-          <CornerGlow color="#E11D48" className="-right-16 -top-16 h-52 w-52" />
-          <div className="relative">
-            <div className="flex items-center gap-2.5">
-              <TitleAccent />
-              <h2 className={h2}>Upcoming events</h2>
-            </div>
-            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
-              Published health camps &amp; sessions
-            </p>
-            <ul className="space-y-3">
-              {EVENTS.filter((e) => e.status === "Published")
-                .slice(0, 3)
-                .map((e) => {
-                  const d = new Date(`${e.date}T00:00`);
-                  return (
-                    <li
-                      key={e.id}
-                      className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50/70 p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0A5F7A]/30 hover:shadow-[0_14px_30px_-16px_rgba(10,95,122,0.45)]"
-                    >
-                      <span className="grid h-13 w-13 shrink-0 place-items-center rounded-2xl border border-teal-200/70 bg-gradient-to-b from-teal-50 to-white text-center leading-none text-[#0A5F7A] shadow-[0_6px_14px_-8px_rgba(10,95,122,0.6)]">
-                        <span>
-                          <span
-                            className={`${numFont.className} block text-lg font-bold`}
-                          >
-                            {d.getDate()}
-                          </span>
-                          <span className="block text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                            {d.toLocaleString("en", { month: "short" })}
-                          </span>
-                        </span>
-                      </span>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-900">
-                          {e.title}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">
-                          {e.location}
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })}
-            </ul>
-            <Link
-              href={`${ADMIN_BASE}/events`}
-              className={`${btnGhost} mt-5 w-full justify-center`}
-            >
-              Manage all events
-            </Link>
-          </div>
-        </Card>
-      </div>
-
-      {/* BOTTOM ROW: DEPARTMENTS, QUICK ACTIONS, DOCTORS ON DUTY */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Doctors by department */}
-        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
-          <CornerGlow color="#0D9488" className="-left-16 -top-16 h-52 w-52" />
-          <div className="relative">
-            <div className="flex items-center gap-2.5">
-              <TitleAccent />
-              <h2 className={h2}>Doctors by department</h2>
-            </div>
-            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
-              Specialist staff distribution
-              {liveDoctors && liveDoctors.length > 0 && (
-                <span className="ml-1 font-semibold text-emerald-600">
-                  · Live
-                </span>
-              )}
-            </p>
-            <ul className="space-y-4">
-              {byDept.map(([dept, count]) => (
-                <li key={dept}>
-                  <div className="mb-1.5 flex justify-between text-xs">
-                    <span className="font-semibold text-slate-700">{dept}</span>
-                    <span
-                      className={`${numFont.className} rounded-full bg-[#0A5F7A]/8 px-2.5 py-0.5 font-bold text-[#0A5F7A]`}
-                    >
-                      {count} {count === 1 ? "Doctor" : "Doctors"}
-                    </span>
-                  </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 shadow-inner">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#0A5F7A] via-[#1D82A6] to-[#38BDF8] shadow-[0_0_12px_rgba(29,130,166,0.5)] transition-all duration-700 ease-out"
-                      style={{
-                        width: mounted ? `${(count / topDept) * 100}%` : "0%",
-                      }}
-                    />
+          {apptsLoading ? (
+            <ul className="divide-y divide-slate-100">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <li key={i} className="flex animate-pulse items-center gap-3 px-4 py-3 sm:px-6">
+                  <div className="h-8 w-8 rounded-full bg-slate-200" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-32 rounded bg-slate-200" />
+                    <div className="h-2.5 w-20 rounded bg-slate-100" />
                   </div>
                 </li>
               ))}
             </ul>
-          </div>
-        </Card>
-
-        {/* Quick actions */}
-        <Card className={`${PREMIUM_CARD} p-6 sm:p-7`}>
-          <CornerGlow
-            color="#7C3AED"
-            className="-right-16 -bottom-16 h-52 w-52"
-          />
-          <div className="relative">
-            <div className="flex items-center gap-2.5">
-              <TitleAccent />
-              <h2 className={h2}>Quick actions</h2>
-            </div>
-            <p className="mb-5 mt-1 pl-4 text-xs text-slate-500">
-              Common administrative tasks
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {quick.map(({ label, href, icon, tone }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50/70 p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#0A5F7A]/40 hover:bg-white hover:shadow-[0_16px_32px_-16px_rgba(10,95,122,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F7A]"
+          ) : recent.length ? (
+            <ul className="divide-y divide-slate-100">
+              {recent.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between gap-3 px-4 py-2.5 transition hover:bg-teal-50/40 sm:px-6"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-[#0A5F7A]/10 blur-2xl transition-opacity group-hover:bg-amber-400/25"
-                  />
-                  <IconTile icon={icon} tone={tone} />
-                  <span className="relative flex items-center gap-1 text-sm font-bold text-slate-900">
-                    {label}{" "}
-                    <ArrowRight className="h-3.5 w-3.5 -translate-x-1 text-[#0A5F7A] opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
-                  </span>
-                </Link>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      className="shrink-0 rounded-full p-0.5"
+                      style={{
+                        boxShadow: `0 0 0 2px color-mix(in srgb, ${STATUS_COLORS[a.status] || "#94A3B8"} 35%, transparent)`,
+                      }}
+                    >
+                      <Avatar name={a.patient} size={32} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-semibold leading-tight text-slate-900">
+                        {a.patient}
+                      </p>
+                      <p className="truncate text-[11px] text-slate-500">
+                        {a.doctor || "—"}
+                        <span className="sm:hidden">{a.dateKey && <> · {fmtDate(a.dateKey)}</>}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-4">
+                    <div className="hidden text-right sm:block">
+                      <p className="text-xs font-semibold text-slate-700">
+                        {a.dateKey ? fmtDate(a.dateKey) : "—"}
+                      </p>
+                      <p className="text-[11px] text-slate-400">{a.time || ""}</p>
+                    </div>
+                    <StatusBadge status={a.status} />
+                  </div>
+                </li>
               ))}
-            </div>
-          </div>
-        </Card>
+            </ul>
+          ) : (
+            <EmptyNote icon={CalendarCheck}>
+              {appointmentsError ? "Couldn’t load appointments." : "No appointments yet."}
+            </EmptyNote>
+          )}
+        </Panel>
 
-        {/* Doctors on duty */}
-        <Card className={`${PREMIUM_CARD} flex flex-col p-6 sm:p-7`}>
-          <CornerGlow color="#059669" className="-right-16 -top-16 h-52 w-52" />
-          <div className="relative">
-            <div className="flex items-center gap-2.5">
-              <TitleAccent />
-              <h2 className={h2}>Doctors on duty</h2>
-            </div>
-            <p className="mb-2 mt-1 pl-4 text-xs text-slate-500">
-              Active roster availability
-              {liveDoctors && liveDoctors.length > 0 && (
-                <span className="ml-1 font-semibold text-emerald-600">
-                  · Live
-                </span>
-              )}
-            </p>
+        <Panel color="#E11D48" className="flex flex-col p-4 sm:p-6">
+          <SectionHeader
+            icon={Megaphone}
+            color="#E11D48"
+            title="Upcoming events"
+            subtitle="Published camps and sessions"
+          />
+          {upcomingEvents.length ? (
+            <ul className="mt-4 space-y-2.5">
+              {upcomingEvents.map((e) => {
+                const d = new Date(`${e.date}T00:00`);
+                return (
+                  <li
+                    key={e.id}
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white p-2.5 transition hover:border-[#0A5F7A]/30 hover:shadow-sm"
+                  >
+                    <span
+                      className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-center leading-none text-white"
+                      style={chipStyle("#0A5F7A")}
+                    >
+                      <span>
+                        <span className={`${numFont.className} block text-lg font-extrabold`}>
+                          {d.getDate()}
+                        </span>
+                        <span className="block text-[9px] font-bold uppercase tracking-wider text-amber-200">
+                          {d.toLocaleString("en", { month: "short" })}
+                        </span>
+                      </span>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-semibold text-slate-900">{e.title}</p>
+                      <p className="truncate text-[11px] text-slate-500">{e.location}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <EmptyNote icon={Megaphone}>No published events right now.</EmptyNote>
+          )}
+          <div className="mt-auto pt-4">
+            <Link href={`${ADMIN_BASE}/events`} className={`${btnGhost} w-full justify-center`}>
+              Manage events
+            </Link>
           </div>
-          <div className="relative my-auto pt-2">
+        </Panel>
+      </div>
+
+      {/* ───────────── DEPARTMENTS, QUICK ACTIONS, ROSTER ───────────── */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <Panel color="#4F46E5" className="p-4 sm:p-6">
+          <SectionHeader
+            icon={Stethoscope}
+            color="#4F46E5"
+            title="Doctors by department"
+            subtitle={doctorsLive ? "Specialist distribution · Live" : "Specialist distribution"}
+            href={`${ADMIN_BASE}/doctors`}
+          />
+          <ul className="mt-4 space-y-3">
+            {byDept.map(([dept, count], i) => {
+              const c = DEPT_COLORS[i % DEPT_COLORS.length];
+              return (
+                <li key={dept} className="flex items-center gap-3">
+                  <span
+                    className={`${numFont.className} grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[11px] font-extrabold text-white`}
+                    style={chipStyle(c)}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate font-semibold text-slate-700">{dept}</span>
+                      <span className={`${numFont.className} shrink-0 font-bold text-slate-900`}>
+                        {count}
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full transition-all duration-700 ease-out motion-reduce:transition-none"
+                        style={{
+                          width: mounted ? `${(count / topDept) * 100}%` : "0%",
+                          background: `linear-gradient(90deg, ${c}, color-mix(in srgb, ${c} 55%, white))`,
+                          transitionDelay: `${i * 70}ms`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+
+        <Panel color="#7C3AED" className="p-4 sm:p-6">
+          <SectionHeader
+            icon={Sparkles}
+            color="#7C3AED"
+            title="Quick actions"
+            subtitle="Common administrative tasks"
+          />
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+            {QUICK.map(({ label, href, icon: Icon, color }) => (
+              <Link
+                key={label}
+                href={href}
+                style={{ "--c": color }}
+                className="group rounded-2xl bg-gradient-to-br from-slate-200 via-slate-200/70 to-slate-100 p-px transition duration-300 hover:-translate-y-0.5 hover:from-[color:var(--c)] hover:via-[color:color-mix(in_srgb,var(--c)_30%,white)] hover:shadow-[0_12px_28px_-14px_color-mix(in_srgb,var(--c)_70%,transparent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--c)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              >
+                <div className="flex h-full items-center gap-2.5 rounded-[15px] bg-white p-2.5">
+                  <span
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white"
+                    style={chipStyle("var(--c)")}
+                  >
+                    <Icon className="h-[17px] w-[17px]" strokeWidth={2.2} />
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-slate-900">
+                    {label}
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[color:var(--c)]" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel color="#059669" className="flex flex-col p-4 sm:p-6 md:col-span-2 lg:col-span-1">
+          <SectionHeader
+            icon={Activity}
+            color="#059669"
+            title="Doctors on duty"
+            subtitle={doctorsLive ? "Active roster · Live" : "Active roster"}
+          />
+          <div className="my-auto pt-3">
             <RadialGauge
               value={dutyPct}
               label="Active specialists"
               sub={`${activeDocs} of ${doctorsData.length} on duty`}
             />
           </div>
-        </Card>
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+            <div className="rounded-xl bg-emerald-50 px-3 py-2 ring-1 ring-inset ring-emerald-200/70">
+              <p className="text-[11px] font-bold text-emerald-700">Active</p>
+              <p className={`${numFont.className} text-xl font-bold leading-tight text-slate-900`}>
+                {activeDocs}
+              </p>
+            </div>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-inset ring-slate-200">
+              <p className="text-[11px] font-bold text-slate-500">Inactive</p>
+              <p className={`${numFont.className} text-xl font-bold leading-tight text-slate-900`}>
+                {offDocs}
+              </p>
+            </div>
+          </div>
+        </Panel>
       </div>
     </div>
   );
